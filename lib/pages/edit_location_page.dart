@@ -1,12 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:foodapp/components/city_selected.dart';
 import 'package:foodapp/components/my_button.dart';
+import 'package:foodapp/data/model/location.dart';
+import 'package:foodapp/data/repository/repository.dart';
 import 'package:foodapp/pages/choose_location_page.dart';
 
-class EditLocationPage extends StatelessWidget {
-  EditLocationPage({super.key});
+import '../data/model/customer.dart';
+
+class EditLocationPage extends StatefulWidget {
+  final Customer customer;
+
+  EditLocationPage({super.key, required this.customer});
+
   final TextEditingController nameController = TextEditingController();
   final TextEditingController locationController = TextEditingController();
   final TextEditingController phoneNumberController = TextEditingController();
+
+  @override
+  State<EditLocationPage> createState() => _EditLocationPage();
+}
+class _EditLocationPage extends State<EditLocationPage> {
+  late List<Location> locations = [];
+
+  @override
+  void initState() {
+    super.initState();
+    loadData();
+  }
+
+  Future<void> loadData () async{
+    var repository = DefaultRepository();
+    var data = await repository.loadLocation();
+    if(data == null){
+      locations = [];
+    } else {
+      locations = data;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +71,7 @@ class EditLocationPage extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const ChooseLocationPage(),
+                builder: (context) => ChooseLocationPage(customer: widget.customer),
               ),
             );
           },
@@ -124,18 +154,23 @@ class EditLocationPage extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    _buildDropdown("TP. Hồ Chí Minh"),
-                    Divider(
+                    // _buildDropdown("TP. Hồ Chí Minh"),
+                    // Divider(
+                    //   height: 16,
+                    //   color: Colors.grey[400],
+                    // ),
+                    // _buildDropdown("TP. Thủ Đức"),
+                    // Divider(
+                    //   height: 16,
+                    //   color: Colors.grey[400],
+                    // ),
+                    SelectLocation(locations: locations),
+                    const Divider(
                       height: 16,
-                      color: Colors.grey[400],
-                    ),
-                    _buildDropdown("TP. Thủ Đức"),
-                    Divider(
-                      height: 16,
-                      color: Colors.grey[400],
+                      color: Colors.grey,
                     ),
                     TextField(
-                      controller: locationController,
+                      controller: widget.locationController,
                       decoration: InputDecoration(
                         hintText: "Địa chỉ cụ thể",
                         hintStyle: TextStyle(
@@ -178,23 +213,20 @@ class EditLocationPage extends StatelessWidget {
   }
 
   Widget _buildDropdown(String title) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 16,
-            ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 16,
           ),
-          const Icon(
-            Icons.keyboard_arrow_down_rounded,
-            size: 30,
-          ),
-        ],
-      ),
+        ),
+        const Icon(
+          Icons.keyboard_arrow_down_rounded,
+          size: 30,
+        ),
+      ],
     );
   }
 }

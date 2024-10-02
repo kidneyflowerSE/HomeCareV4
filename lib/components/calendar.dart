@@ -5,25 +5,38 @@ class CalendarDropdown extends StatefulWidget {
   const CalendarDropdown({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _CalendarDropdownState createState() => _CalendarDropdownState();
 }
 
 class _CalendarDropdownState extends State<CalendarDropdown> {
-  DateTime _selectedDate = DateTime.now();
+  DateTime? _selectedDate;
+
+  // Hàm để xác định ngày mặc định
+  DateTime _getDefaultDate() {
+    final now = DateTime.now();
+    if (now.hour >= 20 || (now.hour < 6 && now.minute == 0)) {
+      // Nếu sau 8h tối hoặc chưa đến 6h sáng
+      return now.add(const Duration(days: 1)); // Ngày mai
+    } else {
+      return now; // Ngày hôm nay
+    }
+  }
 
   Future<void> _selectDate(BuildContext context) async {
+    // Sử dụng ngày mặc định
+    final DateTime initialDate = _selectedDate ?? _getDefaultDate();
+
     final DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate: _selectedDate,
-      firstDate: DateTime.now(),
+      initialDate: initialDate,
+      firstDate: _selectedDate ?? _getDefaultDate(),
       lastDate: DateTime(2100),
     );
-    if (pickedDate != null) {
-      setState(
-        () {
-          _selectedDate = pickedDate;
-        },
-      );
+    if (pickedDate != null && pickedDate != _selectedDate) {
+      setState(() {
+        _selectedDate = pickedDate;
+      });
     }
   }
 
@@ -38,26 +51,29 @@ class _CalendarDropdownState extends State<CalendarDropdown> {
           },
           child: Container(
             padding:
-                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
+            const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
             decoration: BoxDecoration(
-              border: Border.all(
-                color: Colors.green,
-              ),
+              border: Border.all(color: Colors.green),
               borderRadius: BorderRadius.circular(8.0),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  DateFormat('dd/MM/yyyy').format(_selectedDate),
+                  _selectedDate != null
+                      ? DateFormat('dd/MM/yyyy')
+                      .format(_selectedDate!) // Format ngày
+                      : DateFormat('dd/MM/yyyy').format(_getDefaultDate()), // Ngày mặc định
                   style: const TextStyle(
                     fontSize: 15,
+                    color: Colors.grey,
+                    fontStyle: FontStyle.italic,
                     fontFamily: 'Quicksand',
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 const Icon(
-                  Icons.calendar_today_rounded,
+                  Icons.calendar_view_day_rounded,
                   color: Colors.green,
                 ),
               ],

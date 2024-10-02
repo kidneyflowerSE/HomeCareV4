@@ -213,7 +213,7 @@ class _HomeContentState extends State<HomeContent> {
                               context,
                               MaterialPageRoute(
                                   builder: (context) =>
-                                      const ChooseLocationPage()),
+                                      ChooseLocationPage(customer: widget.customer)),
                             );
                           },
                           child: Row(
@@ -253,7 +253,7 @@ class _HomeContentState extends State<HomeContent> {
                                 color: Colors.white,
                                 border: Border.all(
                                   width: 1,
-                                  color: Color.fromARGB(255, 203, 203, 203),
+                                  color: const Color.fromARGB(255, 203, 203, 203),
                                 ),
                               ),
                               child: Column(
@@ -287,7 +287,7 @@ class _HomeContentState extends State<HomeContent> {
                                       ),
                                     ),
                                   ),
-                                  Container(
+                                  SizedBox(
                                     height: 50,
                                     width: double.infinity,
                                     child: Row(
@@ -329,7 +329,7 @@ class _HomeContentState extends State<HomeContent> {
                                         ),
                                         Expanded(
                                           child: Container(
-                                            padding: EdgeInsets.all(10),
+                                            padding: const EdgeInsets.all(10),
                                             child: const Row(
                                               mainAxisAlignment:
                                                   MainAxisAlignment
@@ -365,14 +365,14 @@ class _HomeContentState extends State<HomeContent> {
                               ),
                             ),
                             const SizedBox(height: 10),
-                            Container(
+                            SizedBox(
                               height: 100,
                               width: double.infinity,
                               child: ListView(
                                 scrollDirection: Axis.horizontal,
                                 children: [
                                   Container(
-                                    margin: EdgeInsets.symmetric(horizontal: 8),
+                                    margin: const EdgeInsets.symmetric(horizontal: 8),
                                     width: 100,
                                     height: 100,
                                     decoration: BoxDecoration(
@@ -381,13 +381,13 @@ class _HomeContentState extends State<HomeContent> {
                                       border: Border.all(
                                         width: 1,
                                         color:
-                                            Color.fromARGB(255, 203, 203, 203),
+                                            const Color.fromARGB(255, 203, 203, 203),
                                       ),
                                     ),
                                   ),
                                   Container(
                                     margin:
-                                        EdgeInsets.symmetric(horizontal: 10),
+                                        const EdgeInsets.symmetric(horizontal: 10),
                                     width: 100,
                                     height: 100,
                                     decoration: BoxDecoration(
@@ -396,12 +396,12 @@ class _HomeContentState extends State<HomeContent> {
                                       border: Border.all(
                                         width: 1,
                                         color:
-                                            Color.fromARGB(255, 203, 203, 203),
+                                            const Color.fromARGB(255, 203, 203, 203),
                                       ),
                                     ),
                                   ),
                                   Container(
-                                    margin: EdgeInsets.symmetric(horizontal: 8),
+                                    margin: const EdgeInsets.symmetric(horizontal: 8),
                                     width: 100,
                                     height: 100,
                                     decoration: BoxDecoration(
@@ -410,12 +410,12 @@ class _HomeContentState extends State<HomeContent> {
                                       border: Border.all(
                                         width: 1,
                                         color:
-                                            Color.fromARGB(255, 203, 203, 203),
+                                            const Color.fromARGB(255, 203, 203, 203),
                                       ),
                                     ),
                                   ),
                                   Container(
-                                    margin: EdgeInsets.symmetric(horizontal: 8),
+                                    margin: const EdgeInsets.symmetric(horizontal: 8),
                                     width: 100,
                                     height: 100,
                                     decoration: BoxDecoration(
@@ -439,7 +439,7 @@ class _HomeContentState extends State<HomeContent> {
                                       border: Border.all(
                                         width: 1,
                                         color:
-                                            Color.fromARGB(255, 203, 203, 203),
+                                            const Color.fromARGB(255, 203, 203, 203),
                                       ),
                                     ),
                                   ),
@@ -469,138 +469,136 @@ class _HomeContentState extends State<HomeContent> {
                               ],
                             ),
                             const SizedBox(height: 10),
-                            Container(
-                              child: Column(
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          color: Colors.green,
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                        ),
-                                        height: 60,
-                                        width: 60,
-                                        child: const Icon(
-                                          Icons.cottage_outlined,
-                                          size: 40,
-                                          color: Colors.white,
-                                        ),
+                            Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.green,
+                                        borderRadius:
+                                            BorderRadius.circular(10),
                                       ),
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          color: Colors.green,
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                        ),
-                                        height: 60,
-                                        width: 60,
-                                        child: const Icon(
-                                          Icons.cottage_outlined,
-                                          size: 40,
-                                          color: Colors.white,
-                                        ),
+                                      height: 60,
+                                      width: 60,
+                                      child: const Icon(
+                                        Icons.cottage_outlined,
+                                        size: 40,
+                                        color: Colors.white,
                                       ),
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          color: Colors.green,
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                        ),
-                                        height: 60,
-                                        width: 60,
-                                        child: const Icon(
-                                          Icons.cottage_outlined,
-                                          size: 40,
-                                          color: Colors.white,
-                                        ),
+                                    ),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.green,
+                                        borderRadius:
+                                            BorderRadius.circular(10),
                                       ),
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          color: Colors.green,
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                        ),
-                                        height: 60,
-                                        width: 60,
-                                        child: const Icon(
-                                          Icons.cottage_outlined,
-                                          size: 40,
-                                          color: Colors.white,
-                                        ),
+                                      height: 60,
+                                      width: 60,
+                                      child: const Icon(
+                                        Icons.cottage_outlined,
+                                        size: 40,
+                                        color: Colors.white,
                                       ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 20),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          color: Colors.green,
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                        ),
-                                        height: 60,
-                                        width: 60,
-                                        child: const Icon(
-                                          Icons.cottage_outlined,
-                                          size: 40,
-                                          color: Colors.white,
-                                        ),
+                                    ),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.green,
+                                        borderRadius:
+                                            BorderRadius.circular(10),
                                       ),
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          color: Colors.green,
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                        ),
-                                        height: 60,
-                                        width: 60,
-                                        child: const Icon(
-                                          Icons.cottage_outlined,
-                                          size: 40,
-                                          color: Colors.white,
-                                        ),
+                                      height: 60,
+                                      width: 60,
+                                      child: const Icon(
+                                        Icons.cottage_outlined,
+                                        size: 40,
+                                        color: Colors.white,
                                       ),
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          color: Colors.green,
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                        ),
-                                        height: 60,
-                                        width: 60,
-                                        child: const Icon(
-                                          Icons.cottage_outlined,
-                                          size: 40,
-                                          color: Colors.white,
-                                        ),
+                                    ),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.green,
+                                        borderRadius:
+                                            BorderRadius.circular(10),
                                       ),
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          color: Colors.green,
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                        ),
-                                        height: 60,
-                                        width: 60,
-                                        child: const Icon(
-                                          Icons.cottage_outlined,
-                                          size: 40,
-                                          color: Colors.white,
-                                        ),
+                                      height: 60,
+                                      width: 60,
+                                      child: const Icon(
+                                        Icons.cottage_outlined,
+                                        size: 40,
+                                        color: Colors.white,
                                       ),
-                                    ],
-                                  ),
-                                ],
-                              ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 20),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.green,
+                                        borderRadius:
+                                            BorderRadius.circular(10),
+                                      ),
+                                      height: 60,
+                                      width: 60,
+                                      child: const Icon(
+                                        Icons.cottage_outlined,
+                                        size: 40,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.green,
+                                        borderRadius:
+                                            BorderRadius.circular(10),
+                                      ),
+                                      height: 60,
+                                      width: 60,
+                                      child: const Icon(
+                                        Icons.cottage_outlined,
+                                        size: 40,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.green,
+                                        borderRadius:
+                                            BorderRadius.circular(10),
+                                      ),
+                                      height: 60,
+                                      width: 60,
+                                      child: const Icon(
+                                        Icons.cottage_outlined,
+                                        size: 40,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.green,
+                                        borderRadius:
+                                            BorderRadius.circular(10),
+                                      ),
+                                      height: 60,
+                                      width: 60,
+                                      child: const Icon(
+                                        Icons.cottage_outlined,
+                                        size: 40,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                             const SizedBox(height: 40),
                             Container(

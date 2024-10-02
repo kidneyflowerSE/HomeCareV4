@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:foodapp/pages/edit_location_page.dart';
 
-class ChooseLocationPage extends StatelessWidget {
-  const ChooseLocationPage({super.key});
+import '../data/model/customer.dart';
 
+class ChooseLocationPage extends StatefulWidget {
+  final Customer customer;
+  const ChooseLocationPage({super.key, required this.customer});
+
+  @override
+  _ChooseLocationPageState createState() => _ChooseLocationPageState();
+}
+
+class _ChooseLocationPageState extends State<ChooseLocationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,15 +41,6 @@ class ChooseLocationPage extends StatelessWidget {
         children: [
           Container(
             margin: const EdgeInsets.symmetric(vertical: 10),
-            // margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            // decoration: BoxDecoration(
-            //   border: Border.all(
-            //     width: 1,
-            //     color: Colors.green,
-            //   ),
-            //   borderRadius: BorderRadius.circular(14),
-            // ),
-
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -95,29 +94,29 @@ class ChooseLocationPage extends StatelessWidget {
                   margin: const EdgeInsets.symmetric(horizontal: 10),
                   child: Row(
                     children: [
-                      const Expanded(
+                      Expanded(
                         flex: 3,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Phạm Nguyễn Quốc Huy",
-                              style: TextStyle(
+                              widget.customer.name ?? 'Tên không có sẵn',
+                              style: const TextStyle(
                                 fontFamily: 'Quicksand',
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
                             Text(
-                              "0796592839",
-                              style: TextStyle(
+                              widget.customer.phone ?? 'Số điện thoại không có sẵn',
+                              style: const TextStyle(
                                 fontFamily: 'Quicksand',
                                 fontSize: 14,
                                 color: Colors.grey,
                               ),
                             ),
                             Text(
-                              "11 Nguyễn Đình Chiểu, P.Đa Kao, Quận 1, TP.Hồ Chí Minh",
-                              style: TextStyle(
+                              widget.customer.addresses.map((address) => address.toString()).join(','),
+                              style: const TextStyle(
                                 fontFamily: 'Quicksand',
                                 fontSize: 14,
                                 color: Colors.grey,
@@ -133,7 +132,7 @@ class ChooseLocationPage extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => EditLocationPage()),
+                                builder: (context) => EditLocationPage(customer: widget.customer,)),
                           );
                         },
                         child: Container(
@@ -161,3 +160,4 @@ class ChooseLocationPage extends StatelessWidget {
     );
   }
 }
+

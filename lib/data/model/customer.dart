@@ -90,7 +90,7 @@ class Addresses {
         province: map['province'] ?? '',
         district: map['district'] ?? '',
         id: map['_id'],
-        detailedAddress: map['detailAddress']);
+        detailedAddress: map['detailAddress'] ?? '');
   }
 
   @override

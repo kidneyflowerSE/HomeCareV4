@@ -125,7 +125,7 @@ import 'package:flutter/material.dart';
 import 'package:foodapp/components/address_type.dart';
 import 'package:foodapp/components/district_selected.dart';
 import 'package:foodapp/components/time_end.dart';
-import 'package:foodapp/pages/chosen_helper.dart';
+import 'package:foodapp/components/time_selection.dart';
 import 'package:foodapp/pages/review_order_page.dart';
 
 import '../../data/model/customer.dart';
@@ -256,10 +256,10 @@ class _ServicesOrderState extends State<ServicesOrder>
         child: MyButton(
           text: "Tiếp theo",
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ReviewOrderPage()),
-            );
+          //   Navigator.push(
+          //     context,
+          //     MaterialPageRoute(builder: (context) => const HelperList()),
+          //   );
           },
         ),
       ),
@@ -326,20 +326,7 @@ class _OnDemandState extends State<OnDemand> {
                 fontSize: 16,
               ),
             ),
-            const SizedBox(height: 5),
-            const TimeStart(),
-            const SizedBox(height: 20),
-            const Text(
-              "Giờ kết thúc",
-              style: TextStyle(
-                fontFamily: 'Quicksand',
-                fontWeight: FontWeight.w600,
-                fontSize: 16,
-                // color: Colors.green,
-              ),
-            ),
-            const SizedBox(height: 5),
-            const TimeEnd(),
+            const TimeSelection(),
             const SizedBox(height: 20),
             const Text(
               "Địa điểm",
@@ -356,12 +343,12 @@ class _OnDemandState extends State<OnDemand> {
                 Row(
                   children: [
                     Expanded(
-                      child: CitySelected(locations: widget.locations),
+                      child: SelectLocation(locations: widget.locations),
                     ),
-                    const SizedBox(width: 10), // Khoảng cách giữa 2 dropdown
-                    Expanded(
-                      child: DistrictSelected(locations: widget.locations),
-                    ),
+                    // const SizedBox(width: 10), // Khoảng cách giữa 2 dropdown
+                    // Expanded(
+                    //   child: DistrictSelected(locations: widget.locations),
+                    // ),
                   ],
                 ),
                 const SizedBox(height: 10),
@@ -417,18 +404,11 @@ class _LongTermState extends State<LongTerm> {
             const Text("Chọn thời gian"),
             const CalendarDropdown(),
             const SizedBox(height: 20),
-            const Text("Chọn giờ bắt đầu"),
-            const TimeStart(),
-            const SizedBox(height: 20),
-            const Text("Chọn giờ kết thúc"),
-            const TimeEnd(),
+            const TimeSelection(),
             const SizedBox(height: 20),
             const Text("Chọn địa điểm"),
-            CitySelected(locations: widget.locations),
-            DistrictSelected(locations: widget.locations),
-            const SizedBox(height: 20),
-            const Text("Chọn người giúp việc"),
-            const ChosenHelper(),
+            SelectLocation(locations: widget.locations),
+            // DistrictSelected(locations: widget.locations),
             const SizedBox(height: 20),
             const MyButton(text: 'Tiếp theo', onTap: null),
           ],
