@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:foodapp/pages/services_order.dart';
 
+import '../data/model/customer.dart';
+
 class ServiceMenu extends StatelessWidget {
-  const ServiceMenu({super.key});
+  final Customer customer;
+  const ServiceMenu({super.key, required this.customer});
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +31,7 @@ class ServiceMenu extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const ServicesOrder(),
+                              builder: (context) => ServicesOrder(customer: customer,),
                             ),
                           );
                         },

@@ -136,9 +136,11 @@ import '../components/calendar.dart';
 import '../components/city_selected.dart';
 import '../components/my_button.dart';
 import '../components/time_start.dart';
+import 'helper_list_page.dart';
 
 class ServicesOrder extends StatefulWidget {
-  const ServicesOrder({super.key});
+  final Customer customer;
+  const ServicesOrder({super.key, required this.customer});
 
   @override
   State<ServicesOrder> createState() => _ServicesOrderState();
@@ -178,104 +180,109 @@ class _ServicesOrderState extends State<ServicesOrder>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-            appBar: AppBar(
-              backgroundColor: Colors.green,
-              title: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Text(
-                      'Đặt người giúp việc',
-                      style: TextStyle(
-                        fontFamily: 'Quicksand',
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
-                    Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          color: Colors.white,
-                        ),
-                        height: 28,
-                        width: 80,
-                        alignment: Alignment.center,
-                        child: const Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "Lịch sử",
-                              style: TextStyle(
-                                fontFamily: 'Quicksand',
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
-                              ),
-                            ),
-                            SizedBox(width: 5),
-                            Icon(
-                              Icons.history_toggle_off_rounded,
-                              size: 14,
-                            ),
-                          ],
-                        )),
-                  ],
+      appBar: AppBar(
+        backgroundColor: Colors.green,
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: const Icon(Icons.arrow_back_ios_new_rounded), color: Colors.white,),
+        title: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 6),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Text(
+                'Đặt người giúp việc',
+                style: TextStyle(
+                  fontFamily: 'Quicksand',
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
                 ),
               ),
-              automaticallyImplyLeading: false,
-              bottom: PreferredSize(
-                preferredSize: const Size.fromHeight(48.0),
-                child: Container(
-                  color: Colors.white,
-                  child: TabBar(
-                    controller: _tabController,
-                    labelColor: Colors.green,
-                    unselectedLabelColor: Colors.black,
-                    // indicatorColor: const Color.fromARGB(255, 0, 248, 62),
-                    // indicatorWeight: 2.0,
-                    indicatorSize: TabBarIndicatorSize.tab,
-                    indicator: const UnderlineTabIndicator(
-                      borderSide: BorderSide(color: Colors.green, width: 2),
-                    ),
-                    tabs: const [
-                      Tab(
-                        text: 'Theo ngày',
+              Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    color: Colors.white,
+                  ),
+                  height: 28,
+                  width: 80,
+                  alignment: Alignment.center,
+                  child: const Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Lịch sử",
+                        style: TextStyle(
+                          fontFamily: 'Quicksand',
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
                       ),
-                      Tab(
-                        text: 'Dài hạn',
+                      SizedBox(width: 5),
+                      Icon(
+                        Icons.history_toggle_off_rounded,
+                        size: 14,
                       ),
                     ],
-                  ),
-                ),
-              ),
-            ),
-            body: TabBarView(
+                  )),
+            ],
+          ),
+        ),
+        automaticallyImplyLeading: false,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(48.0),
+          child: Container(
+            color: Colors.white,
+            child: TabBar(
               controller: _tabController,
-              children: [
-                OnDemand(
-                  locations: locations,
-                  customers: customers,
+              labelColor: Colors.green,
+              unselectedLabelColor: Colors.black,
+              // indicatorColor: const Color.fromARGB(255, 0, 248, 62),
+              // indicatorWeight: 2.0,
+              indicatorSize: TabBarIndicatorSize.tab,
+              indicator: const UnderlineTabIndicator(
+                borderSide: BorderSide(color: Colors.green, width: 2),
+              ),
+              tabs: const [
+                Tab(
+                  text: 'Theo ngày',
                 ),
-                LongTerm(
-                  locations: locations,
-                  customers: customers,
+                Tab(
+                  text: 'Dài hạn',
                 ),
               ],
             ),
-            bottomNavigationBar: BottomAppBar(
-              child: MyButton(
-                text: "Tiếp theo",
-                onTap: () {
-                  //   Navigator.push(
-                  //     context,
-                  //     MaterialPageRoute(builder: (context) => const HelperList()),
-                  //   );
-                },
-              ),
-            ),
-          );
+          ),
+        ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          OnDemand(
+            locations: locations,
+            customers: customers,
+          ),
+          LongTerm(
+            locations: locations,
+            customers: customers,
+          ),
+        ],
+      ),
+      bottomNavigationBar: BottomAppBar(
+        child: MyButton(
+          text: "Tiếp theo",
+          onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => HelperList(customer: widget.customer,)),
+              );
+          },
+        ),
+      ),
+    );
   }
 }
 

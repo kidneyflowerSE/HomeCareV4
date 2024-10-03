@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:foodapp/components/my_button.dart';
+import 'package:foodapp/data/model/helper.dart';
+import '../data/model/customer.dart';
 
 class ReviewOrderPage extends StatelessWidget {
-  const ReviewOrderPage({super.key});
+  final Customer customer;
+  final Helper helper;
+
+  const ReviewOrderPage({super.key, required this.customer, required this.helper});
 
   @override
   Widget build(BuildContext context) {
@@ -10,8 +15,16 @@ class ReviewOrderPage extends StatelessWidget {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.green,
-        automaticallyImplyLeading: false,
         centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_ios_new_outlined,
+            color: Colors.white,
+          ),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
         title: const Text(
           'Xác nhận và thanh toán',
           style: TextStyle(
@@ -23,9 +36,9 @@ class ReviewOrderPage extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(16), // Thêm khoảng cách
+        padding: const EdgeInsets.all(16),
         child: const Column(
-          mainAxisSize: MainAxisSize.min, // Giới hạn kích thước của Column
+          mainAxisSize: MainAxisSize.min,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -53,335 +66,300 @@ class ReviewOrderPage extends StatelessWidget {
             MyButton(
               text: "Đăng việc",
               onTap: null,
-            )
+            ),
           ],
         ),
       ),
-      body: SingleChildScrollView(
-        child: Container(
-          margin: const EdgeInsets.symmetric(vertical: 10),
-          width: double.infinity,
-          decoration: const BoxDecoration(
-            border: Border.symmetric(
-              horizontal: BorderSide(
-                  width: 1, color: Color.fromARGB(255, 238, 237, 237)),
-            ),
-          ),
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-            child: Column(
-              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Vị trí làm việc',
-                  style: TextStyle(
-                    fontFamily: 'Quicksand',
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            child: Container(
+              margin: const EdgeInsets.symmetric(vertical: 10),
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                border: Border.symmetric(
+                  horizontal: BorderSide(
+                    width: 1, color: Color.fromARGB(255, 238, 237, 237),
                   ),
                 ),
-                const SizedBox(height: 10),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: Colors.green,
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Icon(
-                            Icons.location_on_rounded,
-                            color: Colors.green,
-                          ),
-                          SizedBox(width: 10),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '11 Nguyễn Đình Chiểu',
-                                  style: TextStyle(
-                                    fontFamily: 'Quicksand',
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                                ),
-                                SizedBox(height: 4),
-                                Text(
-                                  "11 Nguyễn Đình Chiểu, Đa Khao, Quận 1, Hồ Chí Minh, Việt Nam",
-                                  style: TextStyle(
-                                    fontFamily: 'Quicksand',
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+              ),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Vị trí làm việc',
+                      style: TextStyle(
+                        fontFamily: 'Quicksand',
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
                       ),
-                      const SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
+                    ),
+                    const SizedBox(height: 10),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: Colors.green,
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Icon(
-                            Icons.personal_injury_sharp,
-                            color: Colors.green,
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              const Icon(
+                                Icons.location_on_rounded,
+                                color: Colors.green,
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text(
-                                      'Phạm Nguyễn Quốc Huy',
-                                      style: TextStyle(
+                                    Text(
+                                      customer.addresses[0].detailedAddress,
+                                      style: const TextStyle(
                                         fontFamily: 'Quicksand',
                                         fontSize: 16,
                                         fontWeight: FontWeight.w800,
                                       ),
                                     ),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 14,
-                                        vertical: 8,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(20),
-                                        color: Colors.green,
-                                      ),
-                                      child: const Text(
-                                        "Thay đổi",
-                                        style: TextStyle(
-                                          fontFamily: 'Quicksand',
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w800,
-                                          color: Colors.white,
-                                        ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      customer.addresses
+                                          .map((address) => address.toString())
+                                          .join(','),
+                                      style: const TextStyle(
+                                        fontFamily: 'Quicksand',
+                                        fontSize: 16,
                                       ),
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 4),
-                                const Text(
-                                  "0796592839",
-                                  style: TextStyle(
-                                    fontFamily: 'Quicksand',
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-                const Text(
-                  'Thông tin công việc',
-                  style: TextStyle(
-                    fontFamily: 'Quicksand',
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: Colors.green,
-                    ),
-                  ),
-                  child: const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Thời gian làm việc",
-                        style: TextStyle(
-                          fontFamily: 'Quicksand',
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Ngày làm việc',
-                            style: TextStyle(
-                              fontFamily: 'Quicksand',
-                              color: Colors.grey,
-                              fontSize: 14,
-                            ),
-                          ),
-                          Text(
-                            'Thứ năm, ngày 26/09/2024 - 14:00',
-                            style: TextStyle(
-                              fontFamily: 'Quicksand',
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Làm trong',
-                            style: TextStyle(
-                              fontFamily: 'Quicksand',
-                              color: Colors.grey,
-                              fontSize: 14,
-                            ),
-                          ),
-                          Text(
-                            '3 giờ, 14:00 - 17:00',
-                            style: TextStyle(
-                              fontFamily: 'Quicksand',
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 10),
-                      Text(
-                        "Chi tiết công việc",
-                        style: TextStyle(
-                          fontFamily: 'Quicksand',
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Khối lượng công việc',
-                            style: TextStyle(
-                              fontFamily: 'Quicksand',
-                              color: Colors.grey,
-                              fontSize: 14,
-                            ),
-                          ),
-                          Text(
-                            '85m\u00B2 / 3 phòng',
-                            style: TextStyle(
-                              fontFamily: 'Quicksand',
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-                const Text(
-                  'Phương thức thanh toán',
-                  style: TextStyle(
-                    fontFamily: 'Quicksand',
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Container(
-                  width: double.infinity,
-                  // padding: const EdgeInsets.symmetric(),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: Colors.green,
-                    ),
-                  ),
-                  child: Container(
-                    margin: const EdgeInsets.all(10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // ignore: avoid_unnecessary_containers
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 10,
-                            horizontal: 16,
-                          ),
-                          child: const Row(
-                            children: [
-                              Icon(
-                                Icons.monetization_on_rounded,
-                                color: Colors.green,
                               ),
-                              SizedBox(width: 5),
-                              Text(
-                                'Tiền mặt',
-                                style: TextStyle(
-                                  fontFamily: 'Quicksand',
-                                  fontSize: 16,
-                                ),
-                              ),
-                              SizedBox(width: 10),
-                              Icon(Icons.keyboard_arrow_right_rounded),
                             ],
                           ),
-                        ),
-
-                        // ignore: avoid_unnecessary_containers
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 10,
-                            horizontal: 16,
-                          ),
-                          // decoration: BoxDecoration(
-                          //   border: Border.all(
-                          //     width: 1,
-                          //   ),
-                          // ),
-                          child: const Row(
+                          const SizedBox(height: 20),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              Icon(
-                                Icons.bookmark_outlined,
+                              const Icon(
+                                Icons.personal_injury_sharp,
                                 color: Colors.green,
                               ),
-                              SizedBox(width: 5),
-                              Text(
-                                'Khuyến mãi',
-                                style: TextStyle(
-                                  fontFamily: 'Quicksand',
-                                  fontSize: 16,
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          customer.name ?? 'Tên không có sẵn',
+                                          style: const TextStyle(
+                                            fontFamily: 'Quicksand',
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w800,
+                                          ),
+                                        ),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 14,
+                                            vertical: 8,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(20),
+                                            color: Colors.green,
+                                          ),
+                                          child: const Text(
+                                            "Thay đổi",
+                                            style: TextStyle(
+                                              fontFamily: 'Quicksand',
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w800,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      customer.phone ?? 'Sđt không có sẵn',
+                                      style: const TextStyle(
+                                        fontFamily: 'Quicksand',
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                              SizedBox(width: 10),
-                              Icon(Icons.keyboard_arrow_right_rounded),
                             ],
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Thông tin công việc',
+                      style: TextStyle(
+                        fontFamily: 'Quicksand',
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: Colors.green,
+                        ),
+                      ),
+                      child: const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Thời gian làm việc",
+                            style: TextStyle(
+                              fontFamily: 'Quicksand',
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          SizedBox(height: 10),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Ngày làm việc',
+                                style: TextStyle(
+                                  fontFamily: 'Quicksand',
+                                  color: Colors.grey,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              Text(
+                                'Thứ năm, ngày 26/09/2024 - 14:00',
+                                style: TextStyle(
+                                  fontFamily: 'Quicksand',
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 8),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Làm trong',
+                                style: TextStyle(
+                                  fontFamily: 'Quicksand',
+                                  color: Colors.grey,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              Text(
+                                '3 giờ, 14:00 - 17:00',
+                                style: TextStyle(
+                                  fontFamily: 'Quicksand',
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 10),
+                          Text(
+                            "Chi tiết công việc",
+                            style: TextStyle(
+                              fontFamily: 'Quicksand',
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          SizedBox(height: 10),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Khối lượng công việc',
+                                style: TextStyle(
+                                  fontFamily: 'Quicksand',
+                                  color: Colors.grey,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              Text(
+                                '85m² / 3 phòng',
+                                style: TextStyle(
+                                  fontFamily: 'Quicksand',
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Phương thức thanh toán',
+                      style: TextStyle(
+                        fontFamily: 'Quicksand',
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: Colors.green,
+                        ),
+                      ),
+                      child: const Column(
+                        children: [
+                          ListTile(
+                            title: Text(
+                              'Chuyển khoản',
+                              style: TextStyle(
+                                fontFamily: 'Quicksand',
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                            trailing: Icon(Icons.check_circle_rounded, color: Colors.green),
+                          ),
+                          ListTile(
+                            title: Text(
+                              'Thanh toán tiền mặt',
+                              style: TextStyle(
+                                fontFamily: 'Quicksand',
+                                fontSize: 18,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }

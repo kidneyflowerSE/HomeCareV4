@@ -73,7 +73,7 @@ class _CalendarDropdownState extends State<CalendarDropdown> {
                   ),
                 ),
                 const Icon(
-                  Icons.calendar_view_day_rounded,
+                  Icons.calendar_month_rounded,
                   color: Colors.green,
                 ),
               ],

@@ -87,7 +87,7 @@ class _HomePageState extends State<HomePage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => const ServicesOrder(),
+              builder: (context) => ServicesOrder(customer: widget.customer,),
             ),
           );
         },
