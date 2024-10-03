@@ -78,6 +78,6 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) => const Scaffold(
-        body: Center(child: DelayAnimation()),
+        body: Center(child: DelayAnimation(loadingDuration: Duration(seconds: 1),)),
       );
 }

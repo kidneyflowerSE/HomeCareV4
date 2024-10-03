@@ -226,7 +226,8 @@ import 'dart:ui' as ui;
 import 'package:flutter/services.dart';
 
 class DelayAnimation extends StatefulWidget {
-  const DelayAnimation({super.key});
+  final Duration loadingDuration;
+  const DelayAnimation({super.key, required this.loadingDuration});
 
   @override
   // ignore: library_private_types_in_public_api
@@ -255,7 +256,7 @@ class _DelayAnimationState extends State<DelayAnimation>
     super.initState();
     _controllerLine = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 1),
+      duration: widget.loadingDuration,
     );
     _controllerLa1 = AnimationController(
       vsync: this,

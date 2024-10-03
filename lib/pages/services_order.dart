@@ -123,6 +123,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:foodapp/components/address_type.dart';
+import 'package:foodapp/components/delay_animation.dart';
 import 'package:foodapp/components/district_selected.dart';
 import 'package:foodapp/components/time_end.dart';
 import 'package:foodapp/components/time_selection.dart';
@@ -146,20 +147,25 @@ class ServicesOrder extends StatefulWidget {
 class _ServicesOrderState extends State<ServicesOrder>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  List<Location> locations = []; // Khởi tạo danh sách địa điểm
+  List<Location> locations = [];
+  List<Customer> customers = [];
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    loadLocations(); // Tải dữ liệu locations khi khởi tạo
+    loadData(); // Tải dữ liệu locations khi khởi tạo
   }
 
-  Future<void> loadLocations() async {
+  Future<void> loadData() async {
     var repository = DefaultRepository();
     var dataLocation = await repository.loadLocation();
+    var dataCustomer = await repository.loadCustomer();
     setState(() {
       locations = dataLocation ?? []; // Gán danh sách địa điểm tải được
+      customers = dataCustomer ?? [];
+      isLoading = false;
     });
   }
 
@@ -172,134 +178,120 @@ class _ServicesOrderState extends State<ServicesOrder>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.green,
-        title: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 6),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Text(
-                'Đặt người giúp việc',
-                style: TextStyle(
-                  fontFamily: 'Quicksand',
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
+            appBar: AppBar(
+              backgroundColor: Colors.green,
+              title: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Text(
+                      'Đặt người giúp việc',
+                      style: TextStyle(
+                        fontFamily: 'Quicksand',
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                    Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          color: Colors.white,
+                        ),
+                        height: 28,
+                        width: 80,
+                        alignment: Alignment.center,
+                        child: const Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "Lịch sử",
+                              style: TextStyle(
+                                fontFamily: 'Quicksand',
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                              ),
+                            ),
+                            SizedBox(width: 5),
+                            Icon(
+                              Icons.history_toggle_off_rounded,
+                              size: 14,
+                            ),
+                          ],
+                        )),
+                  ],
                 ),
               ),
-              Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    color: Colors.white,
-                  ),
-                  height: 28,
-                  width: 80,
-                  alignment: Alignment.center,
-                  child: const Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "Lịch sử",
-                        style: TextStyle(
-                          fontFamily: 'Quicksand',
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                        ),
+              automaticallyImplyLeading: false,
+              bottom: PreferredSize(
+                preferredSize: const Size.fromHeight(48.0),
+                child: Container(
+                  color: Colors.white,
+                  child: TabBar(
+                    controller: _tabController,
+                    labelColor: Colors.green,
+                    unselectedLabelColor: Colors.black,
+                    // indicatorColor: const Color.fromARGB(255, 0, 248, 62),
+                    // indicatorWeight: 2.0,
+                    indicatorSize: TabBarIndicatorSize.tab,
+                    indicator: const UnderlineTabIndicator(
+                      borderSide: BorderSide(color: Colors.green, width: 2),
+                    ),
+                    tabs: const [
+                      Tab(
+                        text: 'Theo ngày',
                       ),
-                      SizedBox(width: 5),
-                      Icon(
-                        Icons.history_toggle_off_rounded,
-                        size: 14,
+                      Tab(
+                        text: 'Dài hạn',
                       ),
                     ],
-                  )),
-            ],
-          ),
-        ),
-        automaticallyImplyLeading: false,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(48.0),
-          child: Container(
-            color: Colors.white,
-            child: TabBar(
-              controller: _tabController,
-              labelColor: Colors.green,
-              unselectedLabelColor: Colors.black,
-              // indicatorColor: const Color.fromARGB(255, 0, 248, 62),
-              // indicatorWeight: 2.0,
-              indicatorSize: TabBarIndicatorSize.tab,
-              indicator: const UnderlineTabIndicator(
-                borderSide: BorderSide(color: Colors.green, width: 2),
-              ),
-              tabs: const [
-                Tab(
-                  text: 'Theo ngày',
+                  ),
                 ),
-                Tab(
-                  text: 'Dài hạn',
+              ),
+            ),
+            body: TabBarView(
+              controller: _tabController,
+              children: [
+                OnDemand(
+                  locations: locations,
+                  customers: customers,
+                ),
+                LongTerm(
+                  locations: locations,
+                  customers: customers,
                 ),
               ],
             ),
-          ),
-        ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          OnDemand(locations: locations),
-          LongTerm(locations: locations),
-        ],
-      ),
-      bottomNavigationBar: BottomAppBar(
-        child: MyButton(
-          text: "Tiếp theo",
-          onTap: () {
-          //   Navigator.push(
-          //     context,
-          //     MaterialPageRoute(builder: (context) => const HelperList()),
-          //   );
-          },
-        ),
-      ),
-    );
+            bottomNavigationBar: BottomAppBar(
+              child: MyButton(
+                text: "Tiếp theo",
+                onTap: () {
+                  //   Navigator.push(
+                  //     context,
+                  //     MaterialPageRoute(builder: (context) => const HelperList()),
+                  //   );
+                },
+              ),
+            ),
+          );
   }
 }
 
 class OnDemand extends StatefulWidget {
   final List<Location> locations;
-  const OnDemand({super.key, required this.locations});
+  final List<Customer> customers;
+
+  const OnDemand({super.key, required this.locations, required this.customers});
 
   @override
   State<OnDemand> createState() => _OnDemandState();
 }
 
 class _OnDemandState extends State<OnDemand> {
-  List<Customer> customers = [];
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    loadCustomers();
-  }
-
-  Future<void> loadCustomers() async {
-    var repository = DefaultRepository();
-    var data = await repository.loadCustomer();
-    setState(() {
-      customers = data ?? [];
-      _isLoading = false;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -364,37 +356,17 @@ class _OnDemandState extends State<OnDemand> {
 
 class LongTerm extends StatefulWidget {
   final List<Location> locations;
-  const LongTerm({super.key, required this.locations});
+  final List<Customer> customers;
+
+  const LongTerm({super.key, required this.locations, required this.customers});
 
   @override
   State<LongTerm> createState() => _LongTermState();
 }
 
 class _LongTermState extends State<LongTerm> {
-  List<Customer> customers = [];
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    loadCustomers();
-  }
-
-  Future<void> loadCustomers() async {
-    var repository = DefaultRepository();
-    var data = await repository.loadCustomer();
-    setState(() {
-      customers = data ?? [];
-      _isLoading = false;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -409,8 +381,8 @@ class _LongTermState extends State<LongTerm> {
             const Text("Chọn địa điểm"),
             SelectLocation(locations: widget.locations),
             // DistrictSelected(locations: widget.locations),
-            const SizedBox(height: 20),
-            const MyButton(text: 'Tiếp theo', onTap: null),
+            // const SizedBox(height: 20),
+            // const MyButton(text: 'Tiếp theo', onTap: null),
           ],
         ),
       ),

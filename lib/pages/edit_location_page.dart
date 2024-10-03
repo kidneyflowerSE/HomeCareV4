@@ -4,8 +4,8 @@ import 'package:foodapp/components/my_button.dart';
 import 'package:foodapp/data/model/location.dart';
 import 'package:foodapp/data/repository/repository.dart';
 import 'package:foodapp/pages/choose_location_page.dart';
-
-import '../data/model/customer.dart';
+import '../components/loading_animation.dart';
+import '../data/model/customer.dart'; // Thêm import cho LoadingIndicator
 
 class EditLocationPage extends StatefulWidget {
   final Customer customer;
@@ -19,8 +19,13 @@ class EditLocationPage extends StatefulWidget {
   @override
   State<EditLocationPage> createState() => _EditLocationPage();
 }
+
 class _EditLocationPage extends State<EditLocationPage> {
   late List<Location> locations = [];
+  late bool isLoading = true;
+  late Duration loadingDuration =
+      Duration(seconds: 3); // Thay đổi thời gian ở đây
+  double progress = 0.0; // Giá trị hiện tại của progress
 
   @override
   void initState() {
@@ -28,14 +33,42 @@ class _EditLocationPage extends State<EditLocationPage> {
     loadData();
   }
 
-  Future<void> loadData () async{
+  Future<void> loadData() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    // Thời gian bắt đầu
+    final startTime = DateTime.now();
+
     var repository = DefaultRepository();
     var data = await repository.loadLocation();
-    if(data == null){
-      locations = [];
-    } else {
-      locations = data;
+
+    // Thời gian kết thúc
+    final endTime = DateTime.now();
+    loadingDuration =
+        endTime.difference(startTime); // Cập nhật thời gian loading
+
+    // Tính toán số bước cho progress
+    int steps = 100; // Số bước cho progress
+    int stepDuration = (loadingDuration.inMilliseconds / steps).round();
+
+    for (int i = 0; i <= steps; i++) {
+      await Future.delayed(
+          Duration(milliseconds: stepDuration)); // Chờ từng bước
+      setState(() {
+        progress = i / steps; // Cập nhật giá trị progress
+      });
     }
+
+    setState(() {
+      if (data == null) {
+        locations = [];
+      } else {
+        locations = data;
+      }
+      isLoading = false;
+    });
   }
 
   @override
@@ -71,171 +104,93 @@ class _EditLocationPage extends State<EditLocationPage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ChooseLocationPage(customer: widget.customer),
+                builder: (context) =>
+                    ChooseLocationPage(customer: widget.customer),
               ),
             );
           },
         ),
       ),
-      body: SingleChildScrollView(
-        child: Container(
-          height: MediaQuery.of(context).size.height,
-          color: Colors.grey.shade300,
-          padding: const EdgeInsets.all(10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 20),
-              // const Text(
-              //   'Thông tin liên hệ',
-              //   style: TextStyle(
-              //     fontFamily: 'Quicksand',
-              //   ),
-              // ),
-              // const SizedBox(height: 10),
-              // Container(
-              //   padding: const EdgeInsets.all(10),
-              //   decoration: BoxDecoration(
-              //     color: Colors.white,
-              //     borderRadius: BorderRadius.circular(10),
-              //   ),
-              //   child: Column(
-              //     children: [
-              //       TextField(
-              //         controller: nameController,
-              //         decoration: InputDecoration(
-              //           hintText: "Tên của bạn",
-              //           hintStyle: TextStyle(
-              //             color: Colors.grey[600],
-              //             fontSize: 16,
-              //             fontStyle: FontStyle.italic,
-              //             fontFamily: 'Quicksand',
-              //           ),
-              //           border: InputBorder.none,
-              //           contentPadding:
-              //               const EdgeInsets.symmetric(horizontal: 10),
-              //         ),
-              //       ),
-              //       Divider(
-              //         height: 0,
-              //         color: Colors.grey[400],
-              //       ),
-              //       TextField(
-              //         controller: phoneNumberController,
-              //         decoration: InputDecoration(
-              //           hintText: "Số điện thoại",
-              //           hintStyle: TextStyle(
-              //             color: Colors.grey[600],
-              //             fontSize: 16,
-              //             fontStyle: FontStyle.italic,
-              //             fontFamily: 'Quicksand',
-              //           ),
-              //           border: InputBorder.none,
-              //           contentPadding:
-              //               const EdgeInsets.symmetric(horizontal: 10),
-              //         ),
-              //       ),
-              //     ],
-              //   ),
-              // ),
-              // const SizedBox(height: 20),
-              const Text(
-                'Thông tin địa chỉ',
-                style: TextStyle(
-                  fontFamily: 'Quicksand',
-                ),
+      body: isLoading
+          ? Center(
+              child: LoadingIndicator(
+                progress: progress,
+                loadingDuration: loadingDuration,
               ),
-              const SizedBox(height: 10),
-              Container(
+            )
+          : SingleChildScrollView(
+              child: Container(
+                height: MediaQuery.of(context).size.height,
+                color: Colors.grey.shade300,
                 padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                ),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // _buildDropdown("TP. Hồ Chí Minh"),
-                    // Divider(
-                    //   height: 16,
-                    //   color: Colors.grey[400],
-                    // ),
-                    // _buildDropdown("TP. Thủ Đức"),
-                    // Divider(
-                    //   height: 16,
-                    //   color: Colors.grey[400],
-                    // ),
-                    SelectLocation(locations: locations),
-                    const Divider(
-                      height: 16,
-                      color: Colors.grey,
-                    ),
-                    TextField(
-                      controller: widget.locationController,
-                      decoration: InputDecoration(
-                        hintText: "Địa chỉ cụ thể",
-                        hintStyle: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 14,
-                          fontStyle: FontStyle.italic,
-                          fontFamily: 'Quicksand',
-                        ),
-                        border: InputBorder.none,
-                        contentPadding:
-                            const EdgeInsets.symmetric(horizontal: 10),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Thông tin địa chỉ',
+                      style: TextStyle(
+                        fontFamily: 'Quicksand',
                       ),
                     ),
-                    Divider(
-                      height: 0,
-                      color: Colors.grey[400],
-                    ),
-                    TextField(
-                      decoration: InputDecoration(
-                        hintText: "Nhập các chi tiết khác (không bắt buộc)",
-                        hintStyle: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 14,
-                          fontStyle: FontStyle.italic,
-                          fontFamily: 'Quicksand',
-                        ),
-                        border: InputBorder.none,
-                        contentPadding:
-                            const EdgeInsets.symmetric(horizontal: 10),
+                    const SizedBox(height: 10),
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Column(
+                        children: [
+                          SelectLocation(locations: locations),
+                          const Divider(
+                            height: 16,
+                            color: Colors.grey,
+                          ),
+                          TextField(
+                            controller: widget.locationController,
+                            decoration: InputDecoration(
+                              hintText: "Địa chỉ cụ thể",
+                              hintStyle: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 14,
+                                fontStyle: FontStyle.italic,
+                                fontFamily: 'Quicksand',
+                              ),
+                              border: InputBorder.none,
+                              contentPadding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
+                            ),
+                          ),
+                          Divider(
+                            height: 0,
+                            color: Colors.grey[400],
+                          ),
+                          TextField(
+                            decoration: InputDecoration(
+                              hintText:
+                                  "Nhập các chi tiết khác (không bắt buộc)",
+                              hintStyle: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 14,
+                                fontStyle: FontStyle.italic,
+                                fontFamily: 'Quicksand',
+                              ),
+                              border: InputBorder.none,
+                              contentPadding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDropdown(String title) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 16,
-          ),
-        ),
-        const Icon(
-          Icons.keyboard_arrow_down_rounded,
-          size: 30,
-        ),
-      ],
+            ),
     );
   }
 }
-
-
-
-
-
-
 
 // import 'package:flutter/material.dart';
 // import 'package:foodapp/components/my_button.dart';
@@ -455,5 +410,3 @@ class _EditLocationPage extends State<EditLocationPage> {
 //     );
 //   }
 // }
-
-
