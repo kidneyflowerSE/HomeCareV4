@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:foodapp/data/model/request.dart';
 
 class ActivityPage extends StatefulWidget {
-  const ActivityPage({super.key});
+  final List<Request> requests;
+  const ActivityPage({super.key, required this.requests});
 
   @override
   State<ActivityPage> createState() => _ServicesOrderState();
@@ -11,7 +13,7 @@ class _ServicesOrderState extends State<ActivityPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
-  final List<Widget> servicesPage = [const OnDemand(), const LongTerm()];
+  // final List<Widget> servicesPage = [OnDemand(onDemandRequest: widget.requests,), const LongTerm()];
 
   // int _selectedIndex = 0;
 
@@ -82,9 +84,9 @@ class _ServicesOrderState extends State<ActivityPage>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: const [
-          OnDemand(),
-          LongTerm(),
+        children: [
+          OnDemand(onDemandRequest: widget.requests,),
+          const LongTerm(),
         ],
       ),
     );
@@ -92,7 +94,8 @@ class _ServicesOrderState extends State<ActivityPage>
 }
 
 class OnDemand extends StatefulWidget {
-  const OnDemand({super.key});
+  final List<Request> onDemandRequest;
+  const OnDemand({super.key, required this.onDemandRequest});
 
   @override
   State<OnDemand> createState() => _OnDemandState();
@@ -101,8 +104,8 @@ class OnDemand extends StatefulWidget {
 class _OnDemandState extends State<OnDemand> {
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text("Dài hạn"),
+    return Center(
+      child: Text(widget.onDemandRequest[0].requestType),
     );
   }
 }
@@ -118,7 +121,7 @@ class _LongTermState extends State<LongTerm> {
   @override
   Widget build(BuildContext context) {
     return const Center(
-      child: Text("Dài hạn"),
+      child: Text("long term"),
     );
   }
 }

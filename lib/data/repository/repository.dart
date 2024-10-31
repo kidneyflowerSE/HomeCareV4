@@ -1,5 +1,7 @@
 import 'package:foodapp/data/model/helper.dart';
 import 'package:foodapp/data/model/customer.dart';
+import 'package:foodapp/data/model/request.dart';
+import 'package:foodapp/data/model/requestdetail.dart';
 
 import '../model/location.dart';
 import '../model/service.dart';
@@ -10,6 +12,8 @@ abstract interface class Repository {
   Future<List<Location>?> loadLocation();
   Future<List<Services>?> loadServices();
   Future<List<Customer>?> loadCustomer();
+  Future<List<Request>?> loadRequest();
+  Future<List<RequestDetail>?> loadRequestDetail();
 }
 
 class DefaultRepository implements Repository {
@@ -82,5 +86,39 @@ class DefaultRepository implements Repository {
       }
     });
     return services;
+  }
+
+  @override
+  Future<List<Request>?> loadRequest() async {
+    List<Request> requests = [];
+    await remoteDataSource.loadRequestData().then((remoteRequests) {
+      if (remoteRequests == null) {
+        localDataSource.loadRequestData().then((localRequests) {
+          if (localRequests != null) {
+            requests.addAll(localRequests);
+          }
+        });
+      } else {
+        requests.addAll(remoteRequests);
+      }
+    });
+    return requests;
+  }
+
+  @override
+  Future<List<RequestDetail>?> loadRequestDetail() async {
+    List<RequestDetail>? requestDetail = [];
+    await remoteDataSource.loadRequestDetailData().then((remoteRequestDetail) {
+      if (remoteRequestDetail == null) {
+        localDataSource.loadRequestDetailData().then((localRequestDetail) {
+          if (localRequestDetail != null) {
+            requestDetail.addAll(localRequestDetail);
+          }
+        });
+      } else {
+        requestDetail.addAll(remoteRequestDetail);
+      }
+    });
+    return requestDetail;
   }
 }

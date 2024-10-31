@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:foodapp/components/user_header.dart';
+import 'package:foodapp/data/model/request.dart';
 import 'package:foodapp/pages/activity_page.dart';
 import 'package:foodapp/pages/choose_location_page.dart';
 import 'package:foodapp/pages/notification_page.dart';
@@ -9,8 +10,9 @@ import '../../data/model/customer.dart';
 
 class HomePage extends StatefulWidget {
   final dynamic customer;
+  final List<Request> requests;
 
-  const HomePage({super.key, required this.customer});
+  const HomePage({super.key, required this.customer, required this.requests});
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -26,7 +28,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     _pages.addAll([
       HomeContent(customer: widget.customer),
-      const ActivityPage(),
+      ActivityPage(requests: widget.requests,),
       const NotificationPage(),
       const ProfilePage(),
     ]);

@@ -1,6 +1,7 @@
 import 'package:foodapp/components/my_button.dart';
 import 'package:foodapp/components/my_textfield.dart';
 import 'package:foodapp/data/model/customer.dart';
+import 'package:foodapp/data/model/request.dart';
 import 'package:foodapp/data/repository/repository.dart';
 import 'package:foodapp/pages/home_page.dart';
 import 'package:flutter/material.dart';
@@ -21,12 +22,15 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   List<Customer> customers = [];
+  List<Request> requests = [];
+  List<Request> requestsCustomer = [];
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
     loadCustomerData();
+    loadRequestData();
   }
 
   Future<void> loadCustomerData() async {
@@ -34,6 +38,15 @@ class _LoginPageState extends State<LoginPage> {
     var data = await repository.loadCustomer();
     setState(() {
       customers = data ?? [];
+      _isLoading = false;
+    });
+  }
+
+  Future<void> loadRequestData() async {
+    var repository = DefaultRepository();
+    var data = await repository.loadRequest();
+    setState(() {
+      requests = data ?? [];
       _isLoading = false;
     });
   }
@@ -49,11 +62,15 @@ class _LoginPageState extends State<LoginPage> {
       }
     }
     if (isTrue) {
+      requestsCustomer = requests
+          .where((request) =>
+              request.customerInfo.fullName == 'hung')
+          .toList();
       // navigate to home page
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => HomePage(customer: customers[index]),
+          builder: (context) => HomePage(customer: customers[index], requests: requestsCustomer,),
         ),
       );
     }
