@@ -5,12 +5,14 @@ import 'package:foodapp/data/model/location.dart';
 import 'package:foodapp/data/repository/repository.dart';
 import 'package:foodapp/pages/choose_location_page.dart';
 import '../components/loading_animation.dart';
-import '../data/model/customer.dart'; // Thêm import cho LoadingIndicator
+import '../data/model/customer.dart';
+import '../data/model/request.dart'; // Thêm import cho LoadingIndicator
 
 class EditLocationPage extends StatefulWidget {
   final Customer customer;
+  final Requests request;
 
-  EditLocationPage({super.key, required this.customer});
+  EditLocationPage({super.key, required this.customer, required this.request});
 
   final TextEditingController nameController = TextEditingController();
   final TextEditingController locationController = TextEditingController();
@@ -142,7 +144,7 @@ class _EditLocationPage extends State<EditLocationPage> {
                       ),
                       child: Column(
                         children: [
-                          SelectLocation(locations: locations),
+                          SelectLocation(locations: locations,),
                           const Divider(
                             height: 16,
                             color: Colors.grey,

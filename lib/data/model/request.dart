@@ -1,4 +1,4 @@
-class Request {
+class Requests {
   CustomerInfo customerInfo;
   RequestService service;
   RequestLocation location;
@@ -13,8 +13,11 @@ class Request {
   bool deleted;
   Comment comment;
   int profit;
+  String? helperId;
+  String? startDate;
 
-  Request(
+
+  Requests(
       {required this.customerInfo,
       required this.service,
       required this.location,
@@ -28,16 +31,20 @@ class Request {
       required this.status,
       required this.deleted,
       required this.comment,
-      required this.profit});
+      required this.profit,
+      this.helperId,
+      this.startDate});
 
-  factory Request.fromJson(Map<String, dynamic> map) {
-    return Request(
+  factory Requests.fromJson(Map<String, dynamic> map) {
+    return Requests(
       customerInfo: map['customerInfo'] != null
           ? CustomerInfo.fromJson(map['customerInfo'])
           : CustomerInfo(fullName: '', phone: '', address: '', usedPoint: 0),
       service: map['service'] != null
           ? RequestService.fromJson(map['service'])
-          : RequestService(title: '', coefficientService: 0, coefficientOther: 0, cost: 0), // Provide a default or placeholder object
+          : RequestService(
+              title: '', coefficientService: 0, coefficientOther: 0, cost: 0),
+      // Provide a default or placeholder object
       location: map['location'] != null
           ? RequestLocation.fromJson(map['location'])
           : RequestLocation(province: '', district: ''),
@@ -52,16 +59,37 @@ class Request {
       deleted: map['deleted'] ?? false,
       comment: map['comment'] != null
           ? Comment.fromJson(map['comment'])
-          : Comment(review: '', loseThings: false, breakThings: false), // Default comment
+          : Comment(review: '', loseThings: false, breakThings: false),
+      // Default comment
       profit: map['profit'] ?? 0,
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'customerInfo': customerInfo.toJson(),
+      'service': service.toJson(),
+      'location': location.toJson(),
+      '_id': id,
+      'orderDate': oderDate,
+      'scheduleIds': scheduleIds,
+      'startTime': startTime,
+      'endTime': endTime,
+      'requestType': requestType,
+      'totalCost': totalCost,
+      'status': status,
+      'deleted': deleted,
+      'comment': comment.toJson(),
+      'profit': profit,
+      'helper_id': helperId,
+      'startDate' : startDate,
+    };
+  }
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is Request &&
+      other is Requests &&
           runtimeType == other.runtimeType &&
           customerInfo == other.customerInfo &&
           service == other.service &&
@@ -118,6 +146,14 @@ class Comment {
         breakThings: map['breakThings'] ?? false);
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'review': review,
+      'loseThings': loseThings,
+      'breakThings': breakThings,
+    };
+  }
+
   @override
   String toString() {
     return 'Comment{review: $review, loseThings: $loseThings, breakThings: $breakThings}';
@@ -133,6 +169,13 @@ class RequestLocation {
   factory RequestLocation.fromJson(Map<String, dynamic> map) {
     return RequestLocation(
         province: map['province'], district: map['district']);
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'province': province,
+      'district': district,
+    };
   }
 
   @override
@@ -155,14 +198,25 @@ class RequestService {
 
   factory RequestService.fromJson(Map<String, dynamic> map) {
     return RequestService(
-        title: map['title'],
-        coefficientService: (map['coefficient_service'] is int)
-            ? (map['coefficient_service'] as int).toDouble()
-            : map['coefficient_service'],
-        coefficientOther: (map['coefficient_other'] is int)
-            ? (map['coefficient_other'] as int).toDouble()
-            : map['coefficient_other'],
-        cost: map['cost']);
+      title: map['title'] ?? '',
+      coefficientService: (map['coefficient_service'] is int)
+          ? (map['coefficient_service'] as int).toDouble()
+          : (map['coefficient_service'] != null ? map['coefficient_service'].toDouble() : 0.0),
+      coefficientOther: (map['coefficient_other'] is int)
+          ? (map['coefficient_other'] as int).toDouble()
+          : (map['coefficient_other'] != null ? map['coefficient_other'].toDouble() : 0.0),
+      cost: map['cost'] ?? 0, // Provide a default value if null
+    );
+  }
+
+
+  Map<String, dynamic> toJson() {
+    return {
+      'title': title,
+      'coefficient_service': coefficientService,
+      'coefficient_other': coefficientOther,
+      'cost': cost,
+    };
   }
 
   @override
@@ -189,6 +243,15 @@ class CustomerInfo {
         phone: map['phone'],
         address: map['address'],
         usedPoint: map['usedPoint']);
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'fullName': fullName,
+      'phone': phone,
+      'address': address,
+      'usedPoint': usedPoint,
+    };
   }
 
   @override

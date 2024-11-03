@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:foodapp/components/service_list_menu.dart';
 import 'package:foodapp/components/user_header.dart';
-import 'package:foodapp/data/model/request.dart';
 import 'package:foodapp/pages/activity_page.dart';
 import 'package:foodapp/pages/choose_location_page.dart';
 import 'package:foodapp/pages/notification_page.dart';
 import 'package:foodapp/pages/profile_page.dart';
 import 'package:foodapp/pages/services_order.dart';
 import '../../data/model/customer.dart';
+import '../data/model/request.dart';
+import '../data/model/service.dart';
 
 class HomePage extends StatefulWidget {
   final dynamic customer;
-  final List<Request> requests;
+  final List<Services> services;
+  final List<Requests> requests;
 
-  const HomePage({super.key, required this.customer, required this.requests});
+  const HomePage({super.key, required this.customer, required this.services, required this.requests});
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -27,7 +30,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _pages.addAll([
-      HomeContent(customer: widget.customer),
+      HomeContent(customer: widget.customer, services: widget.services,),
       ActivityPage(requests: widget.requests,),
       const NotificationPage(),
       const ProfilePage(),
@@ -82,18 +85,21 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      // backgroundColor: Colors.black,
       body: _pages[_selectedIndex],
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => ServicesOrder(customer: widget.customer,),
+              builder: (context) => ServicesOrder(
+                customer: widget.customer, service: widget.services[0],
+              ),
             ),
           );
         },
         shape: const CircleBorder(),
+        backgroundColor: Colors.green,
         child: const Icon(Icons.add),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -147,10 +153,11 @@ class _HomePageState extends State<HomePage> {
 
 class HomeContent extends StatefulWidget {
   final Customer customer;
+  final List<Services> services;
 
   const HomeContent({
     super.key,
-    required this.customer,
+    required this.customer, required this.services,
   });
 
   @override
@@ -176,13 +183,12 @@ class _HomeContentState extends State<HomeContent> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.green,
         title: Text(
           'Chào buổi tối, ${widget.customer.name}',
           style: const TextStyle(
             fontFamily: 'Quicksand',
             fontSize: 18,
-            color: Colors.white,
+            color: Colors.green,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -192,477 +198,220 @@ class _HomeContentState extends State<HomeContent> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-              child: Stack(
+        child: Stack(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
                 children: [
-                  Container(
-                    height: 250,
-                    width: double.infinity,
-                    decoration: const BoxDecoration(
-                      color: Colors.green,
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(30),
-                        bottomRight: Radius.circular(30),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Column(
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ChooseLocationPage(
+                                customer: widget.customer)),
+                      );
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      ChooseLocationPage(customer: widget.customer)),
-                            );
-                          },
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  widget.customer.addresses
-                                      .map((address) => address.toString())
-                                      .join(','),
-                                  style: const TextStyle(
-                                    fontFamily: 'Quicksand',
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              const Icon(
-                                Icons.location_on,
-                                color: Colors.white,
-                              ),
-                            ],
+                        Expanded(
+                          child: Text(
+                            widget.customer.addresses
+                                .map((address) => address.toString())
+                                .join(','),
+                            style: const TextStyle(
+                              fontFamily: 'Quicksand',
+                              color: Colors.green,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        const SizedBox(height: 20),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Container(
-                              width: double.infinity,
-                              height: 102,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(16),
-                                color: Colors.white,
-                                border: Border.all(
-                                  width: 1,
-                                  color: const Color.fromARGB(255, 203, 203, 203),
-                                ),
-                              ),
-                              child: Column(
-                                children: [
-                                  Container(
-                                    height: 50,
-                                    width: double.infinity,
-                                    decoration: const BoxDecoration(
-                                      borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(16),
-                                          topRight: Radius.circular(16)),
-                                      border: Border(
-                                        bottom: BorderSide(
-                                          width: 1,
-                                          color: Color.fromARGB(
-                                              255, 203, 203, 203),
-                                        ),
-                                      ),
-                                    ),
-                                    child: Container(
-                                      alignment: Alignment.center,
-                                      padding: const EdgeInsets.all(10),
-                                      child: const Text(
-                                        'HomeCare - Cho cuộc sống tiện lợi hơn!',
-                                        style: TextStyle(
-                                          fontFamily: 'Quicksand',
-                                          color: Colors.green,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: 50,
-                                    width: double.infinity,
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Expanded(
-                                          child: Container(
-                                            decoration: const BoxDecoration(
-                                              borderRadius: BorderRadius.only(
-                                                  bottomLeft:
-                                                      Radius.circular(9)),
-                                              border: Border(
-                                                right: BorderSide(
-                                                  width: 1,
-                                                  color: Color.fromARGB(
-                                                      255, 203, 203, 203),
-                                                ),
-                                              ),
-                                            ),
-                                            padding: const EdgeInsets.all(10),
-                                            child: const Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Icon(Icons.money_rounded),
-                                                Text(
-                                                  '500.000 đ',
-                                                  style: TextStyle(
-                                                    fontFamily: 'Quicksand',
-                                                  ),
-                                                ),
-                                                Icon(Icons
-                                                    .arrow_forward_ios_rounded),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          child: Container(
-                                            padding: const EdgeInsets.all(10),
-                                            child: const Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Icon(Icons.money_rounded),
-                                                Text(
-                                                  '5.000 hcPoints',
-                                                  style: TextStyle(
-                                                    fontFamily: 'Quicksand',
-                                                  ),
-                                                ),
-                                                Icon(Icons
-                                                    .arrow_forward_ios_rounded),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            const Text(
-                              "Nhân viên nổi bật",
-                              style: TextStyle(
-                                fontFamily: 'Quicksand',
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                                fontSize: 16,
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            SizedBox(
-                              height: 100,
-                              width: double.infinity,
-                              child: ListView(
-                                scrollDirection: Axis.horizontal,
-                                children: [
-                                  Container(
-                                    margin: const EdgeInsets.symmetric(horizontal: 8),
-                                    width: 100,
-                                    height: 100,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      color: Colors.white,
-                                      border: Border.all(
-                                        width: 1,
-                                        color:
-                                            const Color.fromARGB(255, 203, 203, 203),
-                                      ),
-                                    ),
-                                  ),
-                                  Container(
-                                    margin:
-                                        const EdgeInsets.symmetric(horizontal: 10),
-                                    width: 100,
-                                    height: 100,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8),
-                                      color: Colors.white,
-                                      border: Border.all(
-                                        width: 1,
-                                        color:
-                                            const Color.fromARGB(255, 203, 203, 203),
-                                      ),
-                                    ),
-                                  ),
-                                  Container(
-                                    margin: const EdgeInsets.symmetric(horizontal: 8),
-                                    width: 100,
-                                    height: 100,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      color: Colors.white,
-                                      border: Border.all(
-                                        width: 1,
-                                        color:
-                                            const Color.fromARGB(255, 203, 203, 203),
-                                      ),
-                                    ),
-                                  ),
-                                  Container(
-                                    margin: const EdgeInsets.symmetric(horizontal: 8),
-                                    width: 100,
-                                    height: 100,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      color: Colors.white,
-                                      border: Border.all(
-                                        width: 1,
-                                        color: const Color.fromARGB(
-                                            255, 203, 203, 203),
-                                      ),
-                                    ),
-                                  ),
-                                  Container(
-                                    margin: const EdgeInsets.symmetric(
-                                        horizontal: 8),
-                                    width: 100,
-                                    height: 100,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      color: Colors.white,
-                                      border: Border.all(
-                                        width: 1,
-                                        color:
-                                            const Color.fromARGB(255, 203, 203, 203),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            const Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  "Dịch vụ",
-                                  style: TextStyle(
-                                    fontFamily: 'Quicksand',
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                                Text(
-                                  "Xem tất cả",
-                                  style: TextStyle(
-                                    fontFamily: 'Quicksand',
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            Column(
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.green,
-                                        borderRadius:
-                                            BorderRadius.circular(10),
-                                      ),
-                                      height: 60,
-                                      width: 60,
-                                      child: const Icon(
-                                        Icons.cottage_outlined,
-                                        size: 40,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.green,
-                                        borderRadius:
-                                            BorderRadius.circular(10),
-                                      ),
-                                      height: 60,
-                                      width: 60,
-                                      child: const Icon(
-                                        Icons.cottage_outlined,
-                                        size: 40,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.green,
-                                        borderRadius:
-                                            BorderRadius.circular(10),
-                                      ),
-                                      height: 60,
-                                      width: 60,
-                                      child: const Icon(
-                                        Icons.cottage_outlined,
-                                        size: 40,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.green,
-                                        borderRadius:
-                                            BorderRadius.circular(10),
-                                      ),
-                                      height: 60,
-                                      width: 60,
-                                      child: const Icon(
-                                        Icons.cottage_outlined,
-                                        size: 40,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 20),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.center,
-                                  children: [
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.green,
-                                        borderRadius:
-                                            BorderRadius.circular(10),
-                                      ),
-                                      height: 60,
-                                      width: 60,
-                                      child: const Icon(
-                                        Icons.cottage_outlined,
-                                        size: 40,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.green,
-                                        borderRadius:
-                                            BorderRadius.circular(10),
-                                      ),
-                                      height: 60,
-                                      width: 60,
-                                      child: const Icon(
-                                        Icons.cottage_outlined,
-                                        size: 40,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.green,
-                                        borderRadius:
-                                            BorderRadius.circular(10),
-                                      ),
-                                      height: 60,
-                                      width: 60,
-                                      child: const Icon(
-                                        Icons.cottage_outlined,
-                                        size: 40,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.green,
-                                        borderRadius:
-                                            BorderRadius.circular(10),
-                                      ),
-                                      height: 60,
-                                      width: 60,
-                                      child: const Icon(
-                                        Icons.cottage_outlined,
-                                        size: 40,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 40),
-                            Container(
-                              height: 160.0,
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.5),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.only(right: 30.0),
-                                child: PageView.builder(
-                                  controller:
-                                      PageController(viewportFraction: 0.90),
-                                  itemCount: appBanner.length * 1000,
-                                  itemBuilder: (context, index) {
-                                    return Container(
-                                      margin: const EdgeInsets.symmetric(
-                                          horizontal: 10.0),
-                                      decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(20.0),
-                                        image: DecorationImage(
-                                          image: AssetImage(appBanner[
-                                              index % appBanner.length]),
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                            ),
-                          ],
+                        const Icon(
+                          Icons.location_on,
+                          color: Colors.green,
                         ),
                       ],
                     ),
                   ),
+                  const SizedBox(height: 20),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        height: 102,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          color: Colors.white,
+                          border: Border.all(
+                            width: 1,
+                            color:
+                            const Color.fromARGB(255, 203, 203, 203),
+                          ),
+                        ),
+                        child: Column(
+                          children: [
+                            Container(
+                              height: 50,
+                              width: double.infinity,
+                              decoration: const BoxDecoration(
+                                borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(16),
+                                    topRight: Radius.circular(16)),
+                                border: Border(
+                                  bottom: BorderSide(
+                                    width: 1,
+                                    color: Color.fromARGB(
+                                        255, 203, 203, 203),
+                                  ),
+                                ),
+                              ),
+                              child: Container(
+                                alignment: Alignment.center,
+                                padding: const EdgeInsets.all(10),
+                                child: const Text(
+                                  'HomeCare - Cho cuộc sống tiện lợi hơn!',
+                                  style: TextStyle(
+                                    fontFamily: 'Quicksand',
+                                    color: Colors.green,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 50,
+                              width: double.infinity,
+                              child: Row(
+                                mainAxisAlignment:
+                                MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Container(
+                                      decoration: const BoxDecoration(
+                                        borderRadius: BorderRadius.only(
+                                            bottomLeft:
+                                            Radius.circular(9)),
+                                        border: Border(
+                                          right: BorderSide(
+                                            width: 1,
+                                            color: Color.fromARGB(
+                                                255, 203, 203, 203),
+                                          ),
+                                        ),
+                                      ),
+                                      padding: const EdgeInsets.all(10),
+                                      child: const Row(
+                                        mainAxisAlignment:
+                                        MainAxisAlignment
+                                            .spaceBetween,
+                                        children: [
+                                          Icon(Icons.money_rounded),
+                                          Text(
+                                            '500.000 đ',
+                                            style: TextStyle(
+                                              fontFamily: 'Quicksand',
+                                            ),
+                                          ),
+                                          Icon(Icons
+                                              .arrow_forward_ios_rounded),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Container(
+                                      padding: const EdgeInsets.all(10),
+                                      child: const Row(
+                                        mainAxisAlignment:
+                                        MainAxisAlignment
+                                            .spaceBetween,
+                                        children: [
+                                          Icon(Icons.money_rounded),
+                                          Text(
+                                            '5.000 hcPoints',
+                                            style: TextStyle(
+                                              fontFamily: 'Quicksand',
+                                            ),
+                                          ),
+                                          Icon(Icons
+                                              .arrow_forward_ios_rounded),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      const Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Dịch vụ",
+                            style: TextStyle(
+                              fontFamily: 'Quicksand',
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                          ),
+                          Text(
+                            "Xem tất cả",
+                            style: TextStyle(
+                              fontFamily: 'Quicksand',
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      SizedBox(
+                        height: 300,
+                        child: ServiceListMenu(
+                          customer: widget.customer, services: widget.services,
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
+          ],
+        ),
+      ),
     );
   }
 }
 
-class _MyPersistentHeaderDelegate extends SliverPersistentHeaderDelegate {
-  final Customer customer;
+// class _MyPersistentHeaderDelegate extends SliverPersistentHeaderDelegate {
+//   final Customer customer;
 
-  _MyPersistentHeaderDelegate(this.customer);
+//   _MyPersistentHeaderDelegate(this.customer);
 
-  @override
-  Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return UserHeader(customer: customer);
-  }
+//   @override
+//   Widget build(
+//       BuildContext context, double shrinkOffset, bool overlapsContent) {
+//     return UserHeader(customer: customer);
+//   }
 
-  @override
-  double get maxExtent => 100.0; // Chiều cao tối đa của header
+//   @override
+//   double get maxExtent => 100.0; // Chiều cao tối đa của header
 
-  @override
-  double get minExtent => 100.0; // Chiều cao tối thiểu của header
+//   @override
+//   double get minExtent => 100.0; // Chiều cao tối thiểu của header
 
-  @override
-  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
-    return false;
-  }
-}
+//   @override
+//   bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
+//     return false;
+//   }
+// }

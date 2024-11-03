@@ -12,8 +12,10 @@ abstract interface class Repository {
   Future<List<Location>?> loadLocation();
   Future<List<Services>?> loadServices();
   Future<List<Customer>?> loadCustomer();
-  Future<List<Request>?> loadRequest();
+  Future<List<Requests>?> loadRequest();
   Future<List<RequestDetail>?> loadRequestDetail();
+
+  Future<void> sendRequest(Requests requests);
 }
 
 class DefaultRepository implements Repository {
@@ -89,8 +91,8 @@ class DefaultRepository implements Repository {
   }
 
   @override
-  Future<List<Request>?> loadRequest() async {
-    List<Request> requests = [];
+  Future<List<Requests>?> loadRequest() async {
+    List<Requests> requests = [];
     await remoteDataSource.loadRequestData().then((remoteRequests) {
       if (remoteRequests == null) {
         localDataSource.loadRequestData().then((localRequests) {
@@ -120,5 +122,10 @@ class DefaultRepository implements Repository {
       }
     });
     return requestDetail;
+  }
+
+  @override
+  Future<void> sendRequest(Requests request) async {
+    await remoteDataSource.sendRequests(request);
   }
 }

@@ -28,12 +28,12 @@ class ServiceMenu extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                       child: IconButton(
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ServicesOrder(customer: customer,),
-                            ),
-                          );
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(
+                          //     builder: (context) => ServicesOrder(customer: customer, service: ,),
+                          //   ),
+                          // );
                         },
                         icon: Image.asset(
                           'lib/images/services/clean.png',

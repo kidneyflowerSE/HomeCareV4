@@ -129,11 +129,11 @@ class _ChooseLocationPageState extends State<ChooseLocationPage> {
                       ),
                       GestureDetector(
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => EditLocationPage(customer: widget.customer,)),
-                          );
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(
+                          //       builder: (context) => EditLocationPage(customer: widget.customer,)),
+                          // );
                         },
                         child: Container(
                           alignment: Alignment.center,

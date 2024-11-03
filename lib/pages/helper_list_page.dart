@@ -3,12 +3,15 @@ import 'package:foodapp/data/model/helper.dart';
 
 import '../components/my_employee_detail.dart';
 import '../data/model/customer.dart';
+// import '../data/model/request.dart';
+import '../data/model/request.dart';
 import '../data/repository/repository.dart';
 import '../pages/review_order_page.dart';
 
 class HelperList extends StatefulWidget {
   final Customer customer;
-  const HelperList({super.key, required this.customer});
+  final Requests request;
+  const HelperList({super.key, required this.customer, required this.request});
 
   @override
   State<HelperList> createState() => _HelperListState();
@@ -102,9 +105,10 @@ class _HelperListState extends State<HelperList> {
               icon: const Icon(Icons.more_horiz),
             ),
             onTap: () {
+              widget.request.helperId = helpers[index].helperId;
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => ReviewOrderPage(customer: widget.customer, helper: helpers[index],)),
+                MaterialPageRoute(builder: (context) => ReviewOrderPage(customer: widget.customer, helper: helpers[index], request: widget.request,)),
               );
             },
           );

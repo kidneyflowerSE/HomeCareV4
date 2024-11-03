@@ -1,7 +1,9 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class TimeStart extends StatefulWidget {
+  final DateTime? date;
   final TimeOfDay? initialTime;
   final ValueChanged<TimeOfDay> onTimeChanged;
 
@@ -9,6 +11,7 @@ class TimeStart extends StatefulWidget {
     super.key,
     this.initialTime,
     required this.onTimeChanged,
+    this.date,
   });
 
   @override
@@ -17,26 +20,36 @@ class TimeStart extends StatefulWidget {
 
 class _TimeStartState extends State<TimeStart> {
   TimeOfDay? _selectedTime;
+  DateTime referenceDate = DateTime.now();
 
   @override
   void initState() {
     super.initState();
     final now = DateTime.now();
+    referenceDate = widget.date ?? now;
 
-    if (now.hour >= 6 && now.hour < 14) {
-      int additionalHours = now.minute > 30 ? 4 : 3;
+    // Khởi tạo thời gian nếu có thời gian khởi tạo
+    if (widget.initialTime != null) {
+      _selectedTime = widget.initialTime;
+    } else {
+    if (referenceDate.hour > 15 && referenceDate.day == now.day) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showPopUpWarning(
+            'Thời gian hiện tại đã qua 15:00. Vui lòng chọn ngày khác');
+      });
+    } else if (referenceDate.hour >= 6 && referenceDate.hour < 14) {
+      int additionalHours = referenceDate.minute > 30 ? 4 : 3;
       _selectedTime = TimeOfDay(
-        hour: now.hour + additionalHours,
+        hour: referenceDate.hour + additionalHours,
         minute: 0,
       );
     } else {
-      _selectedTime = widget.initialTime ??
-          (now.hour >= 20 || now.hour < 6
-              ? const TimeOfDay(hour: 6, minute: 0)
-              : TimeOfDay.now());
+      _selectedTime =
+          null; // Giữ _selectedTime là null nếu không có điều kiện nào được thỏa mãn
+    }
     }
 
-    // Sử dụng addPostFrameCallback để gọi onTimeChanged sau khi widget đã được xây dựng
+    // Gọi onTimeChanged ngay khi khởi tạo
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_selectedTime != null) {
         widget.onTimeChanged(_selectedTime!);
@@ -44,31 +57,53 @@ class _TimeStartState extends State<TimeStart> {
     });
   }
 
+  @override
+  void didUpdateWidget(TimeStart oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // Kiểm tra xem ngày đã thay đổi chưa
+    if (widget.date != oldWidget.date) {
+      // Cập nhật lại referenceDate và _selectedTime khi date thay đổi
+      referenceDate = widget.date ?? DateTime.now();
+      if (referenceDate.hour >= 6 && referenceDate.hour < 14) {
+        int additionalHours = referenceDate.minute > 30 ? 4 : 3;
+        _selectedTime = TimeOfDay(
+          hour: referenceDate.hour + additionalHours,
+          minute: 0,
+        );
+      } else {
+        _selectedTime = widget.initialTime;
+      }
+      // Gọi lại onTimeChanged để thông báo sự thay đổi
+      if (_selectedTime != null) {
+        widget.onTimeChanged(_selectedTime!);
+      }
+    }
+  }
+
   String formatTimeOfDay(TimeOfDay time) {
-    final now = DateTime.now();
-    final dt = DateTime(now.year, now.month, now.day, time.hour, time.minute);
+    referenceDate = widget.date ?? DateTime.now();
+    final dt = DateTime(
+      referenceDate.year,
+      referenceDate.month,
+      referenceDate.day,
+      time.hour,
+      time.minute,
+    );
     final format = DateFormat('HH:mm');
     return format.format(dt);
   }
 
   Future<void> _selectTime(BuildContext context) async {
     final now = DateTime.now();
-    DateTime modifiedNow;
-    if (now.hour >= 20 || (now.hour < 6 && now.day == DateTime.now().day)) {
-      // Nếu đúng, đặt modifiedNow thành 6h sáng hôm sau
-      modifiedNow = now.add(const Duration(days: 1)).copyWith(hour: 6, minute: 0);
-    } else {
-      // Ngược lại, sử dụng thời gian hiện tại
-      modifiedNow = now;
-    }
 
-    final initialTime = (now.hour >= 20 || now.hour < 6)
-        ? const TimeOfDay(hour: 6, minute: 0)
-        : TimeOfDay.now();
+    bool isSameDay = referenceDate.year == now.year &&
+        referenceDate.month == now.month &&
+        referenceDate.day == now.day;
 
     final TimeOfDay? picked = await showTimePicker(
       context: context,
-      initialTime: initialTime,
+      initialTime: _selectedTime ?? TimeOfDay.now(),
       builder: (BuildContext context, Widget? child) {
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
@@ -78,31 +113,60 @@ class _TimeStartState extends State<TimeStart> {
     );
 
     if (picked != null) {
-      final selectedTime = modifiedNow.copyWith(
+      DateTime selectedDateTime = referenceDate.copyWith(
         hour: picked.hour,
         minute: picked.minute,
       );
 
-      final startTime = modifiedNow.copyWith(hour: 5, minute: 59);
-      final endTime = modifiedNow.copyWith(hour: 20, minute: 0);
+      // Ràng buộc thời gian cho ngày hôm nay
+      if (isSameDay) {
+        final DateTime startTime = referenceDate.copyWith(hour: 6, minute: 0);
+        final DateTime endTime = referenceDate.copyWith(hour: 15, minute: 0);
 
-      if (selectedTime.isBefore(modifiedNow)) {
-        // && !selectedTime.isAtSameMomentAs(startTime)
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Thời gian không hợp lệ')),
-        );
-      } else if (selectedTime.isBefore(startTime) ||
-          selectedTime.isAfter(endTime)) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Thời gian phải từ 06:00 đến 20:00')),
-        );
+        // Nếu thời gian hiện tại đã qua 15:00 (3 giờ chiều), thông báo lỗi
+        if (now.hour >= 15) {
+          showPopUpWarning(
+              'Thời gian hiện tại đã qua 15:00. Vui lòng chọn ngày khác');
+          return;
+        } else if (selectedDateTime.isBefore(now)) {
+          showPopUpWarning(
+              'Thời gian không được chọn trước thời gian hiện tại');
+          return;
+        } else if (selectedDateTime.isBefore(startTime) ||
+            selectedDateTime.isAfter(endTime)) {
+          showPopUpWarning('Thời gian phải từ 6:00 đến 15:00 hôm nay');
+          return;
+        }
       } else {
-        setState(() {
-          _selectedTime = picked;
-          widget.onTimeChanged(_selectedTime!);
-        });
+        // Ràng buộc thời gian từ 06:00 đến 18:00 cho ngày khác
+        final DateTime startTime = referenceDate.copyWith(hour: 6, minute: 0);
+        final DateTime endTime =
+            referenceDate.copyWith(hour: 18, minute: 0); // 18:00 cho ngày khác
+
+        if (selectedDateTime.isBefore(startTime) ||
+            selectedDateTime.isAfter(endTime)) {
+          showPopUpWarning('Thời gian phải từ 6:00 đến 18:00 cho ngày khác');
+          return;
+        }
       }
+
+      // Nếu thời gian hợp lệ, cập nhật và thông báo
+      setState(() {
+        _selectedTime = picked;
+        widget.onTimeChanged(_selectedTime!);
+      });
     }
+  }
+
+  void showPopUpWarning(String warning) {
+    AwesomeDialog(
+      context: context,
+      animType: AnimType.scale,
+      dialogType: DialogType.warning,
+      desc: warning,
+      btnOkOnPress: () {},
+      btnCancelOnPress: () {},
+    ).show();
   }
 
   @override

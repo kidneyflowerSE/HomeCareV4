@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:foodapp/data/model/request.dart';
 import '../../data/model/location.dart';
 
 class SelectLocation extends StatefulWidget {
   final List<Location> locations;
+  final Function(Location)? onProvinceSelected;
+  final Function(String)? onDistrictSelected;
 
-  const SelectLocation({super.key, required this.locations});
+
+  const SelectLocation({super.key, required this.locations, this.onProvinceSelected, this.onDistrictSelected});
 
   @override
   State<SelectLocation> createState() => _SelectLocationState();
@@ -48,6 +52,9 @@ class _SelectLocationState extends State<SelectLocation> {
                       .map<String>((district) => district.districtName)
                       .toList();
                   selectedDistrict = null; // Reset quận/huyện đã chọn
+                  if (widget.onProvinceSelected != null) {
+                    widget.onProvinceSelected!(newValue);
+                  }
                 }
               });
             },
@@ -86,6 +93,9 @@ class _SelectLocationState extends State<SelectLocation> {
             onChanged: (String? newValue) {
               setState(() {
                 selectedDistrict = newValue;
+                if (newValue != null && widget.onDistrictSelected != null) {
+                  widget.onDistrictSelected!(newValue);
+                }
               });
             },
             items: districts.map<DropdownMenuItem<String>>((String district) {

@@ -1,3 +1,4 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -44,7 +45,7 @@ class _TimeEndState extends State<TimeEnd> {
             minute: startTime.minute,
           );
     } else {
-      _selectedTime = widget.initialTime ?? const TimeOfDay(hour: 8, minute: 0);
+      _selectedTime = null;
     }
   }
 
@@ -57,14 +58,14 @@ class _TimeEndState extends State<TimeEnd> {
 
   Future<void> _selectTime(BuildContext context) async {
     if (widget.startTime == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Chọn thời gian bắt đầu trước')),
-      );
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   const SnackBar(content: Text('Chọn thời gian bắt đầu trước')),
+      // );
+      showPopUpWarning('Chọn thời gian bắt đầu trước');
       return;
     }
 
     final startTime = widget.startTime!;
-    final now = DateTime.now();
     final initialTime = TimeOfDay(
       hour: (startTime.hour + 2).clamp(6, 20),
       minute: startTime.minute,
@@ -88,15 +89,11 @@ class _TimeEndState extends State<TimeEnd> {
           widget.onTimeChanged(_selectedTime!);
         });
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              _isEndTimeValid(startTime, picked)
-                  ? 'Thời gian kết thúc phải trong khoảng từ 6h sáng đến 8h tối'
-                  : 'Thời gian kết thúc phải sau thời gian bắt đầu ít nhất 2 tiếng',
-            ),
-          ),
-        );
+        _isEndTimeValid(startTime, picked)
+            ? showPopUpWarning(
+                'Thời gian kết thúc phải trong khoảng từ 6h sáng đến 8h tối')
+            : showPopUpWarning(
+                'Thời gian kết thúc phải sau thời gian bắt đầu ít nhất 2 tiếng');
       }
     }
   }
@@ -104,11 +101,11 @@ class _TimeEndState extends State<TimeEnd> {
   bool _isTimeInValidRange(TimeOfDay time) {
     final now = DateTime.now();
     final selectedTime =
-    DateTime(now.year, now.month, now.day, time.hour, time.minute);
+        DateTime(now.year, now.month, now.day, time.hour, time.minute);
     final startOfValidRange =
-    DateTime(now.year, now.month, now.day, 6, 0); // 6h sáng
+        DateTime(now.year, now.month, now.day, 6, 0); // 6h sáng
     final endOfValidRange =
-    DateTime(now.year, now.month, now.day, 20, 0); // 8h tối
+        DateTime(now.year, now.month, now.day, 20, 1); // 8h tối
 
     return selectedTime.isAfter(startOfValidRange) &&
         selectedTime.isBefore(endOfValidRange);
@@ -118,6 +115,19 @@ class _TimeEndState extends State<TimeEnd> {
     final startMinutes = start.hour * 60 + start.minute;
     final endMinutes = end.hour * 60 + end.minute;
     return endMinutes - startMinutes >= 120; // ít nhất 2 giờ (120 phút)
+  }
+
+  void showPopUpWarning(String warning) {
+    AwesomeDialog(
+      context: context,
+      dialogType: DialogType.warning,
+      animType: AnimType.topSlide,
+      showCloseIcon: true,
+      title: 'Warning',
+      desc: warning,
+      btnCancelOnPress: () {},
+      btnOkOnPress: () {},
+    ).show();
   }
 
   @override
@@ -142,13 +152,13 @@ class _TimeEndState extends State<TimeEnd> {
                   _selectedTime != null
                       ? formatTimeOfDay(_selectedTime!)
                       : widget.startTime != null
-                      ? formatTimeOfDay(
-                    TimeOfDay(
-                      hour: widget.startTime!.hour + 2,
-                      minute: widget.startTime!.minute,
-                    ),
-                  )
-                      : 'Chọn thời gian kết thúc',
+                          ? formatTimeOfDay(
+                              TimeOfDay(
+                                hour: widget.startTime!.hour + 2,
+                                minute: widget.startTime!.minute,
+                              ),
+                            )
+                          : 'Chọn thời gian kết thúc',
                   style: const TextStyle(
                     fontSize: 15,
                     fontFamily: 'Quicksand',

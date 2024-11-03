@@ -1,133 +1,12 @@
-// import 'package:flutter/material.dart';
-// import 'package:foodapp/components/calendar.dart';
-// import 'package:foodapp/components/dropbox.dart';
-// import 'package:foodapp/components/my_button.dart';
-// import 'package:foodapp/components/time.dart';
-// import 'package:foodapp/data/model/customer.dart';
-// import 'package:foodapp/data/model/location.dart';
-// import 'package:foodapp/data/repository/repository.dart';
-
-// class OnDemand extends StatefulWidget {
-//   final List<Location> locations;
-//   const OnDemand({super.key, required this.locations});
-
-//   @override
-//   State<OnDemand> createState() => _OnDemandState();
-// }
-
-// class _OnDemandState extends State<OnDemand> {
-//   List<Customer> customers = [];
-//   bool _isLoading = true;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     loadCustomers();
-//   }
-
-//   Future<void> loadCustomers() async {
-//     var repository = DefaultRepository();
-//     var data = await repository.loadCustomer();
-//     setState(() {
-//       customers = data ?? [];
-//       _isLoading = false;
-//     });
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     if (_isLoading) {
-//       return const Center(child: CircularProgressIndicator());
-//     }
-
-//     return Padding(
-//       padding: const EdgeInsets.all(16.0),
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           const Text("Chọn thời gian"),
-//           const CalendarDropdown(),
-//           const SizedBox(height: 20),
-//           const Text("Chọn giờ bắt đầu"),
-//           const TimeDropDown(),
-//           const SizedBox(height: 20),
-//           const Text("Chọn giờ kết thúc"),
-//           const TimeDropDown(),
-//           const SizedBox(height: 20),
-//           const Text("Chọn địa điểm"),
-//           DropBox(locations: widget.locations),
-//           const SizedBox(height: 20),
-//           const MyButton(text: 'Tiếp theo', onTap: null),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
-// class LongTerm extends StatefulWidget {
-//   final List<Location> locations;
-//   const LongTerm({super.key, required this.locations});
-
-//   @override
-//   State<LongTerm> createState() => _LongTermState();
-// }
-
-// class _LongTermState extends State<LongTerm> {
-//   List<Customer> customers = [];
-//   bool _isLoading = true;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     loadCustomers();
-//   }
-
-//   Future<void> loadCustomers() async {
-//     var repository = DefaultRepository();
-//     var data = await repository.loadCustomer();
-//     setState(() {
-//       customers = data ?? [];
-//       _isLoading = false;
-//     });
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     if (_isLoading) {
-//       return const Center(child: CircularProgressIndicator());
-//     }
-
-//     return Padding(
-//       padding: const EdgeInsets.all(16.0),
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           const Text("Chọn thời gian"),
-//           const CalendarDropdown(),
-//           const SizedBox(height: 20),
-//           const Text("Chọn giờ bắt đầu"),
-//           const TimeDropDown(),
-//           const SizedBox(height: 20),
-//           const Text("Chọn giờ kết thúc"),
-//           const TimeDropDown(),
-//           const SizedBox(height: 20),
-//           const Text("Chọn địa điểm"),
-//           DropBox(locations: widget.locations),
-//           const SizedBox(height: 20),
-//           const MyButton(text: 'Tiếp theo', onTap: null),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
 import 'package:flutter/material.dart';
 import 'package:foodapp/components/address_type.dart';
 import 'package:foodapp/components/delay_animation.dart';
 import 'package:foodapp/components/district_selected.dart';
 import 'package:foodapp/components/time_end.dart';
 import 'package:foodapp/components/time_selection.dart';
+import 'package:foodapp/data/model/request.dart';
 import 'package:foodapp/pages/review_order_page.dart';
+import 'package:intl/intl.dart';
 
 import '../../data/model/customer.dart';
 import '../../data/model/location.dart';
@@ -136,11 +15,15 @@ import '../components/calendar.dart';
 import '../components/city_selected.dart';
 import '../components/my_button.dart';
 import '../components/time_start.dart';
+import '../data/model/service.dart';
 import 'helper_list_page.dart';
 
 class ServicesOrder extends StatefulWidget {
   final Customer customer;
-  const ServicesOrder({super.key, required this.customer});
+  final Services service;
+
+  const ServicesOrder(
+      {super.key, required this.customer, required this.service});
 
   @override
   State<ServicesOrder> createState() => _ServicesOrderState();
@@ -152,6 +35,11 @@ class _ServicesOrderState extends State<ServicesOrder>
   List<Location> locations = [];
   List<Customer> customers = [];
   bool isLoading = true;
+  DateTime? selectedDate;
+  TimeOfDay? _startTime;
+  TimeOfDay? _endTime;
+  Location? selectedProvince;
+  String? selectedDistrict;
 
   @override
   void initState() {
@@ -183,10 +71,12 @@ class _ServicesOrderState extends State<ServicesOrder>
       appBar: AppBar(
         backgroundColor: Colors.green,
         leading: IconButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            icon: const Icon(Icons.arrow_back_ios_new_rounded), color: Colors.white,),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          color: Colors.white,
+        ),
         title: Container(
           padding: const EdgeInsets.symmetric(horizontal: 6),
           child: Row(
@@ -264,6 +154,33 @@ class _ServicesOrderState extends State<ServicesOrder>
           OnDemand(
             locations: locations,
             customers: customers,
+            onTimeChanged: (startTime, endTime) {
+              setState(() {
+                _startTime = startTime;
+                if (endTime == null && startTime != null) {
+                  _endTime = TimeOfDay(
+                      hour: _startTime!.hour + 2, minute: _startTime!.minute);
+                } else {
+                  _endTime = endTime;
+                }
+              });
+            },
+            onDateChanged: (date) {
+              // Handle date changes
+              setState(() {
+                selectedDate = date;
+              });
+            },
+            onProvinceSelected: (Location province) {
+              setState(() {
+                selectedProvince = province;
+              });
+            },
+            onDistrictSelected: (String district){
+              setState(() {
+                selectedDistrict = district;
+              });
+            },
           ),
           LongTerm(
             locations: locations,
@@ -275,10 +192,72 @@ class _ServicesOrderState extends State<ServicesOrder>
         child: MyButton(
           text: "Tiếp theo",
           onTap: () {
+            selectedDate ??= DateTime.now();
+            if (_startTime != null && _endTime != null) {
+              // Create a Request object
+              var request = Requests(
+                customerInfo: CustomerInfo(
+                    fullName: widget.customer.name,
+                    phone: widget.customer.phone,
+                    address: widget.customer.addresses[0].detailedAddress,
+                    usedPoint: widget.customer.points[0].point),
+                service: RequestService(
+                    title: widget.service.title,
+                    coefficientService: 0,
+                    coefficientOther: 0,
+                    cost: widget.service.basicPrice),
+                location: selectedProvince != null
+                    ? RequestLocation(
+                        province: selectedProvince!.province,
+                        district: selectedDistrict ?? '',
+                      )
+                    : RequestLocation(province: '', district: ''),
+                id: '',
+                // Generate or provide an ID if required
+                oderDate: DateTime.now().toIso8601String(),
+                scheduleIds: [], // Add any schedule IDs if needed
+                startDate: DateFormat('yyyy-MM-dd').format(DateTime(selectedDate!.year, selectedDate!.month, selectedDate!.day)),
+                startTime: DateTime(selectedDate!.year, selectedDate!.month,
+                        selectedDate!.day, _startTime!.hour, _startTime!.minute)
+                    .toIso8601String(),
+                endTime: DateTime(selectedDate!.year, selectedDate!.month,
+                        selectedDate!.day, _endTime!.hour, _endTime!.minute)
+                    .toIso8601String(),
+                requestType: 'ngắn hạn',
+                // Set based on your application's logic
+                totalCost: 0,
+                // Calculate or set the total cost
+                status: 'chưa tiến hành',
+                // Set the initial status
+                deleted: false,
+                comment:
+                    Comment(review: '', loseThings: false, breakThings: false),
+                profit: 0, // Calculate or set profit if applicable
+              );
+              print('Request Information:');
+              print('Customer Name: ${request.customerInfo.fullName}');
+              print('Customer Phone: ${request.customerInfo.phone}');
+              print('Customer Address: ${request.customerInfo.address}');
+              print('Service Title: ${request.service.title}');
+              print('Start Date: ${request.startDate}');
+              print('Start Time: ${request.startTime}');
+              print('End Time: ${request.endTime}');
+              print(
+                  'Location: ${request.location.province}, ${request.location.district}');
+              print('Order Date: ${request.oderDate}');
+              print('Request Type: ${request.requestType}');
+              print('Total Cost: ${request.totalCost}');
+              print('Status: ${request.status}');
+
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => HelperList(customer: widget.customer,)),
+                MaterialPageRoute(
+                    builder: (context) => HelperList(
+                          customer: widget.customer,
+                          request: request,
+                        )),
               );
+            }
           },
         ),
       ),
@@ -289,14 +268,28 @@ class _ServicesOrderState extends State<ServicesOrder>
 class OnDemand extends StatefulWidget {
   final List<Location> locations;
   final List<Customer> customers;
+  final Function(TimeOfDay?, TimeOfDay?)? onTimeChanged;
+  final Function(Location)? onProvinceSelected;
+  final Function(String)? onDistrictSelected;
+  final Function(DateTime?)? onDateChanged;
 
-  const OnDemand({super.key, required this.locations, required this.customers});
+  const OnDemand(
+      {super.key,
+      required this.locations,
+      required this.customers,
+      this.onTimeChanged,
+      this.onProvinceSelected,
+      this.onDistrictSelected,
+      this.onDateChanged});
 
   @override
   State<OnDemand> createState() => _OnDemandState();
 }
 
 class _OnDemandState extends State<OnDemand> {
+  Location? selectedProvince;
+  String? selectedDistrict;
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -305,27 +298,29 @@ class _OnDemandState extends State<OnDemand> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "Thời gian",
-              style: TextStyle(
-                fontFamily: 'Quicksand',
-                fontWeight: FontWeight.w600,
-                // color: Colors.green,
-                fontSize: 16,
-              ),
+            // const Text(
+            //   "Thời gian",
+            //   style: TextStyle(
+            //     fontFamily: 'Quicksand',
+            //     fontWeight: FontWeight.w600,
+            //     // color: Colors.green,
+            //     fontSize: 16,
+            //   ),
+            // ),
+            // const SizedBox(height: 5),
+            // const SizedBox(height: 20),
+            // const Text(
+            //   "Giờ bắt đầu",
+            //   style: TextStyle(
+            //     fontFamily: 'Quicksand',
+            //     fontWeight: FontWeight.w600,
+            //     fontSize: 16,
+            //   ),
+            // ),
+            TimeSelection(
+              onTimeChanged: widget.onTimeChanged,
+              onDateChanged: widget.onDateChanged,
             ),
-            const SizedBox(height: 5),
-            const CalendarDropdown(),
-            const SizedBox(height: 20),
-            const Text(
-              "Giờ bắt đầu",
-              style: TextStyle(
-                fontFamily: 'Quicksand',
-                fontWeight: FontWeight.w600,
-                fontSize: 16,
-              ),
-            ),
-            const TimeSelection(),
             const SizedBox(height: 20),
             const Text(
               "Địa điểm",
@@ -342,7 +337,27 @@ class _OnDemandState extends State<OnDemand> {
                 Row(
                   children: [
                     Expanded(
-                      child: SelectLocation(locations: widget.locations),
+                      child: SelectLocation(
+                        locations: widget.locations,
+                        onProvinceSelected: (Location province) {
+                          setState(() {
+                            selectedProvince = province;
+                          });
+                          if (widget.onProvinceSelected != null) {
+                            widget.onProvinceSelected!(
+                                province); // Call callback to notify ServicesOrder
+                          }
+                        },
+                        onDistrictSelected: (String district) {
+                          setState(() {
+                            selectedDistrict = district;
+                            print('Selected District: $selectedDistrict');
+                          });
+                          if (widget.onDistrictSelected != null) {
+                            widget.onDistrictSelected!(district);
+                          }
+                        },
+                      ),
                     ),
                     // const SizedBox(width: 10), // Khoảng cách giữa 2 dropdown
                     // Expanded(
@@ -352,6 +367,7 @@ class _OnDemandState extends State<OnDemand> {
                 ),
                 const SizedBox(height: 10),
                 const AddressType(),
+                const SizedBox(height: 20),
               ],
             ),
           ],
@@ -374,19 +390,19 @@ class LongTerm extends StatefulWidget {
 class _LongTermState extends State<LongTerm> {
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
+    return const SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Chọn thời gian"),
-            const CalendarDropdown(),
-            const SizedBox(height: 20),
-            const TimeSelection(),
-            const SizedBox(height: 20),
-            const Text("Chọn địa điểm"),
-            SelectLocation(locations: widget.locations),
+            Text("Chọn thời gian"),
+            // const CalendarDropdown(request: null,),
+            SizedBox(height: 20),
+            // const TimeSelection(),
+            SizedBox(height: 20),
+            Text("Chọn địa điểm"),
+            // SelectLocation(locations: widget.locations),
             // DistrictSelected(locations: widget.locations),
             // const SizedBox(height: 20),
             // const MyButton(text: 'Tiếp theo', onTap: null),

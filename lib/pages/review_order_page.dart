@@ -1,13 +1,33 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:foodapp/components/my_button.dart';
 import 'package:foodapp/data/model/helper.dart';
+import 'package:foodapp/data/repository/repository.dart';
 import '../data/model/customer.dart';
+import '../data/model/request.dart';
 
-class ReviewOrderPage extends StatelessWidget {
+class ReviewOrderPage extends StatefulWidget {
   final Customer customer;
   final Helper helper;
+  final Requests request;
 
-  const ReviewOrderPage({super.key, required this.customer, required this.helper});
+  const ReviewOrderPage(
+      {super.key, required this.customer, required this.helper, required this.request});
+
+  @override
+  _ReviewOrderPageState createState() => _ReviewOrderPageState();
+}
+class _ReviewOrderPageState extends State<ReviewOrderPage> {
+  void showPopUpWarning(String warning) {
+    AwesomeDialog(
+      context: context,
+      animType: AnimType.scale,
+      dialogType: DialogType.warning,
+      desc: warning,
+      btnOkOnPress: () {},
+      btnCancelOnPress: () {},
+    ).show();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,10 +57,10 @@ class ReviewOrderPage extends StatelessWidget {
       ),
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(16),
-        child: const Column(
+        child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Row(
+            const Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
@@ -62,10 +82,14 @@ class ReviewOrderPage extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             MyButton(
               text: "Đăng việc",
-              onTap: null,
+              onTap:() {
+                var repository = DefaultRepository();
+                repository.sendRequest(widget.request);
+
+              },
             ),
           ],
         ),
@@ -122,7 +146,7 @@ class ReviewOrderPage extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      customer.addresses[0].detailedAddress,
+                                      widget.customer.addresses[0].detailedAddress,
                                       style: const TextStyle(
                                         fontFamily: 'Quicksand',
                                         fontSize: 16,
@@ -131,7 +155,7 @@ class ReviewOrderPage extends StatelessWidget {
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      customer.addresses
+                                      widget.customer.addresses
                                           .map((address) => address.toString())
                                           .join(','),
                                       style: const TextStyle(
@@ -162,7 +186,7 @@ class ReviewOrderPage extends StatelessWidget {
                                       MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
-                                          customer.name ?? 'Tên không có sẵn',
+                                          widget.customer.name ?? 'Tên không có sẵn',
                                           style: const TextStyle(
                                             fontFamily: 'Quicksand',
                                             fontSize: 16,
@@ -192,7 +216,7 @@ class ReviewOrderPage extends StatelessWidget {
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      customer.phone ?? 'Sđt không có sẵn',
+                                      widget.customer.phone ?? 'Sđt không có sẵn',
                                       style: const TextStyle(
                                         fontFamily: 'Quicksand',
                                         fontSize: 16,

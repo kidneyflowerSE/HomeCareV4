@@ -1,5 +1,6 @@
 class Services {
   String title;
+  String id;
   int basicPrice;
   String extraFee;
   int overTimePriceHelper;
@@ -9,6 +10,7 @@ class Services {
 
   Services(
       {required this.title,
+      required this.id,
       required this.basicPrice,
       required this.extraFee,
       required this.overTimePriceHelper,
@@ -18,13 +20,15 @@ class Services {
 
   factory Services.fromJson(Map<String, dynamic> map) {
     return Services(
-        title: map['title'],
-        basicPrice: map['basicPrice'],
-        extraFee: map['extraFee'],
-        overTimePriceHelper: map['overTimePrice_Helper'],
-        overTimePriceCustomer: map['overTimePrice_Customer'],
-        description: map['description'],
-        status: map['status']);
+      title: map['title'] ?? 'Unknown Title',  // Default value for title
+      id: map['_id'] ?? 'Unknown ID',          // Default value for id
+      basicPrice: map['basicPrice'] ?? 0,      // Default to 0 if not present
+      extraFee: map['extraFee'] ?? '0',        // Default to '0' if not present
+      overTimePriceHelper: map['overTimePrice_Helper'] ?? 0, // Default to 0
+      overTimePriceCustomer: map['overTimePrice_Customer'] ?? 0, // Default to 0
+      description: map['description'] ?? 'No description', // Default message
+      status: map['status'] ?? 'inactive', // Default to 'inactive'
+    );
   }
 
   @override

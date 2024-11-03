@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:foodapp/data/model/helper.dart';
 import 'package:foodapp/data/model/location.dart';
@@ -20,9 +22,11 @@ abstract interface class DataSource {
 
   Future<List<Customer>?> loadCustomerData();
 
-  Future<List<Request>?> loadRequestData();
+  Future<List<Requests>?> loadRequestData();
 
   Future<List<RequestDetail>?> loadRequestDetailData();
+
+  Future<void> sendRequests(Requests requests);
 }
 
 class RemoteDataSource implements DataSource {
@@ -30,12 +34,18 @@ class RemoteDataSource implements DataSource {
   Future<List<Helper>?> loadCleanerData() async {
     const url = 'https://homecareapi.vercel.app/api/helper';
     final uri = Uri.parse(url);
-    final response = await http.get(uri);
-    if (response.statusCode == 200) {
-      final bodyContent = utf8.decode(response.bodyBytes);
-      final List<dynamic> cleanerList = jsonDecode(bodyContent);
-      return cleanerList.map((cleaner) => Helper.fromJson(cleaner)).toList();
-    } else {
+    try {
+      final response = await http.get(uri);
+      if (response.statusCode == 200) {
+        final bodyContent = utf8.decode(response.bodyBytes);
+        final List<dynamic> cleanerList = jsonDecode(bodyContent);
+        return cleanerList.map((cleaner) => Helper.fromJson(cleaner)).toList();
+      } else {
+        print('Failed to load cleaner data. Status code: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error loading cleaner data: $e');
       return null;
     }
   }
@@ -44,14 +54,18 @@ class RemoteDataSource implements DataSource {
   Future<List<Location>?> loadLocationData() async {
     const url = 'https://homecareapi.vercel.app/api/location';
     final uri = Uri.parse(url);
-    final response = await http.get(uri);
-    if (response.statusCode == 200) {
-      final bodyContent = utf8.decode(response.bodyBytes);
-      final List<dynamic> locationList = jsonDecode(bodyContent);
-      return locationList
-          .map((location) => Location.fromJson(location))
-          .toList();
-    } else {
+    try {
+      final response = await http.get(uri);
+      if (response.statusCode == 200) {
+        final bodyContent = utf8.decode(response.bodyBytes);
+        final List<dynamic> locationList = jsonDecode(bodyContent);
+        return locationList.map((location) => Location.fromJson(location)).toList();
+      } else {
+        print('Failed to load location data. Status code: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error loading location data: $e');
       return null;
     }
   }
@@ -60,14 +74,18 @@ class RemoteDataSource implements DataSource {
   Future<List<Customer>?> loadCustomerData() async {
     const url = 'https://homecareapi.vercel.app/api/customer';
     final uri = Uri.parse(url);
-    final response = await http.get(uri);
-    if (response.statusCode == 200) {
-      final bodyContent = utf8.decode(response.bodyBytes);
-      final List<dynamic> customerList = jsonDecode(bodyContent);
-      return customerList
-          .map((customer) => Customer.fromJson(customer))
-          .toList();
-    } else {
+    try {
+      final response = await http.get(uri);
+      if (response.statusCode == 200) {
+        final bodyContent = utf8.decode(response.bodyBytes);
+        final List<dynamic> customerList = jsonDecode(bodyContent);
+        return customerList.map((customer) => Customer.fromJson(customer)).toList();
+      } else {
+        print('Failed to load customer data. Status code: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error loading customer data: $e');
       return null;
     }
   }
@@ -76,28 +94,38 @@ class RemoteDataSource implements DataSource {
   Future<List<Services>?> loadServicesData() async {
     const url = 'https://homecareapi.vercel.app/api/service';
     final uri = Uri.parse(url);
-    final response = await http.get(uri);
-    if (response.statusCode == 200) {
-      final bodyContent = utf8.decode(response.bodyBytes);
-      final List<dynamic> servicesList = jsonDecode(bodyContent);
-      return servicesList
-          .map((services) => Services.fromJson(services))
-          .toList();
-    } else {
+    try {
+      final response = await http.get(uri);
+      if (response.statusCode == 200) {
+        final bodyContent = utf8.decode(response.bodyBytes);
+        final List<dynamic> servicesList = jsonDecode(bodyContent);
+        return servicesList.map((services) => Services.fromJson(services)).toList();
+      } else {
+        print('Failed to load services data. Status code: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error loading services data: $e');
       return null;
     }
   }
 
   @override
-  Future<List<Request>?> loadRequestData() async {
+  Future<List<Requests>?> loadRequestData() async {
     const url = 'https://homecareapi.vercel.app/api/request';
     final uri = Uri.parse(url);
-    final response = await http.get(uri);
-    if (response.statusCode == 200) {
-      final bodyContent = utf8.decode(response.bodyBytes);
-      final List<dynamic> requestList = jsonDecode(bodyContent);
-      return requestList.map((request) => Request.fromJson(request)).toList();
-    } else {
+    try {
+      final response = await http.get(uri);
+      if (response.statusCode == 200) {
+        final bodyContent = utf8.decode(response.bodyBytes);
+        final List<dynamic> requestList = jsonDecode(bodyContent);
+        return requestList.map((request) => Requests.fromJson(request)).toList();
+      } else {
+        print('Failed to load request data. Status code: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error loading request data: $e');
       return null;
     }
   }
@@ -106,21 +134,27 @@ class RemoteDataSource implements DataSource {
   Future<List<RequestDetail>?> loadRequestDetailData() async {
     const url = 'https://homecareapi.vercel.app/api/request';
     final uri = Uri.parse(url);
-    final response = await http.get(uri);
-    if (response.statusCode == 200) {
-      final bodyContent = utf8.decode(response.bodyBytes);
-      final List<dynamic> requestList = jsonDecode(bodyContent);
+    try {
+      final response = await http.get(uri);
+      if (response.statusCode == 200) {
+        final bodyContent = utf8.decode(response.bodyBytes);
+        final List<dynamic> requestList = jsonDecode(bodyContent);
 
-      List<String> requestIds = [];
+        List<String> requestIds = [];
 
-      for (var request in requestList) {
-        Request req = Request.fromJson(request);
-        if (req.scheduleIds.isNotEmpty) {
-          requestIds.addAll(req.scheduleIds);
+        for (var request in requestList) {
+          Requests req = Requests.fromJson(request);
+          if (req.scheduleIds.isNotEmpty) {
+            requestIds.addAll(req.scheduleIds);
+          }
         }
+        return await loadRequestDetailId(requestIds);
+      } else {
+        print('Failed to load request detail data. Status code: ${response.statusCode}');
+        return null;
       }
-      return await loadRequestDetailId(requestIds);
-    } else {
+    } catch (e) {
+      print('Error loading request detail data: $e');
       return null;
     }
   }
@@ -130,18 +164,48 @@ class RemoteDataSource implements DataSource {
     String url =
         'https://homecareapi.vercel.app/api/requestDetail?ids=$idString';
     final uri = Uri.parse(url);
-    final response = await http.get(uri);
-    if (response.statusCode == 200) {
-      final bodyContent = utf8.decode(response.bodyBytes);
-      final List<dynamic> detailsList = jsonDecode(bodyContent);
-      return detailsList
-          .map((detail) => RequestDetail.fromJson(detail))
-          .toList();
-    } else {
+    try {
+      final response = await http.get(uri);
+      if (response.statusCode == 200) {
+        final bodyContent = utf8.decode(response.bodyBytes);
+        final List<dynamic> detailsList = jsonDecode(bodyContent);
+        return detailsList.map((detail) => RequestDetail.fromJson(detail)).toList();
+      } else {
+        print('Failed to load request detail IDs. Status code: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error loading request detail IDs: $e');
       return null;
     }
   }
+
+  @override
+  Future<void> sendRequests(Requests requests) async {
+    const url = 'https://homecareapi.vercel.app/api/request';
+    final uri = Uri.parse(url);
+    final headers = {'Content-Type': 'application/json'};
+    final body = jsonEncode(requests.toJson());
+
+    print(body);
+
+    try {
+      final response = await http.post(uri, headers: headers, body: body);
+
+      if (response.statusCode == 200) {
+        if (kDebugMode) {
+          print('Requests posted successfully!');
+        }
+      } else {
+        print('Failed to post requests. Status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+      }
+    } catch (e) {
+      print('Error posting requests: $e');
+    }
+  }
 }
+
 
 class LocalDataSource implements DataSource {
   @override
@@ -173,10 +237,10 @@ class LocalDataSource implements DataSource {
   }
 
   @override
-  Future<List<Request>?> loadRequestData() async {
+  Future<List<Requests>?> loadRequestData() async {
     final String response = await rootBundle.loadString('assets/request.json');
     final List<dynamic> requestList = jsonDecode(response);
-    return requestList.map((request) => Request.fromJson(request)).toList();
+    return requestList.map((request) => Requests.fromJson(request)).toList();
   }
 
   @override
@@ -186,5 +250,11 @@ class LocalDataSource implements DataSource {
     return requestDetailList
         .map((detail) => RequestDetail.fromJson(detail))
         .toList();
+  }
+
+  @override
+  Future<void> sendRequests(Requests requests) {
+    // TODO: implement sendRequests
+    throw UnimplementedError();
   }
 }

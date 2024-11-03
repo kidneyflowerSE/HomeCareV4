@@ -1,34 +1,35 @@
 class Customer {
   List<Points> points;
-  String? phone;
-  String? name;
-  String? email;
-  String? password;
+  String phone;
+  String name;
+  String email;
+  String password;
   List<Addresses> addresses;
 
   Customer({
     required this.addresses,
     required this.points,
-    this.phone,
-    this.name,
-    this.password,
-    this.email,
+    required this.phone,
+    required this.name,
+    required this.password,
+    required this.email,
   });
 
   factory Customer.fromJson(Map<String, dynamic> map) {
     return Customer(
-      addresses: (map['addresses'] as List<dynamic>)
-          .map((e) => Addresses.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      points: (map['points'] as List<dynamic>)
-          .map((e) => Points.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      phone: map['phone'],
-      name: map['fullName'],
-      password: map['password'],
-      email: map['email'],
+      addresses: (map['addresses'] as List<dynamic>?)
+          ?.map((e) => Addresses.fromJson(e as Map<String, dynamic>))
+          .toList() ?? [],  // Default to empty list if null
+      points: (map['points'] as List<dynamic>?)
+          ?.map((e) => Points.fromJson(e as Map<String, dynamic>))
+          .toList() ?? [],  // Default to empty list if null
+      phone: map['phone'] ?? '',  // Default to empty string if null
+      name: map['fullName'] ?? '',  // Default to empty string if null
+      password: map['password'] ?? '',  // Default to empty string if null
+      email: map['email'] ?? '',  // Default to empty string if null
     );
   }
+
 
   @override
   bool operator ==(Object other) =>
@@ -87,11 +88,13 @@ class Addresses {
 
   factory Addresses.fromJson(Map<String, dynamic> map) {
     return Addresses(
-        province: map['province'] ?? '',
-        district: map['district'] ?? '',
-        id: map['_id'],
-        detailedAddress: map['detailAddress'] ?? '');
+      province: map['province'] ?? '',  // Default to empty string if null
+      district: map['district'] ?? '',  // Default to empty string if null
+      id: map['_id'] ?? '',  // Default to empty string if null
+      detailedAddress: map['detailAddress'] ?? '',  // Default to empty string if null
+    );
   }
+
 
   @override
   String toString() {
