@@ -5,6 +5,7 @@ import 'package:foodapp/components/district_selected.dart';
 import 'package:foodapp/components/time_end.dart';
 import 'package:foodapp/components/time_selection.dart';
 import 'package:foodapp/data/model/request.dart';
+import 'package:foodapp/pages/long_term_calendar_selection_page.dart';
 import 'package:foodapp/pages/review_order_page.dart';
 import 'package:intl/intl.dart';
 
@@ -36,6 +37,8 @@ class _ServicesOrderState extends State<ServicesOrder>
   List<Customer> customers = [];
   bool isLoading = true;
   DateTime? selectedDate;
+  DateTime? startDate;
+  DateTime? endDate;
   TimeOfDay? _startTime;
   TimeOfDay? _endTime;
   Location? selectedProvince;
@@ -165,10 +168,15 @@ class _ServicesOrderState extends State<ServicesOrder>
                 }
               });
             },
-            onDateChanged: (date) {
+            onDateChanged: (date, isStartDate) {
               // Handle date changes
               setState(() {
-                selectedDate = date;
+                if (isStartDate == 'start') {
+                  selectedDate = date;
+                  startDate = date;
+                } else {
+                  endDate = date;
+                }
               });
             },
             onProvinceSelected: (Location province) {
@@ -176,7 +184,7 @@ class _ServicesOrderState extends State<ServicesOrder>
                 selectedProvince = province;
               });
             },
-            onDistrictSelected: (String district){
+            onDistrictSelected: (String district) {
               setState(() {
                 selectedDistrict = district;
               });
@@ -185,6 +193,38 @@ class _ServicesOrderState extends State<ServicesOrder>
           LongTerm(
             locations: locations,
             customers: customers,
+            onTimeChanged: (startTime, endTime) {
+              setState(() {
+                _startTime = startTime;
+                if (endTime == null && startTime != null) {
+                  _endTime = TimeOfDay(
+                      hour: _startTime!.hour + 2, minute: _startTime!.minute);
+                } else {
+                  _endTime = endTime;
+                }
+              });
+            },
+            onDateChanged: (date, isStartDate) {
+              // Handle date changes
+              setState(() {
+                if (isStartDate == 'start') {
+                  selectedDate = date;
+                  startDate = date;
+                } else {
+                  endDate = date;
+                }
+              });
+            },
+            onProvinceSelected: (Location province) {
+              setState(() {
+                selectedProvince = province;
+              });
+            },
+            onDistrictSelected: (String district) {
+              setState(() {
+                selectedDistrict = district;
+              });
+            },
           ),
         ],
       ),
@@ -193,6 +233,7 @@ class _ServicesOrderState extends State<ServicesOrder>
           text: "Tiếp theo",
           onTap: () {
             selectedDate ??= DateTime.now();
+            DateTime? selectedEndDate = endDate ?? selectedDate;
             if (_startTime != null && _endTime != null) {
               // Create a Request object
               var request = Requests(
@@ -203,25 +244,29 @@ class _ServicesOrderState extends State<ServicesOrder>
                     usedPoint: widget.customer.points[0].point),
                 service: RequestService(
                     title: widget.service.title,
-                    coefficientService: 0,
-                    coefficientOther: 0,
+                    coefficientService: 0.0,
+                    coefficientOther: 0.0,
                     cost: widget.service.basicPrice),
                 location: selectedProvince != null
                     ? RequestLocation(
-                        province: selectedProvince!.province,
+                        province: selectedProvince!.name,
                         district: selectedDistrict ?? '',
                       )
                     : RequestLocation(province: '', district: ''),
                 id: '',
                 // Generate or provide an ID if required
                 oderDate: DateTime.now().toIso8601String(),
-                scheduleIds: [], // Add any schedule IDs if needed
-                startDate: DateFormat('yyyy-MM-dd').format(DateTime(selectedDate!.year, selectedDate!.month, selectedDate!.day)),
+                scheduleIds: [],
+                // Add any schedule IDs if needed
+                startDate: DateFormat('yyyy-MM-dd').format(DateTime(
+                    selectedDate!.year,
+                    selectedDate!.month,
+                    selectedDate!.day)),
                 startTime: DateTime(selectedDate!.year, selectedDate!.month,
                         selectedDate!.day, _startTime!.hour, _startTime!.minute)
                     .toIso8601String(),
-                endTime: DateTime(selectedDate!.year, selectedDate!.month,
-                        selectedDate!.day, _endTime!.hour, _endTime!.minute)
+                endTime: DateTime(selectedEndDate!.year, selectedEndDate.month,
+                        selectedEndDate.day, _endTime!.hour, _endTime!.minute)
                     .toIso8601String(),
                 requestType: 'ngắn hạn',
                 // Set based on your application's logic
@@ -251,11 +296,24 @@ class _ServicesOrderState extends State<ServicesOrder>
 
               Navigator.push(
                 context,
+                // MaterialPageRoute(
+                //     builder: (context) => HelperList(
+                //           customer: widget.customer,
+                //           request: request,
+                //         )),
                 MaterialPageRoute(
-                    builder: (context) => HelperList(
-                          customer: widget.customer,
-                          request: request,
-                        )),
+                  builder: (context) => CustomCalendar(
+                    initialSelectedDates: [
+                      DateTime(2025, 1, 1),
+                      DateTime(2025, 1, 15),
+                      DateTime(2025, 1, 20),
+                    ],
+                    customer: widget.customer,
+                    request: request,
+                    // minDate: DateTime(2025, 1, 2),
+                    // maxDate: DateTime(2025, 1, 15),
+                  ),
+                ),
               );
             }
           },
@@ -271,7 +329,7 @@ class OnDemand extends StatefulWidget {
   final Function(TimeOfDay?, TimeOfDay?)? onTimeChanged;
   final Function(Location)? onProvinceSelected;
   final Function(String)? onDistrictSelected;
-  final Function(DateTime?)? onDateChanged;
+  final Function(DateTime?, String?)? onDateChanged;
 
   const OnDemand(
       {super.key,
@@ -320,6 +378,7 @@ class _OnDemandState extends State<OnDemand> {
             TimeSelection(
               onTimeChanged: widget.onTimeChanged,
               onDateChanged: widget.onDateChanged,
+              isOnDemand: true,
             ),
             const SizedBox(height: 20),
             const Text(
@@ -380,32 +439,109 @@ class _OnDemandState extends State<OnDemand> {
 class LongTerm extends StatefulWidget {
   final List<Location> locations;
   final List<Customer> customers;
+  final Function(TimeOfDay?, TimeOfDay?)? onTimeChanged;
+  final Function(Location)? onProvinceSelected;
+  final Function(String)? onDistrictSelected;
+  final Function(DateTime?, String?)? onDateChanged;
 
-  const LongTerm({super.key, required this.locations, required this.customers});
+  const LongTerm(
+      {super.key,
+      required this.locations,
+      required this.customers,
+      this.onTimeChanged,
+      this.onProvinceSelected,
+      this.onDistrictSelected,
+      this.onDateChanged});
 
   @override
   State<LongTerm> createState() => _LongTermState();
 }
 
 class _LongTermState extends State<LongTerm> {
+  Location? selectedProvince;
+  String? selectedDistrict;
+
   @override
   Widget build(BuildContext context) {
-    return const SingleChildScrollView(
+    return SingleChildScrollView(
       child: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Chọn thời gian"),
-            // const CalendarDropdown(request: null,),
-            SizedBox(height: 20),
-            // const TimeSelection(),
-            SizedBox(height: 20),
-            Text("Chọn địa điểm"),
-            // SelectLocation(locations: widget.locations),
-            // DistrictSelected(locations: widget.locations),
+            // const Text(
+            //   "Thời gian",
+            //   style: TextStyle(
+            //     fontFamily: 'Quicksand',
+            //     fontWeight: FontWeight.w600,
+            //     // color: Colors.green,
+            //     fontSize: 16,
+            //   ),
+            // ),
+            // const SizedBox(height: 5),
             // const SizedBox(height: 20),
-            // const MyButton(text: 'Tiếp theo', onTap: null),
+            // const Text(
+            //   "Giờ bắt đầu",
+            //   style: TextStyle(
+            //     fontFamily: 'Quicksand',
+            //     fontWeight: FontWeight.w600,
+            //     fontSize: 16,
+            //   ),
+            // ),
+            TimeSelection(
+              onTimeChanged: widget.onTimeChanged,
+              onDateChanged: widget.onDateChanged,
+              isOnDemand: false,
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              "Địa điểm",
+              style: TextStyle(
+                fontFamily: 'Quicksand',
+                fontWeight: FontWeight.w600,
+                // color: Colors.green,
+                fontSize: 16,
+              ),
+            ),
+            const SizedBox(height: 5),
+            Column(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: SelectLocation(
+                        locations: widget.locations,
+                        onProvinceSelected: (Location province) {
+                          setState(() {
+                            selectedProvince = province;
+                          });
+                          if (widget.onProvinceSelected != null) {
+                            widget.onProvinceSelected!(
+                                province); // Call callback to notify ServicesOrder
+                          }
+                        },
+                        onDistrictSelected: (String district) {
+                          setState(() {
+                            selectedDistrict = district;
+                            print('Selected District: $selectedDistrict');
+                          });
+                          if (widget.onDistrictSelected != null) {
+                            widget.onDistrictSelected!(district);
+                          }
+                        },
+                      ),
+                    ),
+                    // const SizedBox(width: 10), // Khoảng cách giữa 2 dropdown
+                    // Expanded(
+                    //   child: DistrictSelected(locations: widget.locations),
+                    // ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                const AddressType(),
+                const SizedBox(height: 20),
+              ],
+            ),
           ],
         ),
       ),

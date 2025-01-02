@@ -3,8 +3,10 @@ import 'package:intl/intl.dart';
 
 class CalendarDropdown extends StatefulWidget {
   final Function(DateTime) onDateSelected;
+  final DateTime? initialDate;
 
-  const CalendarDropdown({super.key, required this.onDateSelected});
+  const CalendarDropdown(
+      {super.key, required this.onDateSelected, this.initialDate});
 
   @override
   _CalendarDropdownState createState() => _CalendarDropdownState();
@@ -20,7 +22,7 @@ class _CalendarDropdownState extends State<CalendarDropdown> {
     // } else {
     //   return now; // Today
     // }
-    return now;
+    return widget.initialDate != null ? now.add(const Duration(days: 1)) : now;
   }
 
   Future<void> _selectDate(BuildContext context) async {

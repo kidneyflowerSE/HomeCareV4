@@ -47,7 +47,7 @@ void main() => runApp(
 // Future<void> main() async {
 //   WidgetsFlutterBinding.ensureInitialized();
 //   var repository = DefaultRepository();
-//   var customers = await repository.loadRequestDetail();
+//   var customers = await repository.loadLocation();
 //   if(customers != null){
 //     for(var customer in customers){
 //       debugPrint(customer.toString());

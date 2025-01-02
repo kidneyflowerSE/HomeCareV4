@@ -77,13 +77,13 @@ class Points {
 class Addresses {
   String province;
   String district;
-  String id;
+  String? id;
   String detailedAddress;
 
   Addresses(
       {required this.province,
       required this.district,
-      required this.id,
+      this.id,
       required this.detailedAddress});
 
   factory Addresses.fromJson(Map<String, dynamic> map) {

@@ -3,7 +3,6 @@ import 'package:foodapp/data/model/helper.dart';
 
 import '../components/my_employee_detail.dart';
 import '../data/model/customer.dart';
-// import '../data/model/request.dart';
 import '../data/model/request.dart';
 import '../data/repository/repository.dart';
 import '../pages/review_order_page.dart';
@@ -43,6 +42,9 @@ class _HelperListState extends State<HelperList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Danh sách người giúp việc'),
+      ),
       body: ListView.separated(
         itemBuilder: (context, index) {
           return ListTile(

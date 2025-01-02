@@ -78,7 +78,7 @@ class _LoginPageState extends State<LoginPage> {
     if (isTrue) {
       requestsCustomer = requests
           .where((request) =>
-              request.customerInfo.fullName == 'concunhodo')
+              request.customerInfo.fullName == 'tran phi hung')
           .toList();
       // navigate to home page
       Navigator.push(

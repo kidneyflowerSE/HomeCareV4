@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:foodapp/components/my_button.dart';
 import 'package:foodapp/data/model/helper.dart';
 import 'package:foodapp/data/repository/repository.dart';
+import 'package:foodapp/pages/home_page.dart';
 import '../data/model/customer.dart';
 import '../data/model/request.dart';
 
@@ -12,11 +13,15 @@ class ReviewOrderPage extends StatefulWidget {
   final Requests request;
 
   const ReviewOrderPage(
-      {super.key, required this.customer, required this.helper, required this.request});
+      {super.key,
+      required this.customer,
+      required this.helper,
+      required this.request});
 
   @override
   _ReviewOrderPageState createState() => _ReviewOrderPageState();
 }
+
 class _ReviewOrderPageState extends State<ReviewOrderPage> {
   void showPopUpWarning(String warning) {
     AwesomeDialog(
@@ -85,10 +90,13 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
             const SizedBox(height: 16),
             MyButton(
               text: "Đăng việc",
-              onTap:() {
+              onTap: () {
                 var repository = DefaultRepository();
                 repository.sendRequest(widget.request);
-
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(builder: (context) => const HomePage()),
+                // );
               },
             ),
           ],
@@ -103,12 +111,14 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
               decoration: const BoxDecoration(
                 border: Border.symmetric(
                   horizontal: BorderSide(
-                    width: 1, color: Color.fromARGB(255, 238, 237, 237),
+                    width: 1,
+                    color: Color.fromARGB(255, 238, 237, 237),
                   ),
                 ),
               ),
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -146,7 +156,8 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      widget.customer.addresses[0].detailedAddress,
+                                      widget.customer.addresses[0]
+                                          .detailedAddress,
                                       style: const TextStyle(
                                         fontFamily: 'Quicksand',
                                         fontSize: 16,
@@ -183,10 +194,11 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                                   children: [
                                     Row(
                                       mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
-                                          widget.customer.name ?? 'Tên không có sẵn',
+                                          widget.customer.name ??
+                                              'Tên không có sẵn',
                                           style: const TextStyle(
                                             fontFamily: 'Quicksand',
                                             fontSize: 16,
@@ -199,7 +211,8 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                                             vertical: 8,
                                           ),
                                           decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(20),
+                                            borderRadius:
+                                                BorderRadius.circular(20),
                                             color: Colors.green,
                                           ),
                                           child: const Text(
@@ -216,7 +229,8 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      widget.customer.phone ?? 'Sđt không có sẵn',
+                                      widget.customer.phone ??
+                                          'Sđt không có sẵn',
                                       style: const TextStyle(
                                         fontFamily: 'Quicksand',
                                         fontSize: 16,
@@ -364,7 +378,8 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                                 fontWeight: FontWeight.w800,
                               ),
                             ),
-                            trailing: Icon(Icons.check_circle_rounded, color: Colors.green),
+                            trailing: Icon(Icons.check_circle_rounded,
+                                color: Colors.green),
                           ),
                           ListTile(
                             title: Text(

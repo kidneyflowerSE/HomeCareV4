@@ -46,7 +46,7 @@ class _DistrictSelectedState extends State<DistrictSelected> {
             return DropdownMenuItem<Location>(
               value: location,
               child: Text(
-                location.province,
+                location.name,
                 style: const TextStyle(fontFamily: 'Quicksand'),
               ), // Hiển thị tên của Location trong dropdown
             );

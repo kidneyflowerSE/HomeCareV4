@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:foodapp/data/model/request.dart';
 import '../../data/model/location.dart';
 
 class SelectLocation extends StatefulWidget {
@@ -49,7 +48,7 @@ class _SelectLocationState extends State<SelectLocation> {
                 // Cập nhật danh sách quận/huyện khi chọn tỉnh/thành phố
                 if (newValue != null) {
                   districts = newValue.districts
-                      .map<String>((district) => district.districtName)
+                      .map<String>((district) => district.name)
                       .toList();
                   selectedDistrict = null; // Reset quận/huyện đã chọn
                   if (widget.onProvinceSelected != null) {
@@ -62,7 +61,7 @@ class _SelectLocationState extends State<SelectLocation> {
                 .map<DropdownMenuItem<Location>>((Location location) {
               return DropdownMenuItem<Location>(
                 value: location,
-                child: Text(location.province), // Hiển thị tên tỉnh/thành phố
+                child: Text(location.name), // Hiển thị tên tỉnh/thành phố
               );
             }).toList(),
           ),

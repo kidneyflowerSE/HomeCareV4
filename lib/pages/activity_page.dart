@@ -4,7 +4,7 @@ import 'package:foodapp/pages/order_detail_page.dart';
 import 'package:intl/intl.dart';
 
 class ActivityPage extends StatefulWidget {
-  final List<Requests> requests;
+  final List<Requests>? requests;
 
   const ActivityPage({super.key, required this.requests});
 
@@ -89,7 +89,7 @@ class _ServicesOrderState extends State<ActivityPage>
         controller: _tabController,
         children: [
           OnDemand(
-            requests: widget.requests,
+            requests: widget.requests!,
           ),
           LongTerm(),
         ],
@@ -147,6 +147,7 @@ class _OnDemandState extends State<OnDemand> {
               ),
               // Hiển thị các requests trong cùng ngày
               ...entry.value.map((request) {
+                print(request.startTime);
                 return Container(
                   color: Colors.white,
                   margin: const EdgeInsets.symmetric(vertical: 5),

@@ -95,11 +95,12 @@ class DefaultRepository implements Repository {
     List<Requests> requests = [];
     await remoteDataSource.loadRequestData().then((remoteRequests) {
       if (remoteRequests == null) {
-        localDataSource.loadRequestData().then((localRequests) {
-          if (localRequests != null) {
-            requests.addAll(localRequests);
-          }
-        });
+        // localDataSource.loadRequestData().then((localRequests) {
+        //   if (localRequests != null) {
+        //     requests.addAll(localRequests);
+        //   }
+        // });
+        print("failed to load request data");
       } else {
         requests.addAll(remoteRequests);
       }

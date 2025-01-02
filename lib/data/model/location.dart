@@ -1,17 +1,17 @@
 class Location {
-  String province;
+  String name;
   List<District> districts;
 
   Location({
-    required this.province,
+    required this.name,
     required this.districts,
   });
 
   // Hàm factory để ánh xạ từ JSON
   factory Location.fromJson(Map<String, dynamic> map) {
     return Location(
-      province: map['province'] ?? '',
-      districts: (map['districts'] as List<dynamic>)
+      name: map['Name'] ?? '',
+      districts: (map['Districts'] as List<dynamic>)
           .map((districtJson) => District.fromJson(districtJson))
           .toList(),
     );
@@ -19,52 +19,57 @@ class Location {
 
   @override
   String toString() {
-    return 'Location{province: $province, districts: $districts}';
+    return 'Location{name: $name, districts: $districts}';
   }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is Location &&
-          runtimeType == other.runtimeType &&
-          province == other.province &&
-          districts == other.districts;
-
-  @override
-  int get hashCode => province.hashCode ^ districts.hashCode;
 }
 
 class District {
-  String districtName;
-  String districtId;
+  String name;
+  String id;
+  List<Ward> wards;
 
   District({
-    required this.districtName,
-    required this.districtId,
+    required this.name,
+    required this.id,
+    required this.wards,
   });
 
   // Hàm factory để ánh xạ từ JSON
   factory District.fromJson(Map<String, dynamic> map) {
     return District(
-      districtName:
-          map['district'] ?? '', // Kiểm tra giá trị null của districtName
-      districtId: map['_id'] ?? '', // Kiểm tra giá trị null của districtId
+      name: map['Name'] ?? '',
+      id: map['_id'] ?? '',
+      wards: (map['Wards'] as List<dynamic>)
+          .map((wardJson) => Ward.fromJson(wardJson))
+          .toList(),
     );
   }
 
   @override
   String toString() {
-    return 'District{districtName: $districtName, districtId: $districtId}';
+    return 'District{name: $name, id: $id, wards: $wards}';
+  }
+}
+
+class Ward {
+  String name;
+  String id;
+
+  Ward({
+    required this.name,
+    required this.id,
+  });
+
+  // Hàm factory để ánh xạ từ JSON
+  factory Ward.fromJson(Map<String, dynamic> map) {
+    return Ward(
+      name: map['Name'] ?? '',
+      id: map['_id'] ?? '',
+    );
   }
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is District &&
-          runtimeType == other.runtimeType &&
-          districtName == other.districtName &&
-          districtId == other.districtId;
-
-  @override
-  int get hashCode => districtName.hashCode ^ districtId.hashCode;
+  String toString() {
+    return 'Ward{name: $name, id: $id}';
+  }
 }

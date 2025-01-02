@@ -43,7 +43,7 @@ class Requests {
       service: map['service'] != null
           ? RequestService.fromJson(map['service'])
           : RequestService(
-              title: '', coefficientService: 0, coefficientOther: 0, cost: 0),
+              title: '', coefficientService: 0.0, coefficientOther: 0.0, cost: 0),
       // Provide a default or placeholder object
       location: map['location'] != null
           ? RequestLocation.fromJson(map['location'])
@@ -186,29 +186,24 @@ class RequestLocation {
 
 class RequestService {
   String title;
-  double coefficientService;
-  double coefficientOther;
-  int cost;
+  num coefficientService;
+  num coefficientOther;
+  num cost;
 
   RequestService(
       {required this.title,
-      required this.coefficientService,
-      required this.coefficientOther,
-      required this.cost});
+        required this.coefficientService,
+        required this.coefficientOther,
+        required this.cost});
 
   factory RequestService.fromJson(Map<String, dynamic> map) {
     return RequestService(
       title: map['title'] ?? '',
-      coefficientService: (map['coefficient_service'] is int)
-          ? (map['coefficient_service'] as int).toDouble()
-          : (map['coefficient_service'] != null ? map['coefficient_service'].toDouble() : 0.0),
-      coefficientOther: (map['coefficient_other'] is int)
-          ? (map['coefficient_other'] as int).toDouble()
-          : (map['coefficient_other'] != null ? map['coefficient_other'].toDouble() : 0.0),
-      cost: map['cost'] ?? 0, // Provide a default value if null
+      coefficientService: map['coefficient_service'],
+      coefficientOther: map['coefficient_other'],
+      cost: map['cost'],
     );
   }
-
 
   Map<String, dynamic> toJson() {
     return {

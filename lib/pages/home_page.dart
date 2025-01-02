@@ -12,10 +12,10 @@ import '../data/model/service.dart';
 
 class HomePage extends StatefulWidget {
   final dynamic customer;
-  final List<Services> services;
-  final List<Requests> requests;
+  final List<Services>? services;
+  final List<Requests>? requests;
 
-  const HomePage({super.key, required this.customer, required this.services, required this.requests});
+  const HomePage({super.key, this.customer, this.services, this.requests});
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -30,8 +30,13 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _pages.addAll([
-      HomeContent(customer: widget.customer, services: widget.services,),
-      ActivityPage(requests: widget.requests,),
+      HomeContent(
+        customer: widget.customer,
+        services: widget.services!,
+      ),
+      ActivityPage(
+        requests: widget.requests,
+      ),
       const NotificationPage(),
       const ProfilePage(),
     ]);
@@ -93,7 +98,8 @@ class _HomePageState extends State<HomePage> {
             context,
             MaterialPageRoute(
               builder: (context) => ServicesOrder(
-                customer: widget.customer, service: widget.services[0],
+                customer: widget.customer,
+                service: widget.services![0],
               ),
             ),
           );
@@ -157,7 +163,8 @@ class HomeContent extends StatefulWidget {
 
   const HomeContent({
     super.key,
-    required this.customer, required this.services,
+    required this.customer,
+    required this.services,
   });
 
   @override
@@ -166,6 +173,7 @@ class HomeContent extends StatefulWidget {
 
 class _HomeContentState extends State<HomeContent> {
   bool _isLoading = true;
+  dynamic index = 0;
 
   @override
   void initState() {
@@ -179,6 +187,7 @@ class _HomeContentState extends State<HomeContent> {
     'lib/images/banner_2.png',
     'lib/images/banner_3.png',
   ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -198,197 +207,201 @@ class _HomeContentState extends State<HomeContent> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-        child: Stack(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
+              child: Stack(
                 children: [
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => ChooseLocationPage(
-                                customer: widget.customer)),
-                      );
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
                       children: [
-                        Expanded(
-                          child: Text(
-                            widget.customer.addresses
-                                .map((address) => address.toString())
-                                .join(','),
-                            style: const TextStyle(
-                              fontFamily: 'Quicksand',
-                              color: Colors.green,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                        GestureDetector(
+                          onTap: () async {
+                            final selectedIndex = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => ChooseLocationPage(
+                                      customer: widget.customer)),
+                            );
+                            if (selectedIndex != null) {
+                              setState(() {
+                                index = selectedIndex;
+                              });
+                            }
+                          },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  widget.customer.addresses[index].toString(),
+                                  style: const TextStyle(
+                                    fontFamily: 'Quicksand',
+                                    color: Colors.green,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              const Icon(
+                                Icons.location_on,
+                                color: Colors.green,
+                              ),
+                            ],
                           ),
                         ),
-                        const Icon(
-                          Icons.location_on,
-                          color: Colors.green,
+                        const SizedBox(height: 20),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              width: double.infinity,
+                              height: 102,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                                color: Colors.white,
+                                border: Border.all(
+                                  width: 1,
+                                  color:
+                                      const Color.fromARGB(255, 203, 203, 203),
+                                ),
+                              ),
+                              child: Column(
+                                children: [
+                                  Container(
+                                    height: 50,
+                                    width: double.infinity,
+                                    decoration: const BoxDecoration(
+                                      borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(16),
+                                          topRight: Radius.circular(16)),
+                                      border: Border(
+                                        bottom: BorderSide(
+                                          width: 1,
+                                          color: Color.fromARGB(
+                                              255, 203, 203, 203),
+                                        ),
+                                      ),
+                                    ),
+                                    child: Container(
+                                      alignment: Alignment.center,
+                                      padding: const EdgeInsets.all(10),
+                                      child: const Text(
+                                        'HomeCare - Cho cuộc sống tiện lợi hơn!',
+                                        style: TextStyle(
+                                          fontFamily: 'Quicksand',
+                                          color: Colors.green,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 50,
+                                    width: double.infinity,
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          child: Container(
+                                            decoration: const BoxDecoration(
+                                              borderRadius: BorderRadius.only(
+                                                  bottomLeft:
+                                                      Radius.circular(9)),
+                                              border: Border(
+                                                right: BorderSide(
+                                                  width: 1,
+                                                  color: Color.fromARGB(
+                                                      255, 203, 203, 203),
+                                                ),
+                                              ),
+                                            ),
+                                            padding: const EdgeInsets.all(10),
+                                            child: const Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Icon(Icons.money_rounded),
+                                                Text(
+                                                  '500.000 đ',
+                                                  style: TextStyle(
+                                                    fontFamily: 'Quicksand',
+                                                  ),
+                                                ),
+                                                Icon(Icons
+                                                    .arrow_forward_ios_rounded),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          child: Container(
+                                            padding: const EdgeInsets.all(10),
+                                            child: const Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Icon(Icons.money_rounded),
+                                                Text(
+                                                  '5.000 hcPoints',
+                                                  style: TextStyle(
+                                                    fontFamily: 'Quicksand',
+                                                  ),
+                                                ),
+                                                Icon(Icons
+                                                    .arrow_forward_ios_rounded),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            const Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  "Dịch vụ",
+                                  style: TextStyle(
+                                    fontFamily: 'Quicksand',
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                Text(
+                                  "Xem tất cả",
+                                  style: TextStyle(
+                                    fontFamily: 'Quicksand',
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            SizedBox(
+                              height: 300,
+                              child: ServiceListMenu(
+                                customer: widget.customer,
+                                services: widget.services,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        width: double.infinity,
-                        height: 102,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
-                          color: Colors.white,
-                          border: Border.all(
-                            width: 1,
-                            color:
-                            const Color.fromARGB(255, 203, 203, 203),
-                          ),
-                        ),
-                        child: Column(
-                          children: [
-                            Container(
-                              height: 50,
-                              width: double.infinity,
-                              decoration: const BoxDecoration(
-                                borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(16),
-                                    topRight: Radius.circular(16)),
-                                border: Border(
-                                  bottom: BorderSide(
-                                    width: 1,
-                                    color: Color.fromARGB(
-                                        255, 203, 203, 203),
-                                  ),
-                                ),
-                              ),
-                              child: Container(
-                                alignment: Alignment.center,
-                                padding: const EdgeInsets.all(10),
-                                child: const Text(
-                                  'HomeCare - Cho cuộc sống tiện lợi hơn!',
-                                  style: TextStyle(
-                                    fontFamily: 'Quicksand',
-                                    color: Colors.green,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 50,
-                              width: double.infinity,
-                              child: Row(
-                                mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Container(
-                                      decoration: const BoxDecoration(
-                                        borderRadius: BorderRadius.only(
-                                            bottomLeft:
-                                            Radius.circular(9)),
-                                        border: Border(
-                                          right: BorderSide(
-                                            width: 1,
-                                            color: Color.fromARGB(
-                                                255, 203, 203, 203),
-                                          ),
-                                        ),
-                                      ),
-                                      padding: const EdgeInsets.all(10),
-                                      child: const Row(
-                                        mainAxisAlignment:
-                                        MainAxisAlignment
-                                            .spaceBetween,
-                                        children: [
-                                          Icon(Icons.money_rounded),
-                                          Text(
-                                            '500.000 đ',
-                                            style: TextStyle(
-                                              fontFamily: 'Quicksand',
-                                            ),
-                                          ),
-                                          Icon(Icons
-                                              .arrow_forward_ios_rounded),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Container(
-                                      padding: const EdgeInsets.all(10),
-                                      child: const Row(
-                                        mainAxisAlignment:
-                                        MainAxisAlignment
-                                            .spaceBetween,
-                                        children: [
-                                          Icon(Icons.money_rounded),
-                                          Text(
-                                            '5.000 hcPoints',
-                                            style: TextStyle(
-                                              fontFamily: 'Quicksand',
-                                            ),
-                                          ),
-                                          Icon(Icons
-                                              .arrow_forward_ios_rounded),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      const Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Dịch vụ",
-                            style: TextStyle(
-                              fontFamily: 'Quicksand',
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16,
-                            ),
-                          ),
-                          Text(
-                            "Xem tất cả",
-                            style: TextStyle(
-                              fontFamily: 'Quicksand',
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      SizedBox(
-                        height: 300,
-                        child: ServiceListMenu(
-                          customer: widget.customer, services: widget.services,
-                        ),
-                      ),
-                    ],
-                  ),
                 ],
               ),
             ),
-          ],
-        ),
-      ),
     );
   }
 }
