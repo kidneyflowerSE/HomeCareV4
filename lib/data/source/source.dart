@@ -9,6 +9,7 @@ import 'package:foodapp/data/model/requestdetail.dart';
 
 import 'package:http/http.dart' as http;
 
+import '../model/TimeOff.dart';
 import '../model/customer.dart';
 import '../model/request.dart';
 import '../model/service.dart';
@@ -27,6 +28,8 @@ abstract interface class DataSource {
   Future<List<RequestDetail>?> loadRequestDetailData();
 
   Future<void> sendRequests(Requests requests);
+
+  Future<List<TimeOff>?> loadTimeOffData();
 }
 
 class RemoteDataSource implements DataSource {
@@ -182,6 +185,28 @@ class RemoteDataSource implements DataSource {
   }
 
   @override
+  Future<List<TimeOff>?> loadTimeOffData() async{
+    const url = 'https://homecareapi.vercel.app/api/timeOff/test';
+    final uri = Uri.parse(url);
+    try{
+      final response = await http.get(uri);
+      if(response.statusCode == 200){
+        final bodyContent = utf8.decode(response.bodyBytes);
+        final List<dynamic> timeOffList = jsonDecode(bodyContent);
+        return timeOffList.map((timeOff) => TimeOff.fromJson(timeOff)).toList();
+      }
+      else {
+        print('Failed to load request detail IDs. Status code: ${response.statusCode}');
+        return null;
+      }
+    }
+    catch (e) {
+      print('Error loading request detail IDs: $e');
+      return null;
+    }
+  }
+
+  @override
   Future<void> sendRequests(Requests requests) async {
     const url = 'https://homecareapi.vercel.app/api/request';
     final uri = Uri.parse(url);
@@ -205,6 +230,7 @@ class RemoteDataSource implements DataSource {
       print('Error posting requests: $e');
     }
   }
+
 }
 
 
@@ -256,6 +282,12 @@ class LocalDataSource implements DataSource {
   @override
   Future<void> sendRequests(Requests requests) {
     // TODO: implement sendRequests
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<List<TimeOff>?> loadTimeOffData() async{
+    // TODO: implement loadTimeOffData
     throw UnimplementedError();
   }
 }

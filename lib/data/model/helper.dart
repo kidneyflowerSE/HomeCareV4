@@ -1,4 +1,5 @@
 class Helper {
+  String id;
   double baseFactor;
   String? helperId;
   String? fullName;
@@ -23,6 +24,7 @@ class Helper {
   bool deleted;
 
   Helper({
+    required this.id,
     required this.baseFactor,
     required this.helperId,
     required this.fullName,
@@ -49,6 +51,7 @@ class Helper {
 
   factory Helper.fromJson(Map<String, dynamic> map) {
     return Helper(
+      id: map['_id'],
       baseFactor: map['baseFactor'],
       helperId: map['helper_id'],
       fullName: map['fullName'],

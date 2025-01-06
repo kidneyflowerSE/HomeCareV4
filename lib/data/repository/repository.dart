@@ -3,17 +3,25 @@ import 'package:foodapp/data/model/customer.dart';
 import 'package:foodapp/data/model/request.dart';
 import 'package:foodapp/data/model/requestdetail.dart';
 
+import '../model/TimeOff.dart';
 import '../model/location.dart';
 import '../model/service.dart';
 import 'package:foodapp/data/source/source.dart';
 
 abstract interface class Repository {
   Future<List<Helper>?> loadCleanerData();
+
   Future<List<Location>?> loadLocation();
+
   Future<List<Services>?> loadServices();
+
   Future<List<Customer>?> loadCustomer();
+
   Future<List<Requests>?> loadRequest();
+
   Future<List<RequestDetail>?> loadRequestDetail();
+
+  Future<List<TimeOff>?> loadTimeOff();
 
   Future<void> sendRequest(Requests requests);
 }
@@ -128,5 +136,22 @@ class DefaultRepository implements Repository {
   @override
   Future<void> sendRequest(Requests request) async {
     await remoteDataSource.sendRequests(request);
+  }
+
+  @override
+  Future<List<TimeOff>?> loadTimeOff() async {
+    List<TimeOff>? timeOff = [];
+    await remoteDataSource.loadTimeOffData().then((remoteTimeOff) {
+      if (remoteTimeOff == null) {
+        localDataSource.loadTimeOffData().then((localTimeOff) {
+          if (localTimeOff != null) {
+            timeOff.addAll(localTimeOff);
+          }
+        });
+      } else {
+        timeOff.addAll(remoteTimeOff);
+      }
+    });
+    return timeOff;
   }
 }

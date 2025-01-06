@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:foodapp/data/model/helper.dart';
 
 import '../components/my_employee_detail.dart';
+import '../data/model/TimeOff.dart';
 import '../data/model/customer.dart';
 import '../data/model/request.dart';
 import '../data/repository/repository.dart';
@@ -10,6 +11,7 @@ import '../pages/review_order_page.dart';
 class HelperList extends StatefulWidget {
   final Customer customer;
   final Requests request;
+
   const HelperList({super.key, required this.customer, required this.request});
 
   @override
@@ -18,15 +20,17 @@ class HelperList extends StatefulWidget {
 
 class _HelperListState extends State<HelperList> {
   late List<Helper> helpers = [];
+  late List<TimeOff> timeOffList = [];
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    loadData();
+    loadHelperData();
+    loadTimeOffData();
   }
 
-  Future<void> loadData() async {
+  Future<void> loadHelperData() async {
     var repository = DefaultRepository();
     var data = await repository.loadCleanerData();
     if (data == null) {
@@ -39,8 +43,32 @@ class _HelperListState extends State<HelperList> {
     });
   }
 
+  Future<void> loadTimeOffData() async {
+    var repository = DefaultRepository();
+    var data = await repository.loadTimeOff();
+    if (data == null) {
+      timeOffList = [];
+    } else {
+      timeOffList = data;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final helperList = helpers.where((helper) {
+      final isNotOff = !timeOffList.any((timeOff) => timeOff.helperId.compareTo(helper.id) == 0);
+
+      final isStartDateInTimeOff = !timeOffList.any((timeOff) {
+        final timeOffDate = DateTime.parse(timeOff.dateOff);
+        final startDate = DateTime.parse(widget.request.startTime);
+        final endDate = DateTime.parse(widget.request.endTime);
+
+        return timeOffDate.isAfter(startDate.subtract(const Duration(days: 1))) && timeOffDate.isBefore(endDate.add(const Duration(days: 1)));
+      });
+
+      return isNotOff && isStartDateInTimeOff;
+    }).toList();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Danh sách người giúp việc'),
@@ -52,7 +80,7 @@ class _HelperListState extends State<HelperList> {
               borderRadius: BorderRadius.circular(10.0),
               child: FadeInImage.assetNetwork(
                 placeholder: 'lib/images/avt.png',
-                image: helpers[index].avatar ?? '',
+                image: helperList[index].avatar ?? '',
                 width: 48,
                 height: 48,
                 imageErrorBuilder: (context, error, stackTrace) {
@@ -64,15 +92,16 @@ class _HelperListState extends State<HelperList> {
                 },
               ),
             ),
-            title: Text(helpers[index].fullName!),
-            subtitle: Text(helpers[index].experienceDescription!),
+            title: Text(helperList[index].fullName!),
+            subtitle: Text(helperList[index].experienceDescription!),
             trailing: IconButton(
-              onPressed: (){
+              onPressed: () {
                 showBottomSheet(
                     context: context,
-                    builder: (context){
+                    builder: (context) {
                       return ClipRRect(
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                        borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(16)),
                         child: Container(
                           height: 400,
                           color: Colors.grey,
@@ -82,13 +111,16 @@ class _HelperListState extends State<HelperList> {
                               mainAxisSize: MainAxisSize.max,
                               children: [
                                 TextButton(
-                                  onPressed: (){
+                                  onPressed: () {
                                     Navigator.push(
                                       context,
-                                      MaterialPageRoute(builder: (context) => const MyEmployeeDetail()),
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const MyEmployeeDetail()),
                                     );
                                   },
-                                  child: const Text('xem chi tiết',
+                                  child: const Text(
+                                    'xem chi tiết',
                                     style: TextStyle(
                                       fontSize: 16,
                                       color: Colors.green,
@@ -101,16 +133,20 @@ class _HelperListState extends State<HelperList> {
                           ),
                         ),
                       );
-                    }
-                );
+                    });
               },
               icon: const Icon(Icons.more_horiz),
             ),
             onTap: () {
-              widget.request.helperId = helpers[index].helperId;
+              widget.request.helperId = helperList[index].helperId;
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => ReviewOrderPage(customer: widget.customer, helper: helpers[index], request: widget.request,)),
+                MaterialPageRoute(
+                    builder: (context) => ReviewOrderPage(
+                          customer: widget.customer,
+                          helper: helperList[index],
+                          request: widget.request,
+                        )),
               );
             },
           );
@@ -123,7 +159,7 @@ class _HelperListState extends State<HelperList> {
             endIndent: 24,
           );
         },
-        itemCount: helpers.length,
+        itemCount: helperList.length,
         shrinkWrap: true,
       ),
     );

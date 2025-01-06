@@ -37,7 +37,7 @@ class _ServicesOrderState extends State<ServicesOrder>
   List<Customer> customers = [];
   bool isLoading = true;
   DateTime? selectedDate;
-  DateTime? startDate;
+  DateTime? startDate = DateTime(DateTime.now().year,DateTime.now().month,DateTime.now().day);
   DateTime? endDate;
   TimeOfDay? _startTime;
   TimeOfDay? _endTime;
@@ -48,7 +48,7 @@ class _ServicesOrderState extends State<ServicesOrder>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    loadData(); // Tải dữ liệu locations khi khởi tạo
+    loadData();
   }
 
   Future<void> loadData() async {
@@ -56,7 +56,7 @@ class _ServicesOrderState extends State<ServicesOrder>
     var dataLocation = await repository.loadLocation();
     var dataCustomer = await repository.loadCustomer();
     setState(() {
-      locations = dataLocation ?? []; // Gán danh sách địa điểm tải được
+      locations = dataLocation ?? [];
       customers = dataCustomer ?? [];
       isLoading = false;
     });
@@ -303,13 +303,14 @@ class _ServicesOrderState extends State<ServicesOrder>
                 //         )),
                 MaterialPageRoute(
                   builder: (context) => CustomCalendar(
-                    initialSelectedDates: [
-                      DateTime(2025, 1, 1),
-                      DateTime(2025, 1, 15),
-                      DateTime(2025, 1, 20),
-                    ],
+                    initialSelectedDates: List.generate(
+                      endDate!.difference(startDate!).inDays + 1,
+                      (index) => startDate!.add(Duration(days: index)),
+                    ),
                     customer: widget.customer,
                     request: request,
+                    maxDate: endDate,
+                    minDate: startDate,
                     // minDate: DateTime(2025, 1, 2),
                     // maxDate: DateTime(2025, 1, 15),
                   ),
