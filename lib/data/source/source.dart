@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:foodapp/data/model/helper.dart';
 import 'package:foodapp/data/model/location.dart';
+import 'package:foodapp/data/model/message.dart';
 import 'package:foodapp/data/model/requestdetail.dart';
 
 import 'package:http/http.dart' as http;
@@ -30,12 +31,16 @@ abstract interface class DataSource {
   Future<void> sendRequests(Requests requests);
 
   Future<List<TimeOff>?> loadTimeOffData();
+
+  Future<List<Message>?> loadMessageData(Message message);
+  
+  Future<void> sendMessage(String phone);
 }
 
 class RemoteDataSource implements DataSource {
   @override
   Future<List<Helper>?> loadCleanerData() async {
-    const url = 'https://homecareapi.vercel.app/api/helper';
+    const url = 'https://api.homekare.site/helper';
     final uri = Uri.parse(url);
     try {
       final response = await http.get(uri);
@@ -55,7 +60,7 @@ class RemoteDataSource implements DataSource {
 
   @override
   Future<List<Location>?> loadLocationData() async {
-    const url = 'https://homecareapi.vercel.app/api/location';
+    const url = 'https://api.homekare.site/location';
     final uri = Uri.parse(url);
     try {
       final response = await http.get(uri);
@@ -75,7 +80,7 @@ class RemoteDataSource implements DataSource {
 
   @override
   Future<List<Customer>?> loadCustomerData() async {
-    const url = 'https://homecareapi.vercel.app/api/customer';
+    const url = 'https://api.homekare.site/customer';
     final uri = Uri.parse(url);
     try {
       final response = await http.get(uri);
@@ -95,7 +100,7 @@ class RemoteDataSource implements DataSource {
 
   @override
   Future<List<Services>?> loadServicesData() async {
-    const url = 'https://homecareapi.vercel.app/api/service';
+    const url = 'https://api.homekare.site/service';
     final uri = Uri.parse(url);
     try {
       final response = await http.get(uri);
@@ -115,7 +120,7 @@ class RemoteDataSource implements DataSource {
 
   @override
   Future<List<Requests>?> loadRequestData() async {
-    const url = 'https://homecareapi.vercel.app/api/request';
+    const url = 'https://api.homekare.site/request';
     final uri = Uri.parse(url);
     try {
       final response = await http.get(uri);
@@ -136,7 +141,7 @@ class RemoteDataSource implements DataSource {
 
   @override
   Future<List<RequestDetail>?> loadRequestDetailData() async {
-    const url = 'https://homecareapi.vercel.app/api/request';
+    const url = 'https://api.homekare.site/request';
     final uri = Uri.parse(url);
     try {
       final response = await http.get(uri);
@@ -166,7 +171,7 @@ class RemoteDataSource implements DataSource {
   Future<List<RequestDetail>?> loadRequestDetailId(List<String> id) async {
     final String idString = id.join(',');
     String url =
-        'https://homecareapi.vercel.app/api/requestDetail?ids=$idString';
+        'https://api.homekare.site/requestDetail?ids=$idString';
     final uri = Uri.parse(url);
     try {
       final response = await http.get(uri);
@@ -186,7 +191,7 @@ class RemoteDataSource implements DataSource {
 
   @override
   Future<List<TimeOff>?> loadTimeOffData() async{
-    const url = 'https://homecareapi.vercel.app/api/timeOff/test';
+    const url = 'https://api.homekare.site/timeOff/test';
     final uri = Uri.parse(url);
     try{
       final response = await http.get(uri);
@@ -208,7 +213,7 @@ class RemoteDataSource implements DataSource {
 
   @override
   Future<void> sendRequests(Requests requests) async {
-    const url = 'https://homecareapi.vercel.app/api/request';
+    const url = 'https://api.homekare.site/request';
     final uri = Uri.parse(url);
     final headers = {'Content-Type': 'application/json'};
     final body = jsonEncode(requests.toJson());
@@ -231,63 +236,104 @@ class RemoteDataSource implements DataSource {
     }
   }
 
-}
-
-
-class LocalDataSource implements DataSource {
   @override
-  Future<List<Helper>?> loadCleanerData() async {
-    final String response = await rootBundle.loadString('assets/cleaners.json');
-    final List<dynamic> cleanerList = jsonDecode(response);
-    return cleanerList.map((cleaner) => Helper.fromJson(cleaner)).toList();
+  Future<List<Message>?> loadMessageData(Message message) async{
+    final url = Uri.parse('https://api.homekare.site/message?phone=${message.phone}');
+    try {
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final bodyContent = json.decode(response.body);
+        final List<dynamic> messageList = jsonDecode(bodyContent);
+        return messageList.map((message) => Message.fromJson(message)).toList();
+      } else {
+        print('Failed to load message. Status code: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error occurred: $e');
+      return null;
+    }
   }
 
   @override
-  Future<List<Location>?> loadLocationData() async {
-    final String response = await rootBundle.loadString('assets/location.json');
-    final List<dynamic> locationList = jsonDecode(response);
-    return locationList.map((location) => Location.fromJson(location)).toList();
-  }
+  Future<void> sendMessage(String phone) async {
+    const url = 'https://api.homekare.site/message';
+    final uri = Uri.parse(url);
+    final headers = {'Content-Type': 'application/json'};
+    final body = jsonEncode({'phone': phone});
 
-  @override
-  Future<List<Customer>?> loadCustomerData() async {
-    final String response = await rootBundle.loadString('assets/customer.json');
-    final List<dynamic> customerList = jsonDecode(response);
-    return customerList.map((customer) => Customer.fromJson(customer)).toList();
-  }
-
-  @override
-  Future<List<Services>?> loadServicesData() async {
-    final String response = await rootBundle.loadString('assets/services.json');
-    final List<dynamic> servicesList = jsonDecode(response);
-    return servicesList.map((services) => Services.fromJson(services)).toList();
-  }
-
-  @override
-  Future<List<Requests>?> loadRequestData() async {
-    final String response = await rootBundle.loadString('assets/request.json');
-    final List<dynamic> requestList = jsonDecode(response);
-    return requestList.map((request) => Requests.fromJson(request)).toList();
-  }
-
-  @override
-  Future<List<RequestDetail>?> loadRequestDetailData() async {
-    final String response = await rootBundle.loadString('assets/customer.json');
-    final List<dynamic> requestDetailList = jsonDecode(response);
-    return requestDetailList
-        .map((detail) => RequestDetail.fromJson(detail))
-        .toList();
-  }
-
-  @override
-  Future<void> sendRequests(Requests requests) {
-    // TODO: implement sendRequests
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<List<TimeOff>?> loadTimeOffData() async{
-    // TODO: implement loadTimeOffData
-    throw UnimplementedError();
+    try{
+      final response = await http.post(uri,headers: headers,body: body);
+      if (response.statusCode == 200) {
+        if (kDebugMode) {
+          print('Requests posted successfully!');
+        }
+      } else {
+        print('Failed to post requests. Status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+      }
+    } catch (e) {
+      print('Error posting requests: $e');
+    }
   }
 }
+
+
+// class LocalDataSource implements DataSource {
+//   @override
+//   Future<List<Helper>?> loadCleanerData() async {
+//     final String response = await rootBundle.loadString('assets/cleaners.json');
+//     final List<dynamic> cleanerList = jsonDecode(response);
+//     return cleanerList.map((cleaner) => Helper.fromJson(cleaner)).toList();
+//   }
+//
+//   @override
+//   Future<List<Location>?> loadLocationData() async {
+//     final String response = await rootBundle.loadString('assets/location.json');
+//     final List<dynamic> locationList = jsonDecode(response);
+//     return locationList.map((location) => Location.fromJson(location)).toList();
+//   }
+//
+//   @override
+//   Future<List<Customer>?> loadCustomerData() async {
+//     final String response = await rootBundle.loadString('assets/customer.json');
+//     final List<dynamic> customerList = jsonDecode(response);
+//     return customerList.map((customer) => Customer.fromJson(customer)).toList();
+//   }
+//
+//   @override
+//   Future<List<Services>?> loadServicesData() async {
+//     final String response = await rootBundle.loadString('assets/services.json');
+//     final List<dynamic> servicesList = jsonDecode(response);
+//     return servicesList.map((services) => Services.fromJson(services)).toList();
+//   }
+//
+//   @override
+//   Future<List<Requests>?> loadRequestData() async {
+//     final String response = await rootBundle.loadString('assets/request.json');
+//     final List<dynamic> requestList = jsonDecode(response);
+//     return requestList.map((request) => Requests.fromJson(request)).toList();
+//   }
+//
+//   @override
+//   Future<List<RequestDetail>?> loadRequestDetailData() async {
+//     final String response = await rootBundle.loadString('assets/customer.json');
+//     final List<dynamic> requestDetailList = jsonDecode(response);
+//     return requestDetailList
+//         .map((detail) => RequestDetail.fromJson(detail))
+//         .toList();
+//   }
+//
+//   @override
+//   Future<void> sendRequests(Requests requests) {
+//     // TODO: implement sendRequests
+//     throw UnimplementedError();
+//   }
+//
+//   @override
+//   Future<List<TimeOff>?> loadTimeOffData() async{
+//     // TODO: implement loadTimeOffData
+//     throw UnimplementedError();
+//   }
+// }

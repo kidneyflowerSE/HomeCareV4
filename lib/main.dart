@@ -29,6 +29,7 @@
 //   }
 // }
 import 'package:flutter/material.dart';
+import 'package:foodapp/data/model/message.dart';
 
 import 'package:provider/provider.dart';
 import 'package:foodapp/auth/login_or_register.dart';
@@ -47,7 +48,16 @@ void main() => runApp(
 // Future<void> main() async {
 //   WidgetsFlutterBinding.ensureInitialized();
 //   var repository = DefaultRepository();
-//   var customers = await repository.loadTimeOff();
+//   // try {
+//   //   debugPrint('Sending message...');
+//   //   await repository.sendMessage('0795335321');
+//   //   debugPrint('Message sent!');
+//   // } catch (e) {
+//   //   debugPrint('Error in main: $e');
+//   // }
+//   // var customers = await repository.loadMessage(Message(phone: '0795335321'));
+//
+//   var customers = await repository.loadCustomer();
 //   if(customers != null){
 //     for(var customer in customers){
 //       debugPrint(customer.toString());

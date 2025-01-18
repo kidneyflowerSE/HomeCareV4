@@ -37,8 +37,11 @@ class _ServicesOrderState extends State<ServicesOrder>
   List<Customer> customers = [];
   bool isLoading = true;
   DateTime? selectedDate;
-  DateTime? startDate = DateTime(DateTime.now().year,DateTime.now().month,DateTime.now().day);
-  DateTime? endDate;
+  DateTime? startDate =
+      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+  DateTime? endDate =
+      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)
+          .add(const Duration(days: 1));
   TimeOfDay? _startTime;
   TimeOfDay? _endTime;
   Location? selectedProvince;
@@ -174,8 +177,7 @@ class _ServicesOrderState extends State<ServicesOrder>
                 if (isStartDate == 'start') {
                   selectedDate = date;
                   startDate = date;
-                } else {
-                  endDate = date;
+                  endDate = null;
                 }
               });
             },
@@ -294,28 +296,40 @@ class _ServicesOrderState extends State<ServicesOrder>
               print('Total Cost: ${request.totalCost}');
               print('Status: ${request.status}');
 
-              Navigator.push(
-                context,
-                // MaterialPageRoute(
-                //     builder: (context) => HelperList(
-                //           customer: widget.customer,
-                //           request: request,
-                //         )),
-                MaterialPageRoute(
-                  builder: (context) => CustomCalendar(
-                    initialSelectedDates: List.generate(
-                      endDate!.difference(startDate!).inDays + 1,
-                      (index) => startDate!.add(Duration(days: index)),
+              if (_tabController.index == 0) {
+                request.endTime= DateTime(selectedDate!.year, selectedDate!.month,
+                    selectedDate!.day, _endTime!.hour, _endTime!.minute)
+                    .toIso8601String();
+                print('End Time: ${request.endTime}');
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HelperList(
+                      customer: widget.customer,
+                      request: request,
+                      listDate: List.generate(1, (index) => startDate!), isOnDemand: true,
                     ),
-                    customer: widget.customer,
-                    request: request,
-                    maxDate: endDate,
-                    minDate: startDate,
-                    // minDate: DateTime(2025, 1, 2),
-                    // maxDate: DateTime(2025, 1, 15),
                   ),
-                ),
-              );
+                );
+              } else {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CustomCalendar(
+                      initialSelectedDates: List.generate(
+                        endDate!.difference(startDate!).inDays + 1,
+                        (index) => startDate!.add(Duration(days: index)),
+                      ),
+                      customer: widget.customer,
+                      request: request,
+                      maxDate: endDate,
+                      minDate: startDate,
+                      // minDate: DateTime(2025, 1, 2),
+                      // maxDate: DateTime(2025, 1, 15),
+                    ),
+                  ),
+                );
+              }
             }
           },
         ),

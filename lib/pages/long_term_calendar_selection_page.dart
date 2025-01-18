@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:foodapp/data/model/request.dart';
 import 'package:foodapp/pages/helper_list_page.dart';
-
 import '../data/model/customer.dart';
 
 class CustomCalendar extends StatefulWidget {
@@ -36,6 +35,12 @@ class _CustomCalendarState extends State<CustomCalendar> {
   void initState() {
     super.initState();
     _selectedDates = widget.initialSelectedDates;
+
+    // Nếu có ngày chọn sẵn, đặt ngày đầu tiên làm ngày focus
+    if (_selectedDates.isNotEmpty) {
+      _focusedDate = _selectedDates.first;
+    }
+
     _selectedMonth = _focusedDate.month;
     _selectedYear = _focusedDate.year;
     _pageController =
@@ -49,8 +54,7 @@ class _CustomCalendarState extends State<CustomCalendar> {
   }
 
   int _calculatePageIndex(DateTime date) {
-    return (date.year * 12 + date.month) -
-        (DateTime(2000, 1).year * 12 + DateTime(2000, 1).month);
+    return (date.year * 12 + date.month) - (DateTime(2000, 1).year * 12 + DateTime(2000, 1).month);
   }
 
   DateTime _calculateDateFromPageIndex(int pageIndex) {
@@ -64,7 +68,7 @@ class _CustomCalendarState extends State<CustomCalendar> {
 
     return List.generate(
       lastDayOfMonth.day,
-      (index) => DateTime(date.year, date.month, index + 1),
+          (index) => DateTime(date.year, date.month, index + 1),
     );
   }
 
@@ -81,8 +85,7 @@ class _CustomCalendarState extends State<CustomCalendar> {
 
     if (minDate != null && date.isBefore(minDate)) return false;
     if (maxDate != null && date.isAfter(maxDate)) return false;
-    if (date.isBefore(DateTime.now().subtract(const Duration(days: 1))))
-      return false;
+    if (date.isBefore(DateTime.now().subtract(const Duration(days: 1)))) return false;
 
     return true;
   }
@@ -91,6 +94,12 @@ class _CustomCalendarState extends State<CustomCalendar> {
     if (!_isDateInRange(date)) return;
 
     setState(() {
+      // Nếu chỉ còn 2 ngày, không cho phép hủy thêm ngày
+      if (_selectedDates.length <= 2 && _selectedDates.contains(date)) {
+        return; // Không làm gì nếu số ngày chọn đã là 2 và người dùng cố gắng hủy
+      }
+
+      // Thêm hoặc xóa ngày khỏi danh sách chọn
       if (_selectedDates.contains(date)) {
         _selectedDates.remove(date);
       } else {
@@ -128,10 +137,9 @@ class _CustomCalendarState extends State<CustomCalendar> {
                   value: _selectedMonth,
                   items: List.generate(
                     12,
-                    (index) => DropdownMenuItem(
+                        (index) => DropdownMenuItem(
                       value: index + 1,
-                      child:
-                          Text("${index + 1}", style: TextStyle(fontSize: 16)),
+                      child: Text("${index + 1}", style: const TextStyle(fontSize: 16)),
                     ),
                   ),
                   onChanged: (newMonth) {
@@ -147,10 +155,9 @@ class _CustomCalendarState extends State<CustomCalendar> {
                   value: _selectedYear,
                   items: List.generate(
                     30,
-                    (index) => DropdownMenuItem(
+                        (index) => DropdownMenuItem(
                       value: DateTime.now().year - 15 + index,
-                      child: Text("${DateTime.now().year - 15 + index}",
-                          style: TextStyle(fontSize: 16)),
+                      child: Text("${DateTime.now().year - 15 + index}"),
                     ),
                   ),
                   onChanged: (newYear) {
@@ -201,8 +208,7 @@ class _CustomCalendarState extends State<CustomCalendar> {
                     ),
                     Expanded(
                       child: GridView.builder(
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 7,
                           crossAxisSpacing: 4.0,
                           mainAxisSpacing: 4.0,
@@ -220,8 +226,7 @@ class _CustomCalendarState extends State<CustomCalendar> {
                               decoration: BoxDecoration(
                                 color: isSelected ? Colors.blue : Colors.white,
                                 border: isSelected
-                                    ? Border.all(
-                                        color: Colors.blueAccent, width: 2)
+                                    ? Border.all(color: Colors.blueAccent, width: 2)
                                     : null,
                                 borderRadius: BorderRadius.circular(8.0),
                               ),
@@ -230,9 +235,7 @@ class _CustomCalendarState extends State<CustomCalendar> {
                                 day.day.toString(),
                                 style: TextStyle(
                                   color: isInRange
-                                      ? (isSelected
-                                          ? Colors.white
-                                          : Colors.black)
+                                      ? (isSelected ? Colors.white : Colors.black)
                                       : Colors.grey,
                                   fontWeight: isSelected
                                       ? FontWeight.bold
@@ -257,12 +260,16 @@ class _CustomCalendarState extends State<CustomCalendar> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        HelperList(customer: widget.customer, request: widget.request),
+                    builder: (context) => HelperList(
+                      customer: widget.customer,
+                      request: widget.request,
+                      listDate: _selectedDates,
+                      isOnDemand: false,
+                    ),
                   ),
                 );
               },
-              child: Text('Xác nhận'),
+              child: const Text('Xác nhận'),
             ),
           ),
         ],
