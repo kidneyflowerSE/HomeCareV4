@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:foodapp/components/time_end.dart';
-import 'package:foodapp/components/time_start.dart';
 import 'calendar.dart';
+import 'time_start.dart';
+import 'time_end.dart';
 
 class TimeSelection extends StatefulWidget {
   final Function(TimeOfDay?, TimeOfDay?)? onTimeChanged;
-  final Function(DateTime?, String?)? onDateChanged; // Cập nhật callback
+  final Function(DateTime?, String?)? onDateChanged;
   final bool isOnDemand;
 
   const TimeSelection({
@@ -27,39 +27,22 @@ class _TimeSelectionState extends State<TimeSelection> {
   void _updateStartTime(TimeOfDay startTime) {
     setState(() {
       _startTime = startTime;
-      if (_endTime != null && !_isEndTimeValid(_startTime!, _endTime!)) {
-        _endTime = null; // Reset end time if it's invalid
-      }
     });
-    if (widget.onTimeChanged != null) {
-      widget.onTimeChanged!(_startTime, _endTime);
-    }
+    widget.onTimeChanged?.call(_startTime, _endTime);
   }
 
   void _updateEndTime(TimeOfDay endTime) {
     setState(() {
       _endTime = endTime;
     });
-    if (widget.onTimeChanged != null) {
-      widget.onTimeChanged!(_startTime, _endTime);
-    }
+    widget.onTimeChanged?.call(_startTime, _endTime);
   }
 
   void _updateSelectedDate(DateTime? date, String type) {
     setState(() {
       _selectedDate = date;
-      _startTime = null; // Reset start time
-      _endTime = null; // Reset end time
     });
-    if (widget.onDateChanged != null && date != null) {
-      widget.onDateChanged!(date, type); // Truyền cả loại ngày
-    }
-  }
-
-  bool _isEndTimeValid(TimeOfDay start, TimeOfDay end) {
-    final startMinutes = start.hour * 60 + start.minute;
-    final endMinutes = end.hour * 60 + end.minute;
-    return endMinutes - startMinutes >= 120; // Minimum 2 hours difference
+    widget.onDateChanged?.call(date, type);
   }
 
   @override
@@ -68,41 +51,35 @@ class _TimeSelectionState extends State<TimeSelection> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          widget.isOnDemand ? "Thời gian" : "Ngày bắt đầu",
+          widget.isOnDemand ? "Chọn thời gian" : "Ngày bắt đầu",
           style: const TextStyle(
             fontFamily: 'Quicksand',
             fontWeight: FontWeight.w600,
             fontSize: 16,
           ),
         ),
-        const SizedBox(height: 5),
+        const SizedBox(height: 8),
         CalendarDropdown(
           onDateSelected: (date) => _updateSelectedDate(date, "start"),
-          initialDate: null,
+          initialDate: _selectedDate,
         ),
-        Visibility(
-          visible: !widget.isOnDemand,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 20),
-              const Text(
-                "Ngày kết thúc",
-                style: TextStyle(
-                  fontFamily: 'Quicksand',
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
-                ),
-              ),
-              const SizedBox(height: 5),
-              CalendarDropdown(
-                onDateSelected: (date) => _updateSelectedDate(date, "end"),
-                initialDate: DateTime.now(),
-              ),
-            ],
+        if (!widget.isOnDemand) ...[
+          const SizedBox(height: 16),
+          const Text(
+            "Ngày kết thúc",
+            style: TextStyle(
+              fontFamily: 'Quicksand',
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+            ),
           ),
-        ),
-        const SizedBox(height: 20),
+          const SizedBox(height: 8),
+          CalendarDropdown(
+            onDateSelected: (date) => _updateSelectedDate(date, "end"),
+            initialDate: _selectedDate,
+          ),
+        ],
+        const SizedBox(height: 16),
         const Text(
           "Giờ bắt đầu",
           style: TextStyle(
@@ -111,13 +88,13 @@ class _TimeSelectionState extends State<TimeSelection> {
             fontSize: 16,
           ),
         ),
-        const SizedBox(height: 5),
+        const SizedBox(height: 8),
         TimeStart(
           initialTime: _startTime,
           onTimeChanged: _updateStartTime,
           date: _selectedDate,
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 16),
         const Text(
           "Giờ kết thúc",
           style: TextStyle(
@@ -126,7 +103,7 @@ class _TimeSelectionState extends State<TimeSelection> {
             fontSize: 16,
           ),
         ),
-        const SizedBox(height: 5),
+        const SizedBox(height: 8),
         TimeEnd(
           startTime: _startTime,
           initialTime: _endTime,

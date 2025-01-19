@@ -1,87 +1,3 @@
-// import 'package:flutter/material.dart';
-
-// class MyConfirmText extends StatelessWidget {
-//   const MyConfirmText({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       padding: const EdgeInsets.all(16),
-//       child: Row(
-//         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//         children: [
-//           Expanded(
-//             child: Container(
-//               height: 50,
-//               margin: const EdgeInsets.all(8),
-//               decoration: BoxDecoration(
-//                 color: Colors.green,
-//                 borderRadius: BorderRadius.circular(16)
-//               ),
-//             ),
-//           ),
-
-//           Expanded(
-//             child: Container(
-//               height: 50,
-//               margin: const EdgeInsets.all(8),
-//               decoration: BoxDecoration(
-//                 color: Colors.green,
-//                 borderRadius: BorderRadius.circular(16)
-//               ),
-//             ),
-//           ),
-
-//           Expanded(
-//             child: Container(
-//               height: 50,
-//               margin: const EdgeInsets.all(8),
-//               decoration: BoxDecoration(
-//                 color: Colors.green,
-//                 borderRadius: BorderRadius.circular(16)
-//               ),
-//             ),
-//           ),
-
-//           Expanded(
-//             child: Container(
-//               height: 50,
-//               margin: const EdgeInsets.all(8),
-//               decoration: BoxDecoration(
-//                 color: Colors.green,
-//                 borderRadius: BorderRadius.circular(16)
-//               ),
-//             ),
-//           ),
-
-//           Expanded(
-//             child: Container(
-//               height: 50,
-//               margin: const EdgeInsets.all(8),
-//               decoration: BoxDecoration(
-//                 color: Colors.green,
-//                 borderRadius: BorderRadius.circular(16)
-//               ),
-//             ),
-//           ),
-
-//           Expanded(
-//             child: Container(
-//               height: 50,
-//               margin: const EdgeInsets.all(8),
-//               decoration: BoxDecoration(
-//                 color: Colors.green,
-//                 borderRadius: BorderRadius.circular(16)
-//               ),
-//             ),
-//           ),
-
-//         ],
-//       )
-//     );
-//   }
-// }
-
 import 'package:flutter/material.dart';
 
 class MyConfirmText extends StatefulWidget {
@@ -124,7 +40,7 @@ class _MyConfirmTextState extends State<MyConfirmText> {
       padding: const EdgeInsets.all(16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: List.generate(6, (index) {
+        children: List.generate(4, (index) {
           return Expanded(
             child: Container(
               margin: const EdgeInsets.all(8),

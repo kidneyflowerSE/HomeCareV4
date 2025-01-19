@@ -9,42 +9,29 @@ class ActivityPage extends StatefulWidget {
   const ActivityPage({super.key, required this.requests});
 
   @override
-  State<ActivityPage> createState() => _ServicesOrderState();
+  State<ActivityPage> createState() => _ActivityPageState();
 }
 
-class _ServicesOrderState extends State<ActivityPage>
+class _ActivityPageState extends State<ActivityPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-
-  // final List<Widget> servicesPage = [const OnDemand(), const LongTerm()];
-
-  // int _selectedIndex = 0;
-
-  void _selectedTabIndex(int index) {
-    setState(() {
-      // _selectedIndex = index;
-    });
-  }
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    _tabController.addListener(() {
-      _selectedTabIndex(_tabController.index);
-    });
   }
 
   @override
   void dispose() {
-    super.dispose();
     _tabController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 206, 205, 205),
+      backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.green,
@@ -58,7 +45,6 @@ class _ServicesOrderState extends State<ActivityPage>
           ),
         ),
         centerTitle: true,
-        automaticallyImplyLeading: false,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(48.0),
           child: Container(
@@ -67,19 +53,12 @@ class _ServicesOrderState extends State<ActivityPage>
               controller: _tabController,
               labelColor: Colors.green,
               unselectedLabelColor: Colors.black,
-              // indicatorColor: const Color.fromARGB(255, 0, 248, 62),
-              // indicatorWeight: 2.0,
-              indicatorSize: TabBarIndicatorSize.tab,
               indicator: const UnderlineTabIndicator(
                 borderSide: BorderSide(color: Colors.green, width: 2),
               ),
               tabs: const [
-                Tab(
-                  text: 'Theo ngày',
-                ),
-                Tab(
-                  text: 'Dài hạn',
-                ),
+                Tab(text: 'Theo ngày'),
+                Tab(text: 'Dài hạn'),
               ],
             ),
           ),
@@ -88,10 +67,10 @@ class _ServicesOrderState extends State<ActivityPage>
       body: TabBarView(
         controller: _tabController,
         children: [
-          OnDemand(
-            requests: widget.requests!,
+          OnDemand(requests: widget.requests!),
+          const LongTerm(
+            requests: [],
           ),
-          LongTerm(),
         ],
       ),
     );
@@ -108,14 +87,15 @@ class OnDemand extends StatefulWidget {
 }
 
 class _OnDemandState extends State<OnDemand> {
-  Map<String, List<Requests>> groupedRequests = {};
+  late Map<String, List<Requests>> groupedRequests;
 
   @override
   void initState() {
     super.initState();
-    // Nhóm các requests theo ngày
+    groupedRequests = {};
     for (var request in widget.requests) {
-      String date = DateFormat('dd-MM-yyyy').format(DateTime.parse(request.oderDate));
+      String date =
+          DateFormat('dd-MM-yyyy').format(DateTime.parse(request.oderDate));
       if (groupedRequests.containsKey(date)) {
         groupedRequests[date]!.add(request);
       } else {
@@ -127,73 +107,97 @@ class _OnDemandState extends State<OnDemand> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: const Color(0xFFf1f2f4),
-      child: ListView(
-        children: groupedRequests.entries.map((entry) {
+      color: const Color(0xFFF5F5F5),
+      child: ListView.builder(
+        padding: const EdgeInsets.all(10),
+        itemCount: groupedRequests.length,
+        itemBuilder: (context, index) {
+          final entry = groupedRequests.entries.elementAt(index);
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Hiển thị ngày một lần cho mỗi nhóm
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                child: Text(
-                  entry.key,
-                  style: const TextStyle(
-                    fontFamily: 'Quicksand',
-                    color: Color(0xFF5b6366),
-                    fontWeight: FontWeight.bold,
+              const SizedBox(height: 10),
+              Transform.translate(
+                offset: const Offset(-10, 0),
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.green,
+                    borderRadius: const BorderRadius.only(
+                      topRight: Radius.circular(8),
+                      bottomRight: Radius.circular(8),
+                    ),
+                  ),
+                  child: Text(
+                    entry.key,
+                    style: const TextStyle(
+                      fontFamily: 'Quicksand',
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
-              // Hiển thị các requests trong cùng ngày
+              const SizedBox(height: 10),
               ...entry.value.map((request) {
-                print(request.startTime);
                 return Container(
-                  color: Colors.white,
-                  margin: const EdgeInsets.symmetric(vertical: 5),
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                        child: Row(
+                  margin:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              DateFormat('HH:mm, dd/MM').format(DateTime.parse(request.oderDate)),
+                              DateFormat('HH:mm, dd/MM')
+                                  .format(DateTime.parse(request.oderDate)),
                               style: const TextStyle(
                                 fontFamily: 'Quicksand',
-                                color: Color(0xFF5b6366),
-                                fontSize: 15,
+                                color: Color(0xFF5B6366),
+                                fontSize: 14,
                               ),
                             ),
                             Container(
                               decoration: BoxDecoration(
-                                  color: const Color(0xFFe5fedf),
-                                  borderRadius: BorderRadius.circular(8)),
-                              child: Padding(
-                                padding: const EdgeInsets.all(2),
-                                child: Text(
-                                  request.status,
-                                  style: const TextStyle(
-                                    fontFamily: 'Quicksand',
-                                    color: Color(0xFF2fa559),
-                                    fontSize: 15,
-                                  ),
+                                color: const Color(0xFFE5FEDF),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              child: Text(
+                                request.status,
+                                style: const TextStyle(
+                                  fontFamily: 'Quicksand',
+                                  color: Color(0xFF2FA559),
+                                  fontSize: 12,
                                 ),
                               ),
                             ),
                           ],
                         ),
-                      ),
-                      // Hiển thị thông tin chi tiết của request
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: Row(
+                        const SizedBox(height: 12),
+                        Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             ClipRRect(
-                              borderRadius: BorderRadius.circular(8.0),
+                              borderRadius: BorderRadius.circular(8),
                               child: Image.asset(
                                 'lib/images/services/clean.png',
                                 height: 50,
@@ -201,158 +205,105 @@ class _OnDemandState extends State<OnDemand> {
                                 fit: BoxFit.cover,
                               ),
                             ),
-                            const SizedBox(width: 10),
+                            const SizedBox(width: 12),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Row(
-                                    children: [
-                                      const Icon(
-                                        Icons.circle,
-                                        size: 16,
-                                        color: Colors.green,
-                                      ),
-                                      const SizedBox(width: 5),
-                                      Expanded(
-                                        child: Text(
-                                          request.service.title,
-                                          style: const TextStyle(
-                                            fontFamily: 'Quicksand',
-                                            fontSize: 16,
-                                          ),
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 1,
-                                        ),
-                                      ),
-                                    ],
+                                  Text(
+                                    request.service.title,
+                                    style: const TextStyle(
+                                      fontFamily: 'Quicksand',
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                  const SizedBox(height: 5),
-                                  Row(
-                                    children: [
-                                      const Icon(
-                                        Icons.location_on_rounded,
-                                        size: 18,
-                                        color: Colors.red,
-                                      ),
-                                      const SizedBox(width: 5),
-                                      Expanded(
-                                        child: Text(
-                                          request.customerInfo.address,
-                                          style: const TextStyle(
-                                            fontFamily: 'Quicksand',
-                                            fontSize: 16,
-                                          ),
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 1,
-                                        ),
-                                      ),
-                                    ],
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    request.customerInfo.address,
+                                    style: const TextStyle(
+                                      fontFamily: 'Quicksand',
+                                      fontSize: 14,
+                                      color: Colors.grey,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
                                   ),
                                 ],
                               ),
                             ),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 8),
-                              child: Text(
-                                request.totalCost.toString(),
-                                style: const TextStyle(
-                                  fontFamily: 'Quicksand',
-                                  fontSize: 16,
-                                  color: Colors.red,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                            Text(
+                              '${request.totalCost}₫',
+                              style: const TextStyle(
+                                fontFamily: 'Quicksand',
+                                fontSize: 16,
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ],
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 10,
-                        ),
-                        child: Row(
+                        const SizedBox(height: 12),
+                        Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             InkWell(
                               onTap: () {
                                 Navigator.push(
                                   context,
-                                  PageRouteBuilder(
-                                    pageBuilder:
-                                        (context, animation, secondaryAnimation) =>
-                                    OrderDetailPage(request: request,),
-                                    transitionsBuilder: (context, animation,
-                                        secondaryAnimation, child) {
-                                      const begin = Offset(1.0, 0.0);
-                                      const end = Offset.zero;
-                                      const curve = Curves.easeInOut;
-
-                                      var tween = Tween(begin: begin, end: end)
-                                          .chain(CurveTween(curve: curve));
-                                      var offsetAnimation = animation.drive(tween);
-
-                                      return SlideTransition(
-                                        position: offsetAnimation,
-                                        child: child,
-                                      );
-                                    },
+                                  MaterialPageRoute(
+                                    builder: (context) => OrderDetailPage(
+                                      request: request,
+                                    ),
                                   ),
                                 );
                               },
-                              child: const Row(
-                                children: [
-                                  Text(
-                                    "Chi tiết",
-                                    style: TextStyle(
-                                      fontFamily: 'Quicksand',
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                  SizedBox(width: 5),
-                                  Icon(
-                                    Icons.arrow_forward_ios_rounded,
-                                    size: 16,
-                                  ),
-                                ],
+                              child: const Text(
+                                "Chi tiết",
+                                style: TextStyle(
+                                  fontFamily: 'Quicksand',
+                                  fontSize: 14,
+                                  color: Colors.green,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                             Row(
                               children: [
-                                Container(
-                                  decoration: BoxDecoration(
-                                      color: const Color(0xFFe7e7e7),
-                                      borderRadius: BorderRadius.circular(10)),
-                                  child: const Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 20, vertical: 6),
-                                    child: Text(
-                                      "Đặt dài hạn",
-                                      style: TextStyle(
-                                        fontFamily: 'Quicksand',
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                ElevatedButton(
+                                  onPressed: () {},
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.grey[300],
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    "Đặt dài hạn",
+                                    style: TextStyle(
+                                      fontFamily: 'Quicksand',
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87,
                                     ),
                                   ),
                                 ),
                                 const SizedBox(width: 10),
-                                Container(
-                                  decoration: BoxDecoration(
-                                      color: Colors.green,
-                                      borderRadius: BorderRadius.circular(10)),
-                                  child: const Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 20, vertical: 6),
-                                    child: Text(
-                                      "Đặt lại",
-                                      style: TextStyle(
-                                        fontFamily: 'Quicksand',
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                ElevatedButton(
+                                  onPressed: () {},
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.green,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    "Đặt lại",
+                                    style: TextStyle(
+                                      fontFamily: 'Quicksand',
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
                                     ),
                                   ),
                                 ),
@@ -360,31 +311,255 @@ class _OnDemandState extends State<OnDemand> {
                             ),
                           ],
                         ),
-                      )
-                    ],
+                      ],
+                    ),
                   ),
                 );
               }).toList(),
             ],
           );
-        }).toList(),
+        },
       ),
     );
   }
 }
 
 class LongTerm extends StatefulWidget {
-  const LongTerm({super.key});
+  final List<Requests> requests; // Danh sách yêu cầu dài hạn
+
+  const LongTerm({super.key, required this.requests});
 
   @override
   State<LongTerm> createState() => _LongTermState();
 }
 
 class _LongTermState extends State<LongTerm> {
+  late Map<String, List<Requests>> groupedRequests;
+
+  @override
+  void initState() {
+    super.initState();
+    groupedRequests = {};
+    for (var request in widget.requests) {
+      String startDate = "11/2/2025";
+      if (groupedRequests.containsKey(startDate)) {
+        groupedRequests[startDate]!.add(request);
+      } else {
+        groupedRequests[startDate] = [request];
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text("Dài hạn"),
+    return Container(
+      color: const Color(0xFFF5F5F5),
+      child: groupedRequests.isEmpty
+          ? const Center(
+              child: Text(
+                "Không có yêu cầu dài hạn",
+                style: TextStyle(
+                  fontFamily: 'Quicksand',
+                  fontSize: 16,
+                  color: Colors.grey,
+                ),
+              ),
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.all(10),
+              itemCount: groupedRequests.length,
+              itemBuilder: (context, index) {
+                final entry = groupedRequests.entries.elementAt(index);
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 10),
+                    Transform.translate(
+                      offset: const Offset(-10, 0),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 10,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.blue,
+                          borderRadius: const BorderRadius.only(
+                            topRight: Radius.circular(8),
+                            bottomRight: Radius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          entry.key, // Ngày bắt đầu
+                          style: const TextStyle(
+                            fontFamily: 'Quicksand',
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    ...entry.value.map((request) {
+                      return Container(
+                        margin: const EdgeInsets.symmetric(
+                          vertical: 8,
+                          horizontal: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "Ngày bắt đầu: 22/12/2025",
+                                    style: const TextStyle(
+                                      fontFamily: 'Quicksand',
+                                      color: Color(0xFF5B6366),
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFE5FEDF),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
+                                    child: Text(
+                                      request.status,
+                                      style: const TextStyle(
+                                        fontFamily: 'Quicksand',
+                                        color: Color(0xFF2FA559),
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Image.asset(
+                                      'lib/images/services/longterm.png',
+                                      height: 50,
+                                      width: 50,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          request.service.title,
+                                          style: const TextStyle(
+                                            fontFamily: 'Quicksand',
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          request.customerInfo.address,
+                                          style: const TextStyle(
+                                            fontFamily: 'Quicksand',
+                                            fontSize: 14,
+                                            color: Colors.grey,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Text(
+                                    '${request.totalCost}₫',
+                                    style: const TextStyle(
+                                      fontFamily: 'Quicksand',
+                                      fontSize: 16,
+                                      color: Colors.red,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  InkWell(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => OrderDetailPage(
+                                            request: request,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: const Text(
+                                      "Chi tiết",
+                                      style: TextStyle(
+                                        fontFamily: 'Quicksand',
+                                        fontSize: 14,
+                                        color: Colors.blue,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: () {},
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.blue,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    child: const Text(
+                                      "Hủy yêu cầu",
+                                      style: TextStyle(
+                                        fontFamily: 'Quicksand',
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ],
+                );
+              },
+            ),
     );
   }
 }

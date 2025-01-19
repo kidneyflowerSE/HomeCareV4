@@ -4,9 +4,7 @@ import 'package:foodapp/pages/edit_staff_page.dart';
 import 'package:foodapp/pages/login_page.dart';
 
 class ProfilePage extends StatelessWidget {
-  const ProfilePage({
-    super.key,
-  });
+  const ProfilePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -25,466 +23,231 @@ class ProfilePage extends StatelessWidget {
         automaticallyImplyLeading: false,
         centerTitle: true,
         backgroundColor: Colors.green,
+        elevation: 4,
       ),
       body: ListView(
         children: [
-          Column(
-            children: [
-              const SizedBox(
-                height: 20,
-              ),
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(50),
-                      child: Image.asset(
-                        'lib/images/staff/anhhuy.jpg',
-                        width: 80,
-                        height: 80,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            const Text(
+          // Profile Header Section
+          Container(
+            margin: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(50),
+                  child: Image.asset(
+                    'lib/images/staff/anhhuy.jpg',
+                    width: 80,
+                    height: 80,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Expanded(
+                            child: Text(
                               'Pham Nguyen Quoc Huy',
                               style: TextStyle(
                                 fontFamily: 'Quicksand',
-                                fontSize: 16,
-                                color: Colors.green,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
                               ),
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            const SizedBox(
-                              width: 5,
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const EditStaffPage(),
+                                ),
+                              );
+                            },
+                            child: const Icon(
+                              Icons.edit_square,
+                              size: 20,
+                              color: Colors.green,
                             ),
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          const EditStaffPage()),
-                                );
-                              },
-                              child: const Icon(
-                                Icons.edit_square,
-                                size: 16,
-                                color: Colors.green,
-                              ),
-                            )
-                          ],
-                        ),
-                        const Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Icon(
-                              Icons.phone,
-                              size: 16,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: const [
+                          Icon(
+                            Icons.phone,
+                            size: 16,
+                            color: Colors.grey,
+                          ),
+                          SizedBox(width: 6),
+                          Text(
+                            '0796592839',
+                            style: TextStyle(
                               color: Colors.grey,
+                              fontSize: 14,
                             ),
-                            SizedBox(width: 6),
-                            Text(
-                              '0796592839',
-                              style: TextStyle(
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              //================== LIST PERSONAL ================================
-              Column(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.only(left: 20),
-                    height: 50,
-                    alignment: Alignment.centerLeft,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[400],
-                    ),
-                    child: const Text(
-                      "Cá nhân",
-                      style: TextStyle(
-                        fontFamily: 'Quicksand',
-                        fontSize: 14,
+                          ),
+                        ],
                       ),
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.only(left: 20),
-                    height: 50,
-                    alignment: Alignment.centerLeft,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      // border: Border.symmetric(
-                      //   horizontal: BorderSide(
-                      //     color: Colors.grey.shade600,
-                      //   ),
-                      // ),
-                    ),
-                    child: const Row(
-                      children: [
-                        Icon(
-                          Icons.edit_calendar,
-                          size: 16,
-                          color: Colors.green,
-                        ),
-                        SizedBox(width: 6),
-                        Text(
-                          "Lịch sử thanh toán",
-                          style: TextStyle(
-                            fontFamily: 'Quicksand',
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.only(left: 20),
-                    height: 50,
-                    alignment: Alignment.centerLeft,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      border: Border.symmetric(
-                        horizontal: BorderSide(
-                          color: Colors.grey.shade400,
-                        ),
-                      ),
-                    ),
-                    child: const Row(
-                      children: [
-                        Icon(
-                          Icons.location_on_rounded,
-                          size: 16,
-                          color: Colors.green,
-                        ),
-                        SizedBox(width: 6),
-                        Text(
-                          "Địa chỉ đã lưu",
-                          style: TextStyle(
-                            fontFamily: 'Quicksand',
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.only(left: 20),
-                    height: 50,
-                    alignment: Alignment.centerLeft,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      // border: Border.symmetric(
-                      //   horizontal: BorderSide(
-                      //     color: Colors.grey.shade400,
-                      //   ),
-                      // ),
-                    ),
-                    child: const Row(
-                      children: [
-                        Icon(
-                          Icons.heart_broken,
-                          size: 16,
-                          color: Colors.green,
-                        ),
-                        SizedBox(width: 6),
-                        Text(
-                          "Nhân viên yêu thích",
-                          style: TextStyle(
-                            fontFamily: 'Quicksand',
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.only(left: 20),
-                    height: 50,
-                    alignment: Alignment.centerLeft,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      border: Border.symmetric(
-                        horizontal: BorderSide(
-                          color: Colors.grey.shade400,
-                        ),
-                      ),
-                    ),
-                    child: const Row(
-                      children: [
-                        Icon(
-                          Icons.person_off_rounded,
-                          size: 16,
-                          color: Colors.green,
-                        ),
-                        SizedBox(width: 6),
-                        Text(
-                          "Yêu cầu xóa tài khoản",
-                          style: TextStyle(
-                            fontFamily: 'Quicksand',
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-
-              //==================== LIST PRIVACY =====================
-              Column(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.only(left: 20),
-                    height: 50,
-                    alignment: Alignment.centerLeft,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[400],
-                    ),
-                    child: const Text(
-                      "Quy trình, điều khoản, chính sách",
-                      style: TextStyle(
-                        fontFamily: 'Quicksand',
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.only(left: 20),
-                    height: 50,
-                    alignment: Alignment.centerLeft,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      // border: Border.symmetric(
-                      //   horizontal: BorderSide(
-                      //     color: Colors.grey.shade600,
-                      //   ),
-                      // ),
-                    ),
-                    child: const Row(
-                      children: [
-                        Icon(
-                          Icons.person_pin_rounded,
-                          size: 16,
-                          color: Colors.green,
-                        ),
-                        SizedBox(width: 6),
-                        Text(
-                          "Quyền lợi của khách hàng",
-                          style: TextStyle(
-                            fontFamily: 'Quicksand',
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.only(left: 20),
-                    height: 50,
-                    alignment: Alignment.centerLeft,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      border: Border.symmetric(
-                        horizontal: BorderSide(
-                          color: Colors.grey.shade400,
-                        ),
-                      ),
-                    ),
-                    child: const Row(
-                      children: [
-                        Icon(
-                          Icons.gavel_rounded,
-                          size: 16,
-                          color: Colors.green,
-                        ),
-                        SizedBox(width: 6),
-                        Text(
-                          "Pháp lý",
-                          style: TextStyle(
-                            fontFamily: 'Quicksand',
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.only(left: 20),
-                    height: 50,
-                    alignment: Alignment.centerLeft,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      // border: Border.symmetric(
-                      //   horizontal: BorderSide(
-                      //     color: Colors.grey.shade400,
-                      //   ),
-                      // ),
-                    ),
-                    child: const Row(
-                      children: [
-                        Icon(
-                          Icons.school,
-                          size: 16,
-                          color: Colors.green,
-                        ),
-                        SizedBox(width: 6),
-                        Text(
-                          "Quy trình đào tạo người giúp việc",
-                          style: TextStyle(
-                            fontFamily: 'Quicksand',
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-
-              //================== ASK =======================
-              Column(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.only(left: 20),
-                    height: 50,
-                    alignment: Alignment.centerLeft,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[400],
-                    ),
-                    child: const Text(
-                      "Trợ giúp & hỗ trợ",
-                      style: TextStyle(
-                        fontFamily: 'Quicksand',
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.only(left: 20),
-                    height: 50,
-                    alignment: Alignment.centerLeft,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      border: Border.symmetric(
-                        horizontal: BorderSide(
-                          color: Colors.grey.shade400,
-                        ),
-                      ),
-                    ),
-                    child: const Row(
-                      children: [
-                        Icon(
-                          Icons.headset_mic,
-                          size: 16,
-                          color: Colors.green,
-                        ),
-                        SizedBox(width: 6),
-                        Text(
-                          "Trung tâm hỗ trợ",
-                          style: TextStyle(
-                            fontFamily: 'Quicksand',
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.only(left: 20),
-                    height: 50,
-                    alignment: Alignment.centerLeft,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      // border: Border.symmetric(
-                      //   horizontal: BorderSide(
-                      //     color: Colors.grey.shade400,
-                      //   ),
-                      // ),
-                    ),
-                    child: const Row(
-                      children: [
-                        Icon(
-                          Icons.question_mark_rounded,
-                          size: 16,
-                          color: Colors.green,
-                        ),
-                        SizedBox(width: 6),
-                        Text(
-                          "Câu hỏi thường gặp",
-                          style: TextStyle(
-                            fontFamily: 'Quicksand',
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.only(left: 20),
-                    height: 50,
-                    alignment: Alignment.centerLeft,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      border: Border.symmetric(
-                        horizontal: BorderSide(
-                          color: Colors.grey.shade400,
-                        ),
-                      ),
-                    ),
-                    child: const Row(
-                      children: [
-                        Icon(
-                          Icons.question_answer_rounded,
-                          size: 16,
-                          color: Colors.green,
-                        ),
-                        SizedBox(width: 6),
-                        Text(
-                          "Góp ý, khiếu nợ qua App",
-                          style: TextStyle(
-                            fontFamily: 'Quicksand',
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          MyButton(
-            text: "Đăng xuất",
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => LoginPage(
-                    onTap: () {},
+                    ],
                   ),
                 ),
-              );
-            },
+              ],
+            ),
           ),
           const SizedBox(height: 20),
+
+          // Personal Section
+          _buildSectionHeader("Cá nhân"),
+          _buildListTile(
+            icon: Icons.edit_calendar,
+            text: "Lịch sử thanh toán",
+          ),
+          _buildListTile(
+            icon: Icons.location_on_rounded,
+            text: "Địa chỉ đã lưu",
+          ),
+          _buildListTile(
+            icon: Icons.heart_broken,
+            text: "Nhân viên yêu thích",
+          ),
+          _buildListTile(
+            icon: Icons.person_off_rounded,
+            text: "Yêu cầu xóa tài khoản",
+          ),
+          const SizedBox(height: 20),
+
+          // Privacy Section
+          _buildSectionHeader("Quy trình, điều khoản, chính sách"),
+          _buildListTile(
+            icon: Icons.person_pin_rounded,
+            text: "Quyền lợi của khách hàng",
+          ),
+          _buildListTile(
+            icon: Icons.gavel_rounded,
+            text: "Pháp lý",
+          ),
+          _buildListTile(
+            icon: Icons.school,
+            text: "Quy trình đào tạo người giúp việc",
+          ),
+          const SizedBox(height: 20),
+
+          // Help & Support Section
+          _buildSectionHeader("Trợ giúp & hỗ trợ"),
+          _buildListTile(
+            icon: Icons.headset_mic,
+            text: "Trung tâm hỗ trợ",
+          ),
+          _buildListTile(
+            icon: Icons.question_mark_rounded,
+            text: "Câu hỏi thường gặp",
+          ),
+          _buildListTile(
+            icon: Icons.question_answer_rounded,
+            text: "Góp ý, khiếu nại qua App",
+          ),
+          const SizedBox(height: 20),
+
+          // Logout Button
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => LoginPage(onTap: () {}),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red.shade600,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text(
+                "Đăng xuất",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'Quicksand',
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+        ],
+      ),
+    );
+  }
+
+  // Section Header Widget
+  Widget _buildSectionHeader(String title) {
+    return Container(
+      padding: const EdgeInsets.only(left: 20),
+      height: 50,
+      alignment: Alignment.centerLeft,
+      color: Colors.grey[300],
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontFamily: 'Quicksand',
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  // List Tile Widget
+  Widget _buildListTile({required IconData icon, required String text}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      height: 50,
+      alignment: Alignment.centerLeft,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border(
+          bottom: BorderSide(color: Colors.grey.shade300),
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            size: 18,
+            color: Colors.green,
+          ),
+          const SizedBox(width: 10),
+          Text(
+            text,
+            style: const TextStyle(
+              fontFamily: 'Quicksand',
+              fontSize: 14,
+              color: Colors.black87,
+            ),
+          ),
         ],
       ),
     );

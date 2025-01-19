@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:foodapp/components/my_button.dart';
 import 'package:foodapp/components/my_textfield.dart';
 import 'package:foodapp/data/model/customer.dart';
@@ -56,7 +55,7 @@ class _LoginPageState extends State<LoginPage> {
     });
   }
 
-  Future<void> loadServicesData() async{
+  Future<void> loadServicesData() async {
     var repository = DefaultRepository();
     var data = await repository.loadServices();
     setState(() {
@@ -65,7 +64,7 @@ class _LoginPageState extends State<LoginPage> {
     });
   }
 
-  //login method
+  // Login method
   void login() {
     bool isTrue = false;
     int index = 0;
@@ -77,14 +76,17 @@ class _LoginPageState extends State<LoginPage> {
     }
     if (isTrue) {
       requestsCustomer = requests
-          .where((request) =>
-              request.customerInfo.fullName == 'tran phi hung')
+          .where((request) => request.customerInfo.fullName == 'tran phi hung')
           .toList();
-      // navigate to home page
+      // Navigate to home page
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => HomePage(customer: customers[index], requests: requestsCustomer, services: services,),
+          builder: (context) => HomePage(
+            customer: customers[index],
+            requests: requestsCustomer,
+            services: services,
+          ),
         ),
       );
     }
@@ -97,174 +99,120 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
-      body: Stack(
-        children: [
-          // Nền với các hình tròn
-          Positioned(
-            left: 0,
-            top: -70,
-            child: ClipRect(
-              child: Align(
-                alignment: Alignment.topLeft,
-                widthFactor: 1.0,
-                child: Container(
-                  width: 120,
-                  height: 120,
-                  decoration: const BoxDecoration(
-                    color: Colors.yellow,
-                    shape: BoxShape.circle,
-                  ),
-                ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 50.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Logo
+              Image.asset(
+                'lib/images/logo.png',
+                width: 180,
+                height: 180,
               ),
-            ),
-          ),
-          Positioned(
-            left: -80,
-            top: -30,
-            child: ClipRect(
-              child: Align(
-                alignment: Alignment.topLeft,
-                widthFactor: 1.0,
-                child: Container(
-                  width: 150,
-                  height: 150,
-                  decoration: const BoxDecoration(
-                    color: Colors.green,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            right: 0,
-            bottom: -70,
-            child: ClipRect(
-              child: Align(
-                alignment: Alignment.bottomRight,
-                widthFactor: 1.0,
-                child: Container(
-                  width: 120,
-                  height: 120,
-                  decoration: const BoxDecoration(
-                    color: Colors.yellow,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            right: -80,
-            bottom: -30,
-            child: ClipRect(
-              child: Align(
-                alignment: Alignment.bottomRight,
-                widthFactor: 1.0,
-                child: Container(
-                  width: 150,
-                  height: 150,
-                  decoration: const BoxDecoration(
-                    color: Colors.green,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-            ),
-          ),
 
-          // Nội dung trang đăng nhập
-          Padding(
-            padding: const EdgeInsets.only(top: 45),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
+              const SizedBox(height: 30),
+
+              // Welcome text
+              const Text(
+                "Chào mừng trở lại!",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                  fontFamily: 'Quicksand', // Sử dụng font Quicksand
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                "Hãy đăng nhập để tiếp tục",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey,
+                  fontFamily: 'Quicksand', // Sử dụng font Quicksand
+                ),
+              ),
+
+              const SizedBox(height: 30),
+
+              // Email textfield
+              MyTextField(
+                controller: emailController,
+                hintText: "Email hoặc số điện thoại",
+                obscureText: false,
+              ),
+
+              const SizedBox(height: 15),
+
+              // Password textfield
+              MyTextField(
+                controller: passwordController,
+                hintText: "Mật khẩu",
+                obscureText: true,
+              ),
+
+              const SizedBox(height: 25),
+
+              // Login button
+              MyButton(
+                text: "Đăng nhập",
+                onTap: login,
+              ),
+
+              const SizedBox(height: 20),
+
+              // Divider with text
+              Row(
+                children: const [
+                  Expanded(child: Divider(thickness: 1, color: Colors.grey)),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Text(
+                      "Hoặc",
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontFamily: 'Quicksand', // Sử dụng font Quicksand
+                      ),
+                    ),
+                  ),
+                  Expanded(child: Divider(thickness: 1, color: Colors.grey)),
+                ],
+              ),
+
+              const SizedBox(height: 20),
+
+              // Register link
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  //logo
-                  Image.asset(
-                    'lib/images/logo.png',
-                    width: 220,
-                    height: 220,
+                  const Text(
+                    "Chưa có tài khoản?",
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.black,
+                      fontFamily: 'Quicksand', // Sử dụng font Quicksand
+                    ),
                   ),
-
-                  const SizedBox(height: 20),
-                  // message, app slogan
-                  const Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.only(left: 25),
-                        child: Text(
-                          "Đăng nhập",
-                          style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green,
-                              fontFamily: 'Quicksand'),
-                        ),
+                  GestureDetector(
+                    onTap: widget.onTap,
+                    child: const Text(
+                      " Đăng ký",
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.green,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Quicksand', // Sử dụng font Quicksand
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 15),
-
-                  // email textfield
-                  MyTextField(
-                    controller: emailController,
-                    hintText: "Email hoặc số điện thoại",
-                    obscureText: false,
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  // password textfield
-                  MyTextField(
-                    controller: passwordController,
-                    hintText: "Mật khẩu",
-                    obscureText: true,
-                  ),
-
-                  const SizedBox(height: 25),
-
-                  // sign in button
-                  MyButton(text: "Đăng nhập", onTap: login),
-
-                  const SizedBox(height: 10),
-
-                  // not a member? register now
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        "Chưa có tài khoản?",
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontFamily: 'Quicksand',
-                          fontSize: 16,
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      GestureDetector(
-                        onTap: widget.onTap,
-                        // onTap: login,
-                        child: const Text(
-                          "Đăng ký",
-                          style: TextStyle(
-                              fontFamily: 'Quicksand',
-                              color: Colors.red,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              fontStyle: FontStyle.italic),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ],
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

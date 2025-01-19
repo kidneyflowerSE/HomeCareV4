@@ -297,8 +297,12 @@ class _ServicesOrderState extends State<ServicesOrder>
               print('Status: ${request.status}');
 
               if (_tabController.index == 0) {
-                request.endTime= DateTime(selectedDate!.year, selectedDate!.month,
-                    selectedDate!.day, _endTime!.hour, _endTime!.minute)
+                request.endTime = DateTime(
+                        selectedDate!.year,
+                        selectedDate!.month,
+                        selectedDate!.day,
+                        _endTime!.hour,
+                        _endTime!.minute)
                     .toIso8601String();
                 print('End Time: ${request.endTime}');
                 Navigator.push(
@@ -307,7 +311,8 @@ class _ServicesOrderState extends State<ServicesOrder>
                     builder: (context) => HelperList(
                       customer: widget.customer,
                       request: request,
-                      listDate: List.generate(1, (index) => startDate!), isOnDemand: true,
+                      listDate: List.generate(1, (index) => startDate!),
+                      isOnDemand: true,
                     ),
                   ),
                 );

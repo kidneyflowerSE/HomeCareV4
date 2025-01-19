@@ -23,7 +23,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
-
   final List<Widget> _pages = [];
 
   @override
@@ -48,49 +47,9 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void _showBottomSheet() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (BuildContext context) {
-        return Container(
-          alignment: Alignment.center,
-          width: double.infinity,
-          height: MediaQuery.of(context).size.height * 0.75,
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              const Text(
-                'Đặt người giúp việc ngay',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Quicksand',
-                ),
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                  'This is a pop-up message. You can add more content here.'),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop(); // Đóng hộp thoại
-                },
-                child: const Text('Close'),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: Colors.black,
       body: _pages[_selectedIndex],
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -105,26 +64,57 @@ class _HomePageState extends State<HomePage> {
           );
         },
         shape: const CircleBorder(),
-        backgroundColor: Colors.green,
-        child: const Icon(Icons.add),
+        backgroundColor: Theme.of(context).primaryColor,
+        elevation: 4,
+        child: Container(
+          width: 60,
+          height: 60,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: LinearGradient(
+              colors: [Colors.green.shade400, Colors.green.shade700],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+          child: const Icon(Icons.add, size: 30, color: Colors.white),
+        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: BottomAppBar(
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 10,
-        child: SizedBox(
-          height: 60,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Flexible(child: _buildNavButton(0, Icons.dashboard, "Trang chủ")),
-              Flexible(
-                  child: _buildNavButton(1, Icons.calendar_month, "Hoạt động")),
-              const SizedBox(width: 48),
-              Flexible(
-                  child: _buildNavButton(2, Icons.notifications, "Thông báo")),
-              Flexible(child: _buildNavButton(3, Icons.person, "Cá nhân")),
-            ],
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        child: BottomAppBar(
+          shape: const CircularNotchedRectangle(),
+          notchMargin: 12,
+          elevation: 0,
+          child: Container(
+            height: 65,
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Flexible(
+                    child: _buildNavButton(
+                        0, Icons.dashboard_rounded, "Trang chủ")),
+                Flexible(
+                    child: _buildNavButton(
+                        1, Icons.calendar_month_rounded, "Hoạt động")),
+                const SizedBox(width: 48),
+                Flexible(
+                    child: _buildNavButton(
+                        2, Icons.notifications_rounded, "Thông báo")),
+                Flexible(
+                    child: _buildNavButton(3, Icons.person_rounded, "Cá nhân")),
+              ],
+            ),
           ),
         ),
       ),
@@ -132,26 +122,32 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildNavButton(int index, IconData icon, String label) {
+    final isSelected = _selectedIndex == index;
     return InkWell(
-      onTap: () {
-        setState(() {
-          _selectedIndex = index;
-        });
-      },
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            icon,
-            color: _selectedIndex == index ? Colors.green : Colors.grey,
-          ),
-          Text(
-            label,
-            style: TextStyle(
-              color: _selectedIndex == index ? Colors.green : Colors.grey,
+      onTap: () => setState(() => _selectedIndex = index),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 24,
+              color: isSelected ? Colors.green : Colors.grey.shade600,
             ),
-          ),
-        ],
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 8,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                color: isSelected ? Colors.green : Colors.grey.shade600,
+                fontFamily: 'Quicksand',
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -178,7 +174,6 @@ class _HomeContentState extends State<HomeContent> {
   @override
   void initState() {
     super.initState();
-
     _isLoading = false;
   }
 
@@ -192,13 +187,15 @@ class _HomeContentState extends State<HomeContent> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
         title: Text(
           'Chào buổi tối, ${widget.customer.name}',
           style: const TextStyle(
             fontFamily: 'Quicksand',
-            fontSize: 18,
+            fontSize: 20,
             color: Colors.green,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.bold,
           ),
         ),
         centerTitle: true,
@@ -207,224 +204,187 @@ class _HomeContentState extends State<HomeContent> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-              child: Stack(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Column(
-                      children: [
-                        GestureDetector(
-                          onTap: () async {
-                            final selectedIndex = await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => ChooseLocationPage(
-                                      customer: widget.customer)),
-                            );
-                            if (selectedIndex != null) {
-                              setState(() {
-                                index = selectedIndex;
-                              });
-                            }
-                          },
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  widget.customer.addresses[index].toString(),
-                                  style: const TextStyle(
-                                    fontFamily: 'Quicksand',
-                                    color: Colors.green,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              const Icon(
-                                Icons.location_on,
-                                color: Colors.green,
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Container(
-                              width: double.infinity,
-                              height: 102,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(16),
-                                color: Colors.white,
-                                border: Border.all(
-                                  width: 1,
-                                  color:
-                                      const Color.fromARGB(255, 203, 203, 203),
-                                ),
-                              ),
-                              child: Column(
-                                children: [
-                                  Container(
-                                    height: 50,
-                                    width: double.infinity,
-                                    decoration: const BoxDecoration(
-                                      borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(16),
-                                          topRight: Radius.circular(16)),
-                                      border: Border(
-                                        bottom: BorderSide(
-                                          width: 1,
-                                          color: Color.fromARGB(
-                                              255, 203, 203, 203),
-                                        ),
-                                      ),
-                                    ),
-                                    child: Container(
-                                      alignment: Alignment.center,
-                                      padding: const EdgeInsets.all(10),
-                                      child: const Text(
-                                        'HomeCare - Cho cuộc sống tiện lợi hơn!',
-                                        style: TextStyle(
-                                          fontFamily: 'Quicksand',
-                                          color: Colors.green,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: 50,
-                                    width: double.infinity,
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Expanded(
-                                          child: Container(
-                                            decoration: const BoxDecoration(
-                                              borderRadius: BorderRadius.only(
-                                                  bottomLeft:
-                                                      Radius.circular(9)),
-                                              border: Border(
-                                                right: BorderSide(
-                                                  width: 1,
-                                                  color: Color.fromARGB(
-                                                      255, 203, 203, 203),
-                                                ),
-                                              ),
-                                            ),
-                                            padding: const EdgeInsets.all(10),
-                                            child: const Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Icon(Icons.money_rounded),
-                                                Text(
-                                                  '500.000 đ',
-                                                  style: TextStyle(
-                                                    fontFamily: 'Quicksand',
-                                                  ),
-                                                ),
-                                                Icon(Icons
-                                                    .arrow_forward_ios_rounded),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          child: Container(
-                                            padding: const EdgeInsets.all(10),
-                                            child: const Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Icon(Icons.money_rounded),
-                                                Text(
-                                                  '5.000 hcPoints',
-                                                  style: TextStyle(
-                                                    fontFamily: 'Quicksand',
-                                                  ),
-                                                ),
-                                                Icon(Icons
-                                                    .arrow_forward_ios_rounded),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            const Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  "Dịch vụ",
-                                  style: TextStyle(
-                                    fontFamily: 'Quicksand',
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                                Text(
-                                  "Xem tất cả",
-                                  style: TextStyle(
-                                    fontFamily: 'Quicksand',
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            SizedBox(
-                              height: 300,
-                              child: ServiceListMenu(
-                                customer: widget.customer,
-                                services: widget.services,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+              physics: const BouncingScrollPhysics(),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildLocationSection(),
+                    const SizedBox(height: 24),
+                    _buildWalletCard(),
+                    const SizedBox(height: 32),
+                    _buildServicesSection(),
+                  ],
+                ),
               ),
             ),
     );
   }
+
+  Widget _buildLocationSection() {
+    return GestureDetector(
+      onTap: () async {
+        final selectedIndex = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ChooseLocationPage(customer: widget.customer),
+          ),
+        );
+        if (selectedIndex != null) {
+          setState(() => index = selectedIndex);
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        decoration: BoxDecoration(
+          color: Colors.green.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.location_on_rounded, color: Colors.green),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                widget.customer.addresses[index].toString(),
+                style: const TextStyle(
+                  fontFamily: 'Quicksand',
+                  color: Colors.green,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const Icon(Icons.keyboard_arrow_right_rounded, color: Colors.green),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWalletCard() {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        gradient: LinearGradient(
+          colors: [Colors.green.shade500, Colors.green.shade700],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.green.withOpacity(0.3),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            alignment: Alignment.center,
+            child: const Text(
+              'HomeCare - Cho cuộc sống tiện lợi hơn!',
+              style: TextStyle(
+                fontFamily: 'Quicksand',
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Expanded(
+                  child: _buildWalletItem(
+                    icon: Icons.account_balance_wallet_rounded,
+                    value: '500.000 đ',
+                  ),
+                ),
+                Container(
+                  width: 1,
+                  height: 40,
+                  color: Colors.white.withOpacity(0.3),
+                ),
+                Expanded(
+                  child: _buildWalletItem(
+                    icon: Icons.stars_rounded,
+                    value: '5.000 hcPoints',
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWalletItem({required IconData icon, required String value}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(icon, color: Colors.white),
+        const SizedBox(width: 8),
+        Text(
+          value,
+          style: const TextStyle(
+            fontFamily: 'Quicksand',
+            color: Colors.white,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildServicesSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              "Dịch vụ",
+              style: TextStyle(
+                fontFamily: 'Quicksand',
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                // Handle view all services
+              },
+              child: Text(
+                "Xem tất cả",
+                style: TextStyle(
+                  fontFamily: 'Quicksand',
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                  color: Colors.green.shade700,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        SizedBox(
+          height: 300,
+          child: ServiceListMenu(
+            customer: widget.customer,
+            services: widget.services,
+          ),
+        ),
+      ],
+    );
+  }
 }
-
-// class _MyPersistentHeaderDelegate extends SliverPersistentHeaderDelegate {
-//   final Customer customer;
-
-//   _MyPersistentHeaderDelegate(this.customer);
-
-//   @override
-//   Widget build(
-//       BuildContext context, double shrinkOffset, bool overlapsContent) {
-//     return UserHeader(customer: customer);
-//   }
-
-//   @override
-//   double get maxExtent => 100.0; // Chiều cao tối đa của header
-
-//   @override
-//   double get minExtent => 100.0; // Chiều cao tối thiểu của header
-
-//   @override
-//   bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
-//     return false;
-//   }
-// }

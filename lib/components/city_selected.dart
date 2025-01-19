@@ -6,8 +6,11 @@ class SelectLocation extends StatefulWidget {
   final Function(Location)? onProvinceSelected;
   final Function(String)? onDistrictSelected;
 
-
-  const SelectLocation({super.key, required this.locations, this.onProvinceSelected, this.onDistrictSelected});
+  const SelectLocation(
+      {super.key,
+      required this.locations,
+      this.onProvinceSelected,
+      this.onDistrictSelected});
 
   @override
   State<SelectLocation> createState() => _SelectLocationState();
