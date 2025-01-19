@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:foodapp/components/my_button.dart';
 import 'package:foodapp/components/my_confirm_text.dart';
+import 'package:foodapp/components/spashscreen.dart';
 import 'package:foodapp/pages/login_page.dart';
 
 class AuthenticationPage extends StatefulWidget {
@@ -56,9 +57,7 @@ class _AuthenticationPageState extends State<AuthenticationPage>
     Navigator.push(
       context,
       PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => LoginPage(
-          onTap: () {},
-        ),
+        pageBuilder: (context, animation, secondaryAnimation) => SplashScreen(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeTransition(opacity: animation, child: child);
         },

@@ -1,19 +1,25 @@
-import 'dart:developer';
+import 'package:flutter/material.dart';
 import 'package:foodapp/components/my_button.dart';
 import 'package:foodapp/components/my_textfield.dart';
 import 'package:foodapp/data/model/customer.dart';
 import 'package:foodapp/data/model/request.dart';
 import 'package:foodapp/data/model/service.dart';
-import 'package:foodapp/data/repository/repository.dart';
 import 'package:foodapp/pages/home_page.dart';
-import 'package:flutter/material.dart';
+import 'package:foodapp/pages/register_page.dart';
 
 class LoginPage extends StatefulWidget {
   final void Function()? onTap;
 
+  final List<Customer> customers;
+  final List<Requests> requests;
+  final List<Services> services;
+
   const LoginPage({
     super.key,
-    required this.onTap,
+    required this.customers,
+    required this.requests,
+    required this.services,
+    this.onTap,
   });
 
   @override
@@ -21,83 +27,92 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final TextEditingController emailController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  List<Customer> customers = [];
-  List<Requests> requests = [];
   List<Requests> requestsCustomer = [];
-  List<Services> services = [];
-  bool _isLoading = true;
 
-  @override
-  void initState() {
-    super.initState();
-    loadCustomerData();
-    loadRequestData();
-    loadServicesData();
-  }
+  String? phoneError;
+  String? passwordError;
 
-  Future<void> loadCustomerData() async {
-    var repository = DefaultRepository();
-    var data = await repository.loadCustomer();
-    setState(() {
-      customers = data ?? [];
-      _isLoading = false;
-    });
-  }
-
-  Future<void> loadRequestData() async {
-    var repository = DefaultRepository();
-    var data = await repository.loadRequest();
-    setState(() {
-      requests = data ?? [];
-      _isLoading = false;
-    });
-  }
-
-  Future<void> loadServicesData() async {
-    var repository = DefaultRepository();
-    var data = await repository.loadServices();
-    setState(() {
-      services = data ?? [];
-      _isLoading = false;
-    });
-  }
-
-  // Login method
   void login() {
-    bool isTrue = false;
-    int index = 0;
-    for (index; index < customers.length; ++index) {
-      if (passwordController.text == customers[index].password) {
-        isTrue = true;
+    setState(() {
+      phoneError = null;
+      passwordError = null;
+    });
+
+    String phone = phoneController.text.trim();
+    String password = passwordController.text.trim();
+
+    if (phone.isEmpty) {
+      setState(() => phoneError = "Số điện thoại không được để trống.");
+      return;
+    }
+
+    if (!RegExp(r'^\d{10}$').hasMatch(phone)) {
+      setState(() =>
+          phoneError = "Số điện thoại không hợp lệ. Vui lòng nhập 10 số.");
+      return;
+    }
+
+    if (password.isEmpty) {
+      setState(() => passwordError = "Mật khẩu không được để trống.");
+      return;
+    }
+
+    bool isValid = false;
+    int customerIndex = 0;
+
+    for (int i = 0; i < widget.customers.length; i++) {
+      if (widget.customers[i].phone == phone &&
+          widget.customers[i].password == password) {
+        isValid = true;
+        customerIndex = i;
         break;
       }
     }
-    if (isTrue) {
-      requestsCustomer = requests
-          .where((request) => request.customerInfo.fullName == 'tran phi hung')
+
+    if (isValid) {
+      requestsCustomer = widget.requests
+          .where((request) =>
+              request.customerInfo.fullName ==
+              widget.customers[customerIndex].name)
           .toList();
-      // Navigate to home page
+
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => HomePage(
-            customer: customers[index],
+            customer: widget.customers[customerIndex],
             requests: requestsCustomer,
-            services: services,
+            services: widget.services,
+            featuredStaff: [
+              {
+                'name': 'Nguyễn Văn A',
+                'avatar': 'lib/images/staff/anhhuy.jpg',
+                'position': 'Chuyên gia sửa chữa',
+                'rating': "4.8",
+                'completedJobs': "120",
+                'isTopRated': "true",
+              },
+              {
+                'name': 'Trần Phi Hùng',
+                'avatar': 'lib/images/staff/anhhung.jpg',
+                'position': 'Thợ điện chuyên nghiệp',
+                'rating': "4.5",
+                'completedJobs': "98",
+                'isTopRated': "false",
+              },
+            ],
           ),
         ),
       );
+    } else {
+      setState(() => passwordError = "Số điện thoại hoặc mật khẩu không đúng.");
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
@@ -116,47 +131,62 @@ class _LoginPageState extends State<LoginPage> {
 
               const SizedBox(height: 30),
 
-              // Welcome text
               const Text(
                 "Chào mừng trở lại!",
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
-                  fontFamily: 'Quicksand', // Sử dụng font Quicksand
+                  fontFamily: 'Quicksand',
                 ),
               ),
+
               const SizedBox(height: 8),
               const Text(
                 "Hãy đăng nhập để tiếp tục",
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.grey,
-                  fontFamily: 'Quicksand', // Sử dụng font Quicksand
+                  fontFamily: 'Quicksand',
                 ),
               ),
 
               const SizedBox(height: 30),
 
-              // Email textfield
               MyTextField(
-                controller: emailController,
-                hintText: "Email hoặc số điện thoại",
+                controller: phoneController,
+                hintText: "Số điện thoại",
                 obscureText: false,
+                keyboardType: TextInputType.number,
               ),
+              if (phoneError != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text(
+                    phoneError!,
+                    style: const TextStyle(color: Colors.red, fontSize: 14),
+                  ),
+                ),
 
               const SizedBox(height: 15),
 
-              // Password textfield
               MyTextField(
                 controller: passwordController,
                 hintText: "Mật khẩu",
                 obscureText: true,
+                keyboardType: TextInputType.text,
               ),
+              if (passwordError != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text(
+                    passwordError!,
+                    style: const TextStyle(color: Colors.red, fontSize: 14),
+                  ),
+                ),
 
               const SizedBox(height: 25),
 
-              // Login button
               MyButton(
                 text: "Đăng nhập",
                 onTap: login,
@@ -164,7 +194,6 @@ class _LoginPageState extends State<LoginPage> {
 
               const SizedBox(height: 20),
 
-              // Divider with text
               Row(
                 children: const [
                   Expanded(child: Divider(thickness: 1, color: Colors.grey)),
@@ -174,7 +203,7 @@ class _LoginPageState extends State<LoginPage> {
                       "Hoặc",
                       style: TextStyle(
                         color: Colors.grey,
-                        fontFamily: 'Quicksand', // Sử dụng font Quicksand
+                        fontFamily: 'Quicksand',
                       ),
                     ),
                   ),
@@ -184,7 +213,6 @@ class _LoginPageState extends State<LoginPage> {
 
               const SizedBox(height: 20),
 
-              // Register link
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -193,18 +221,23 @@ class _LoginPageState extends State<LoginPage> {
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.black,
-                      fontFamily: 'Quicksand', // Sử dụng font Quicksand
+                      fontFamily: 'Quicksand',
                     ),
                   ),
                   GestureDetector(
-                    onTap: widget.onTap,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const RegisterPage(),
+                      ),
+                    ),
                     child: const Text(
                       " Đăng ký",
                       style: TextStyle(
                         fontSize: 16,
                         color: Colors.green,
                         fontWeight: FontWeight.bold,
-                        fontFamily: 'Quicksand', // Sử dụng font Quicksand
+                        fontFamily: 'Quicksand',
                       ),
                     ),
                   ),

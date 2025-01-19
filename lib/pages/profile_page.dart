@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:foodapp/components/my_button.dart';
+import 'package:foodapp/components/spashscreen.dart';
 import 'package:foodapp/pages/edit_staff_page.dart';
 import 'package:foodapp/pages/login_page.dart';
 
@@ -175,7 +176,7 @@ class ProfilePage extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => LoginPage(onTap: () {}),
+                    builder: (context) => SplashScreen(),
                   ),
                 );
               },
