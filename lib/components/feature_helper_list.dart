@@ -55,23 +55,22 @@ class FeaturedStaffList extends StatelessWidget {
                             backgroundImage: AssetImage(item['avatar']),
                           ),
                         ),
-                        if (item['isTopRated'] == true)
-                          Positioned(
-                            right: 0,
-                            top: 0,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.orange,
-                                shape: BoxShape.circle,
-                              ),
-                              padding: const EdgeInsets.all(4),
-                              child: const Icon(
-                                Icons.star,
-                                size: 16,
-                                color: Colors.white,
-                              ),
+                        Positioned(
+                          right: 0,
+                          top: 0,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.orange,
+                              shape: BoxShape.circle,
+                            ),
+                            padding: const EdgeInsets.all(4),
+                            child: const Icon(
+                              Icons.star,
+                              size: 16,
+                              color: Colors.white,
                             ),
                           ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 8),

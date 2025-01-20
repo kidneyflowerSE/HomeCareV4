@@ -87,12 +87,11 @@ class _LoginPageState extends State<LoginPage> {
             services: widget.services,
             featuredStaff: [
               {
-                'name': 'Nguyễn Văn A',
+                'name': 'Phạm Nguyễn Quốc Huy',
                 'avatar': 'lib/images/staff/anhhuy.jpg',
-                'position': 'Chuyên gia sửa chữa',
+                'position': 'Thợ sửa ổng nước',
                 'rating': "4.8",
                 'completedJobs': "120",
-                'isTopRated': "true",
               },
               {
                 'name': 'Trần Phi Hùng',
@@ -100,7 +99,6 @@ class _LoginPageState extends State<LoginPage> {
                 'position': 'Thợ điện chuyên nghiệp',
                 'rating': "4.5",
                 'completedJobs': "98",
-                'isTopRated': "false",
               },
             ],
           ),

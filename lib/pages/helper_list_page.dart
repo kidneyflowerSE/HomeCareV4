@@ -82,18 +82,21 @@ class _HelperListState extends State<HelperList> {
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.green,
         title: const Text(
           'Danh sách người giúp việc',
           style: TextStyle(
-            color: Colors.black87,
+            color: Colors.white,
             fontSize: 20,
             fontWeight: FontWeight.w600,
             fontFamily: 'Quicksand',
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.black87),
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            color: Colors.white,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -266,6 +269,7 @@ class _HelperListState extends State<HelperList> {
               fit: BoxFit.cover,
             );
           },
+          fadeInDuration: const Duration(milliseconds: 300),
         ),
       ),
     );

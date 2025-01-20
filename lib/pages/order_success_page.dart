@@ -61,8 +61,9 @@ class OrderSuccess extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const ActivityPage(
-                          requests: [],
+                        builder: (context) => const HomePage(
+                          customer: [],
+                          featuredStaff: [],
                         ),
                       ),
                     );
