@@ -1,18 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:foodapp/data/model/customer.dart';
 import 'package:foodapp/pages/activity_page.dart';
 import 'package:foodapp/pages/home_page.dart';
 
-import '../data/model/customer.dart';
+class OrderSuccess extends StatelessWidget {
+  const OrderSuccess({super.key, required Customer customer});
 
-class OrderSuccess extends StatefulWidget {
-  final Customer customer;
-  const OrderSuccess({super.key, required this.customer});
-
-  @override
-  State<OrderSuccess> createState() => _OrderSuccessState();
-}
-
-class _OrderSuccessState extends State<OrderSuccess> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -69,8 +62,9 @@ class _OrderSuccessState extends State<OrderSuccess> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => ActivityPage(
-                          customer: widget.customer,
+                        builder: (context) => const HomePage(
+                          customer: [],
+                          featuredStaff: [],
                         ),
                       ),
                     );

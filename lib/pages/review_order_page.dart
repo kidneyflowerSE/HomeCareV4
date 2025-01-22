@@ -86,7 +86,10 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
         backgroundColor: Colors.green,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_outlined),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_outlined,
+            color: Colors.white,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
@@ -134,7 +137,10 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                       ),
                     ),
                   ),
-                  const Divider(height: 24),
+                  const Divider(
+                    height: 24,
+                    color: Colors.grey,
+                  ),
                   ListTile(
                     contentPadding: EdgeInsets.zero,
                     leading: const CircleAvatar(
@@ -150,7 +156,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                       ),
                     ),
                     subtitle: Text(
-                      widget.customer.phone ?? 'Sđt không có sẵn',
+                      widget.customer.phone ?? 'Số điện thoại không có sẵn',
                       style: const TextStyle(
                         fontFamily: 'Quicksand',
                         fontSize: 14,
@@ -189,7 +195,10 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                   _buildInfoRow(
                       'Ngày làm việc', 'Thứ năm, ngày 26/09/2024 - 14:00'),
                   _buildInfoRow('Làm trong', '3 giờ, 14:00 - 17:00'),
-                  const Divider(height: 24),
+                  const Divider(
+                    height: 24,
+                    color: Colors.grey,
+                  ),
                   const Text(
                     'Chi tiết công việc',
                     style: TextStyle(
@@ -266,15 +275,13 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
           height: 54,
           child: ElevatedButton(
             onPressed: () {
-              var repository = DefaultRepository();
-              repository.sendRequest(widget.request);
               if (isOnlinePayment) {
                 // Điều hướng tới PaymentPage
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => PaymentPage(
-                      amount: 50.0000, customer: widget.customer,
+                      amount: 500000, customer: widget.customer,
                     ),
                   ),
                 );
@@ -283,15 +290,15 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => OrderSuccess(
-                      customer: widget.customer,
-                    ),
+                    builder: (context) => OrderSuccess(customer: widget.customer,),
                   ),
                 );
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF2E7D32),
+              // backgroundColor: const Color(0xFF2E7D32),
+              backgroundColor: Colors.green,
+
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -302,6 +309,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                 fontFamily: 'Quicksand',
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
+                color: Colors.white,
               ),
             ),
           ),

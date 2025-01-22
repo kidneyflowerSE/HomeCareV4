@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:foodapp/components/feature_helper_list.dart';
 import 'package:foodapp/components/service_list_menu.dart';
-import 'package:foodapp/components/user_header.dart';
 import 'package:foodapp/pages/activity_page.dart';
 import 'package:foodapp/pages/choose_location_page.dart';
 import 'package:foodapp/pages/notification_page.dart';
@@ -14,8 +14,15 @@ class HomePage extends StatefulWidget {
   final dynamic customer;
   final List<Services>? services;
   final List<Requests>? requests;
+  final List<Map<String, String>> featuredStaff;
 
-  const HomePage({super.key, this.customer, this.services, this.requests});
+  const HomePage({
+    super.key,
+    this.customer,
+    this.services,
+    this.requests,
+    required this.featuredStaff,
+  });
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -32,6 +39,7 @@ class _HomePageState extends State<HomePage> {
       HomeContent(
         customer: widget.customer,
         services: widget.services!,
+        featuredStaff: widget.featuredStaff,
       ),
       ActivityPage(
         customer: widget.customer,
@@ -156,11 +164,13 @@ class _HomePageState extends State<HomePage> {
 class HomeContent extends StatefulWidget {
   final Customer customer;
   final List<Services> services;
+  final List<Map<String, String>> featuredStaff;
 
   const HomeContent({
     super.key,
     required this.customer,
     required this.services,
+    required this.featuredStaff,
   });
 
   @override
@@ -188,13 +198,13 @@ class _HomeContentState extends State<HomeContent> {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.green,
         title: Text(
           'Chào buổi tối, ${widget.customer.name}',
           style: const TextStyle(
             fontFamily: 'Quicksand',
             fontSize: 20,
-            color: Colors.green,
+            color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -210,10 +220,13 @@ class _HomeContentState extends State<HomeContent> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const SizedBox(height: 20),
                     _buildLocationSection(),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 16),
                     _buildWalletCard(),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 16),
+                    FeaturedStaffList(staff: widget.featuredStaff),
+                    const SizedBox(height: 16),
                     _buildServicesSection(),
                   ],
                 ),

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:foodapp/pages/login_page.dart';
-import 'package:foodapp/pages/payment_page.dart';
-import 'package:foodapp/pages/register_page.dart';
-
-import '../auth/login_or_register.dart';
+import 'package:foodapp/auth/login_or_register.dart';
+import 'package:foodapp/data/model/customer.dart';
+import 'package:foodapp/data/model/request.dart';
+import 'package:foodapp/data/model/service.dart';
+import 'package:foodapp/data/repository/repository.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -21,6 +21,10 @@ class _SplashScreenState extends State<SplashScreen>
   String _fullText = "Cho cuộc sống tiện lợi hơn";
   String _dots = "";
 
+  List<Customer> customers = [];
+  List<Requests> requests = [];
+  List<Services> services = [];
+
   @override
   void initState() {
     super.initState();
@@ -30,7 +34,6 @@ class _SplashScreenState extends State<SplashScreen>
       vsync: this,
       duration: const Duration(seconds: 3),
     )..addListener(() {
-        // Cập nhật văn bản dựa trên animation value
         final int currentLength =
             (_typingController.value * _fullText.length).floor();
         setState(() {
@@ -43,36 +46,47 @@ class _SplashScreenState extends State<SplashScreen>
       vsync: this,
       duration: const Duration(seconds: 1),
     )..addListener(() {
-        // Hiển thị dấu ba chấm
         final int dotCount = ((_dotsController.value * 3).floor() % 4);
         setState(() {
           _dots = "." * dotCount;
         });
       });
 
-    // Bắt đầu typing animation
     _typingController.forward().then((_) {
-      // Sau khi typing xong, bắt đầu animation dấu ba chấm
       _dotsController.repeat();
     });
 
-    // Chuyển sang LoginPage sau 5 giây
-    Future.delayed(const Duration(seconds: 5), _navigateToLoginPage);
+    // Tải dữ liệu khi splashscreen chạy
+    loadData();
   }
 
-  @override
-  void dispose() {
-    _typingController.dispose();
-    _dotsController.dispose();
-    super.dispose();
+  Future<void> loadData() async {
+    var repository = DefaultRepository();
+
+    final customerData = await repository.loadCustomer();
+    final requestData = await repository.loadRequest();
+    final servicesData = await repository.loadServices();
+
+    setState(() {
+      customers = customerData ?? [];
+      requests = requestData ?? [];
+      services = servicesData ?? [];
+    });
+
+    // Chuyển sang LoginPage sau khi dữ liệu được tải
+    Future.delayed(const Duration(seconds: 5), _navigateToLoginPage);
   }
 
   void _navigateToLoginPage() {
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
-            const LoginOrRegister(),
-        // const PaymentPage(amount: 500000),
+            LoginOrRegister(
+          key: const ValueKey("LoginOrRegister"),
+          customers: customers,
+          requests: requests,
+          services: services,
+        ),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeTransition(
             opacity: animation,
@@ -81,6 +95,13 @@ class _SplashScreenState extends State<SplashScreen>
         },
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _typingController.dispose();
+    _dotsController.dispose();
+    super.dispose();
   }
 
   @override
