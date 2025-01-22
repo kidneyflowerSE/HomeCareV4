@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:foodapp/pages/order_success_page.dart';
 
+import '../data/model/customer.dart';
+
 class PaymentPage extends StatefulWidget {
   final double amount;
+  final Customer customer;
 
   const PaymentPage({
     super.key,
-    required this.amount,
+    required this.amount, required this.customer,
   });
 
   @override
@@ -381,7 +384,7 @@ class _PaymentPageState extends State<PaymentPage> {
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const OrderSuccess()),
+        MaterialPageRoute(builder: (context) => OrderSuccess(customer: widget.customer,)),
       );
     }
   }

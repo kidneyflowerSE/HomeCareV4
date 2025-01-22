@@ -3,6 +3,8 @@ import 'package:foodapp/pages/login_page.dart';
 import 'package:foodapp/pages/payment_page.dart';
 import 'package:foodapp/pages/register_page.dart';
 
+import '../auth/login_or_register.dart';
+
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -69,7 +71,7 @@ class _SplashScreenState extends State<SplashScreen>
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
-            const LoginPage(onTap: null),
+            const LoginOrRegister(),
         // const PaymentPage(amount: 500000),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeTransition(

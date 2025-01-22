@@ -36,12 +36,13 @@ class _ServicesOrderState extends State<ServicesOrder>
   List<Location> locations = [];
   List<Customer> customers = [];
   bool isLoading = true;
+  String orderType = 'Ngắn hạn';
   DateTime? selectedDate;
   DateTime? startDate =
-      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+  DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
   DateTime? endDate =
-      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)
-          .add(const Duration(days: 1));
+  DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)
+      .add(const Duration(days: 1));
   TimeOfDay? _startTime;
   TimeOfDay? _endTime;
   Location? selectedProvince;
@@ -214,6 +215,7 @@ class _ServicesOrderState extends State<ServicesOrder>
                   startDate = date;
                 } else {
                   endDate = date;
+                  orderType = 'Dài hạn';
                 }
               });
             },
@@ -251,9 +253,9 @@ class _ServicesOrderState extends State<ServicesOrder>
                     cost: widget.service.basicPrice),
                 location: selectedProvince != null
                     ? RequestLocation(
-                        province: selectedProvince!.name,
-                        district: selectedDistrict ?? '',
-                      )
+                  province: selectedProvince!.name,
+                  district: selectedDistrict ?? '',
+                )
                     : RequestLocation(province: '', district: ''),
                 id: '',
                 // Generate or provide an ID if required
@@ -265,12 +267,12 @@ class _ServicesOrderState extends State<ServicesOrder>
                     selectedDate!.month,
                     selectedDate!.day)),
                 startTime: DateTime(selectedDate!.year, selectedDate!.month,
-                        selectedDate!.day, _startTime!.hour, _startTime!.minute)
+                    selectedDate!.day, _startTime!.hour, _startTime!.minute)
                     .toIso8601String(),
                 endTime: DateTime(selectedEndDate!.year, selectedEndDate.month,
-                        selectedEndDate.day, _endTime!.hour, _endTime!.minute)
+                    selectedEndDate.day, _endTime!.hour, _endTime!.minute)
                     .toIso8601String(),
-                requestType: 'ngắn hạn',
+                requestType: orderType,
                 // Set based on your application's logic
                 totalCost: 0,
                 // Calculate or set the total cost
@@ -278,7 +280,7 @@ class _ServicesOrderState extends State<ServicesOrder>
                 // Set the initial status
                 deleted: false,
                 comment:
-                    Comment(review: '', loseThings: false, breakThings: false),
+                Comment(review: '', loseThings: false, breakThings: false),
                 profit: 0, // Calculate or set profit if applicable
               );
               print('Request Information:');
@@ -297,12 +299,8 @@ class _ServicesOrderState extends State<ServicesOrder>
               print('Status: ${request.status}');
 
               if (_tabController.index == 0) {
-                request.endTime = DateTime(
-                        selectedDate!.year,
-                        selectedDate!.month,
-                        selectedDate!.day,
-                        _endTime!.hour,
-                        _endTime!.minute)
+                request.endTime= DateTime(selectedDate!.year, selectedDate!.month,
+                    selectedDate!.day, _endTime!.hour, _endTime!.minute)
                     .toIso8601String();
                 print('End Time: ${request.endTime}');
                 Navigator.push(
@@ -311,8 +309,7 @@ class _ServicesOrderState extends State<ServicesOrder>
                     builder: (context) => HelperList(
                       customer: widget.customer,
                       request: request,
-                      listDate: List.generate(1, (index) => startDate!),
-                      isOnDemand: true,
+                      listDate: List.generate(1, (index) => startDate!), isOnDemand: true,
                     ),
                   ),
                 );
@@ -323,7 +320,7 @@ class _ServicesOrderState extends State<ServicesOrder>
                     builder: (context) => CustomCalendar(
                       initialSelectedDates: List.generate(
                         endDate!.difference(startDate!).inDays + 1,
-                        (index) => startDate!.add(Duration(days: index)),
+                            (index) => startDate!.add(Duration(days: index)),
                       ),
                       customer: widget.customer,
                       request: request,
@@ -353,12 +350,12 @@ class OnDemand extends StatefulWidget {
 
   const OnDemand(
       {super.key,
-      required this.locations,
-      required this.customers,
-      this.onTimeChanged,
-      this.onProvinceSelected,
-      this.onDistrictSelected,
-      this.onDateChanged});
+        required this.locations,
+        required this.customers,
+        this.onTimeChanged,
+        this.onProvinceSelected,
+        this.onDistrictSelected,
+        this.onDateChanged});
 
   @override
   State<OnDemand> createState() => _OnDemandState();
@@ -466,12 +463,12 @@ class LongTerm extends StatefulWidget {
 
   const LongTerm(
       {super.key,
-      required this.locations,
-      required this.customers,
-      this.onTimeChanged,
-      this.onProvinceSelected,
-      this.onDistrictSelected,
-      this.onDateChanged});
+        required this.locations,
+        required this.customers,
+        this.onTimeChanged,
+        this.onProvinceSelected,
+        this.onDistrictSelected,
+        this.onDateChanged});
 
   @override
   State<LongTerm> createState() => _LongTermState();

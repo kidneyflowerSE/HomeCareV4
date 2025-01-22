@@ -34,7 +34,7 @@ class _HomePageState extends State<HomePage> {
         services: widget.services!,
       ),
       ActivityPage(
-        requests: widget.requests,
+        customer: widget.customer,
       ),
       const NotificationPage(),
       const ProfilePage(),

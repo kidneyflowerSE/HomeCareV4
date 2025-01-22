@@ -266,13 +266,15 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
           height: 54,
           child: ElevatedButton(
             onPressed: () {
+              var repository = DefaultRepository();
+              repository.sendRequest(widget.request);
               if (isOnlinePayment) {
                 // Điều hướng tới PaymentPage
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const PaymentPage(
-                      amount: 50.0000,
+                    builder: (context) => PaymentPage(
+                      amount: 50.0000, customer: widget.customer,
                     ),
                   ),
                 );
@@ -281,7 +283,9 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const OrderSuccess(),
+                    builder: (context) => OrderSuccess(
+                      customer: widget.customer,
+                    ),
                   ),
                 );
               }

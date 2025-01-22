@@ -91,9 +91,9 @@ class _TimeEndState extends State<TimeEnd> {
       } else {
         _isEndTimeValid(startTime, picked)
             ? showPopUpWarning(
-                'Thời gian kết thúc phải trong khoảng từ 6h sáng đến 8h tối')
+            'Thời gian kết thúc phải trong khoảng từ 6h sáng đến 8h tối')
             : showPopUpWarning(
-                'Thời gian kết thúc phải sau thời gian bắt đầu ít nhất 2 tiếng');
+            'Thời gian kết thúc phải sau thời gian bắt đầu ít nhất 2 tiếng');
       }
     }
   }
@@ -101,11 +101,11 @@ class _TimeEndState extends State<TimeEnd> {
   bool _isTimeInValidRange(TimeOfDay time) {
     final now = DateTime.now();
     final selectedTime =
-        DateTime(now.year, now.month, now.day, time.hour, time.minute);
+    DateTime(now.year, now.month, now.day, time.hour, time.minute);
     final startOfValidRange =
-        DateTime(now.year, now.month, now.day, 6, 0); // 6h sáng
+    DateTime(now.year, now.month, now.day, 6, 0); // 6h sáng
     final endOfValidRange =
-        DateTime(now.year, now.month, now.day, 20, 1); // 8h tối
+    DateTime(now.year, now.month, now.day, 20, 1); // 8h tối
 
     return selectedTime.isAfter(startOfValidRange) &&
         selectedTime.isBefore(endOfValidRange);
@@ -152,13 +152,13 @@ class _TimeEndState extends State<TimeEnd> {
                   _selectedTime != null
                       ? formatTimeOfDay(_selectedTime!)
                       : widget.startTime != null
-                          ? formatTimeOfDay(
-                              TimeOfDay(
-                                hour: widget.startTime!.hour + 2,
-                                minute: widget.startTime!.minute,
-                              ),
-                            )
-                          : 'Chọn thời gian kết thúc',
+                      ? formatTimeOfDay(
+                    TimeOfDay(
+                      hour: widget.startTime!.hour + 2,
+                      minute: widget.startTime!.minute,
+                    ),
+                  )
+                      : 'Chọn thời gian kết thúc',
                   style: const TextStyle(
                     fontSize: 15,
                     fontFamily: 'Quicksand',

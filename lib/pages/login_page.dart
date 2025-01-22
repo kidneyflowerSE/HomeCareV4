@@ -69,14 +69,17 @@ class _LoginPageState extends State<LoginPage> {
     bool isTrue = false;
     int index = 0;
     for (index; index < customers.length; ++index) {
-      if (passwordController.text == customers[index].password) {
-        isTrue = true;
-        break;
+      if (passwordController.text.compareTo(customers[index].password) == 0) {
+        if(customers[index].phone.compareTo(emailController.text) == 0) {
+          isTrue = true;
+          break;
+        }
       }
     }
+    print(customers[index].phone);
     if (isTrue) {
       requestsCustomer = requests
-          .where((request) => request.customerInfo.fullName == 'tran phi hung')
+          .where((request) => request.customerInfo.fullName == 'Quốc An Nguyễn')
           .toList();
       // Navigate to home page
       Navigator.push(
@@ -165,8 +168,8 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 20),
 
               // Divider with text
-              Row(
-                children: const [
+              const Row(
+                children: [
                   Expanded(child: Divider(thickness: 1, color: Colors.grey)),
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 8.0),

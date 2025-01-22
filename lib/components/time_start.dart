@@ -32,21 +32,21 @@ class _TimeStartState extends State<TimeStart> {
     if (widget.initialTime != null) {
       _selectedTime = widget.initialTime;
     } else {
-    if (referenceDate.hour > 15 && referenceDate.day == now.day) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        showPopUpWarning(
-            'Thời gian hiện tại đã qua 15:00. Vui lòng chọn ngày khác');
-      });
-    } else if (referenceDate.hour >= 6 && referenceDate.hour < 14) {
-      int additionalHours = referenceDate.minute > 30 ? 4 : 3;
-      _selectedTime = TimeOfDay(
-        hour: referenceDate.hour + additionalHours,
-        minute: 0,
-      );
-    } else {
-      _selectedTime =
-          null; // Giữ _selectedTime là null nếu không có điều kiện nào được thỏa mãn
-    }
+      if (referenceDate.hour > 15 && referenceDate.day == now.day) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showPopUpWarning(
+              'Thời gian hiện tại đã qua 15:00. Vui lòng chọn ngày khác');
+        });
+      } else if (referenceDate.hour >= 6 && referenceDate.hour < 14) {
+        int additionalHours = referenceDate.minute > 30 ? 4 : 3;
+        _selectedTime = TimeOfDay(
+          hour: referenceDate.hour + additionalHours,
+          minute: 0,
+        );
+      } else {
+        _selectedTime =
+        null; // Giữ _selectedTime là null nếu không có điều kiện nào được thỏa mãn
+      }
     }
 
     // Gọi onTimeChanged ngay khi khởi tạo
@@ -141,7 +141,7 @@ class _TimeStartState extends State<TimeStart> {
         // Ràng buộc thời gian từ 06:00 đến 18:00 cho ngày khác
         final DateTime startTime = referenceDate.copyWith(hour: 6, minute: 0);
         final DateTime endTime =
-            referenceDate.copyWith(hour: 18, minute: 0); // 18:00 cho ngày khác
+        referenceDate.copyWith(hour: 18, minute: 0); // 18:00 cho ngày khác
 
         if (selectedDateTime.isBefore(startTime) ||
             selectedDateTime.isAfter(endTime)) {

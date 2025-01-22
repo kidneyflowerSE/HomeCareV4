@@ -3,10 +3,13 @@ import 'package:foodapp/data/model/request.dart';
 import 'package:foodapp/pages/order_detail_page.dart';
 import 'package:intl/intl.dart';
 
-class ActivityPage extends StatefulWidget {
-  final List<Requests>? requests;
+import '../data/model/customer.dart';
+import '../data/repository/repository.dart';
 
-  const ActivityPage({super.key, required this.requests});
+class ActivityPage extends StatefulWidget {
+  final Customer customer;
+
+  const ActivityPage({super.key, required this.customer});
 
   @override
   State<ActivityPage> createState() => _ActivityPageState();
@@ -15,11 +18,27 @@ class ActivityPage extends StatefulWidget {
 class _ActivityPageState extends State<ActivityPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  List<Requests> requests = [];
+  List<Requests>? requestCustomer = [];
+  bool isLoading = true;  // Thêm biến để theo dõi trạng thái tải dữ liệu
 
   @override
   void initState() {
     super.initState();
+    loadRequestData();
     _tabController = TabController(length: 2, vsync: this);
+  }
+
+  Future<void> loadRequestData() async {
+    var repository = DefaultRepository();
+    var data = await repository.loadRequest();
+    setState(() {
+      requests = data ?? [];
+      requestCustomer = requests
+          .where((request) => request.customerInfo.fullName == 'Quốc An Nguyễn')
+          .toList();
+      isLoading = false;  // Đặt trạng thái là không còn tải dữ liệu
+    });
   }
 
   @override
@@ -30,6 +49,13 @@ class _ActivityPageState extends State<ActivityPage>
 
   @override
   Widget build(BuildContext context) {
+    List<Requests>? onDemandRequest = requestCustomer
+        ?.where((request) => request.requestType.compareTo('Ngắn hạn') == 0)
+        .toList();
+    List<Requests>? longTermRequest = requestCustomer
+        ?.where((request) => request.requestType.compareTo('Dài hạn') == 0)
+        .toList();
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
@@ -64,18 +90,21 @@ class _ActivityPageState extends State<ActivityPage>
           ),
         ),
       ),
-      body: TabBarView(
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())  // Hiển thị loading khi đang tải
+          : TabBarView(
         controller: _tabController,
         children: [
-          OnDemand(requests: widget.requests!),
-          const LongTerm(
-            requests: [],
+          OnDemand(requests: onDemandRequest!),
+          LongTerm(
+            requests: longTermRequest!,
           ),
         ],
       ),
     );
   }
 }
+
 
 class OnDemand extends StatefulWidget {
   final List<Requests> requests;
@@ -108,218 +137,234 @@ class _OnDemandState extends State<OnDemand> {
   Widget build(BuildContext context) {
     return Container(
       color: const Color(0xFFF5F5F5),
-      child: ListView.builder(
-        padding: const EdgeInsets.all(10),
-        itemCount: groupedRequests.length,
-        itemBuilder: (context, index) {
-          final entry = groupedRequests.entries.elementAt(index);
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 10),
-              Transform.translate(
-                offset: const Offset(-10, 0),
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-                  decoration: BoxDecoration(
-                    color: Colors.green,
-                    borderRadius: const BorderRadius.only(
-                      topRight: Radius.circular(8),
-                      bottomRight: Radius.circular(8),
-                    ),
-                  ),
-                  child: Text(
-                    entry.key,
-                    style: const TextStyle(
-                      fontFamily: 'Quicksand',
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+      child: groupedRequests.isEmpty
+          ? const Center(
+              child: Text(
+                "Không có yêu cầu ngắn hạn",
+                style: TextStyle(
+                  fontFamily: 'Quicksand',
+                  fontSize: 16,
+                  color: Colors.grey,
                 ),
               ),
-              const SizedBox(height: 10),
-              ...entry.value.map((request) {
-                return Container(
-                  margin:
-                      const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.all(10),
+              itemCount: groupedRequests.length,
+              itemBuilder: (context, index) {
+                final entry = groupedRequests.entries.elementAt(index);
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 10),
+                    Transform.translate(
+                      offset: const Offset(-10, 0),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 10, horizontal: 12),
+                        decoration: const BoxDecoration(
+                          color: Colors.green,
+                          borderRadius: BorderRadius.only(
+                            topRight: Radius.circular(8),
+                            bottomRight: Radius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          entry.key,
+                          style: const TextStyle(
+                            fontFamily: 'Quicksand',
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
-                    ],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              DateFormat('HH:mm, dd/MM')
-                                  .format(DateTime.parse(request.oderDate)),
-                              style: const TextStyle(
-                                fontFamily: 'Quicksand',
-                                color: Color(0xFF5B6366),
-                                fontSize: 14,
-                              ),
-                            ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFE5FEDF),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              child: Text(
-                                request.status,
-                                style: const TextStyle(
-                                  fontFamily: 'Quicksand',
-                                  color: Color(0xFF2FA559),
-                                  fontSize: 12,
-                                ),
-                              ),
+                    ),
+                    const SizedBox(height: 10),
+                    ...entry.value.map((request) {
+                      return Container(
+                        margin: const EdgeInsets.symmetric(
+                            vertical: 8, horizontal: 10),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 12),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: Image.asset(
-                                'lib/images/services/clean.png',
-                                height: 50,
-                                width: 50,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    request.service.title,
+                                    DateFormat('HH:mm, dd/MM').format(
+                                        DateTime.parse(request.oderDate)),
                                     style: const TextStyle(
                                       fontFamily: 'Quicksand',
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFF5B6366),
+                                      fontSize: 14,
                                     ),
                                   ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    request.customerInfo.address,
-                                    style: const TextStyle(
-                                      fontFamily: 'Quicksand',
-                                      fontSize: 14,
-                                      color: Colors.grey,
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFE5FEDF),
+                                      borderRadius: BorderRadius.circular(8),
                                     ),
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 1,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
+                                    child: Text(
+                                      request.status,
+                                      style: const TextStyle(
+                                        fontFamily: 'Quicksand',
+                                        color: Color(0xFF2FA559),
+                                        fontSize: 12,
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),
-                            ),
-                            Text(
-                              '${request.totalCost}₫',
-                              style: const TextStyle(
-                                fontFamily: 'Quicksand',
-                                fontSize: 16,
-                                color: Colors.red,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => OrderDetailPage(
-                                      request: request,
+                              const SizedBox(height: 12),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Image.asset(
+                                      'lib/images/services/clean.png',
+                                      height: 50,
+                                      width: 50,
+                                      fit: BoxFit.cover,
                                     ),
                                   ),
-                                );
-                              },
-                              child: const Text(
-                                "Chi tiết",
-                                style: TextStyle(
-                                  fontFamily: 'Quicksand',
-                                  fontSize: 14,
-                                  color: Colors.green,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            Row(
-                              children: [
-                                ElevatedButton(
-                                  onPressed: () {},
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.grey[300],
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          request.service.title,
+                                          style: const TextStyle(
+                                            fontFamily: 'Quicksand',
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          request.customerInfo.address,
+                                          style: const TextStyle(
+                                            fontFamily: 'Quicksand',
+                                            fontSize: 14,
+                                            color: Colors.grey,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  child: const Text(
-                                    "Đặt dài hạn",
-                                    style: TextStyle(
+                                  Text(
+                                    '${request.totalCost}₫',
+                                    style: const TextStyle(
                                       fontFamily: 'Quicksand',
-                                      fontSize: 14,
+                                      fontSize: 16,
+                                      color: Colors.red,
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.black87,
                                     ),
                                   ),
-                                ),
-                                const SizedBox(width: 10),
-                                ElevatedButton(
-                                  onPressed: () {},
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.green,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  InkWell(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => OrderDetailPage(
+                                            request: request,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: const Text(
+                                      "Chi tiết",
+                                      style: TextStyle(
+                                        fontFamily: 'Quicksand',
+                                        fontSize: 14,
+                                        color: Colors.green,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
-                                  child: const Text(
-                                    "Đặt lại",
-                                    style: TextStyle(
-                                      fontFamily: 'Quicksand',
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
+                                  Row(
+                                    children: [
+                                      ElevatedButton(
+                                        onPressed: () {},
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.grey[300],
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                        ),
+                                        child: const Text(
+                                          "Đặt dài hạn",
+                                          style: TextStyle(
+                                            fontFamily: 'Quicksand',
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black87,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      ElevatedButton(
+                                        onPressed: () {},
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.green,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                        ),
+                                        child: const Text(
+                                          "Đặt lại",
+                                          style: TextStyle(
+                                            fontFamily: 'Quicksand',
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                      ],
-                    ),
-                  ),
+                      );
+                    }).toList(),
+                  ],
                 );
-              }).toList(),
-            ],
-          );
-        },
-      ),
+              },
+            ),
     );
   }
 }
@@ -341,7 +386,8 @@ class _LongTermState extends State<LongTerm> {
     super.initState();
     groupedRequests = {};
     for (var request in widget.requests) {
-      String startDate = "11/2/2025";
+      String startDate =
+          DateFormat('dd-MM-yyyy').format(DateTime.parse(request.oderDate));
       if (groupedRequests.containsKey(startDate)) {
         groupedRequests[startDate]!.add(request);
       } else {
@@ -381,9 +427,9 @@ class _LongTermState extends State<LongTerm> {
                           vertical: 10,
                           horizontal: 12,
                         ),
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           color: Colors.blue,
-                          borderRadius: const BorderRadius.only(
+                          borderRadius: BorderRadius.only(
                             topRight: Radius.circular(8),
                             bottomRight: Radius.circular(8),
                           ),
@@ -426,7 +472,7 @@ class _LongTermState extends State<LongTerm> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    "Ngày bắt đầu: 22/12/2025",
+                                    "Ngày bắt đầu: ${DateFormat('dd/MM/yyyy').format(DateTime.parse(request.oderDate))}",
                                     style: const TextStyle(
                                       fontFamily: 'Quicksand',
                                       color: Color(0xFF5B6366),
@@ -460,7 +506,7 @@ class _LongTermState extends State<LongTerm> {
                                   ClipRRect(
                                     borderRadius: BorderRadius.circular(8),
                                     child: Image.asset(
-                                      'lib/images/services/longterm.png',
+                                      'lib/images/services/clean.png',
                                       height: 50,
                                       width: 50,
                                       fit: BoxFit.cover,
