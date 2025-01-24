@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:foodapp/data/model/CostFactor.dart';
 import 'package:foodapp/data/model/helper.dart';
 import 'package:foodapp/data/model/location.dart';
 import 'package:foodapp/data/model/message.dart';
@@ -33,8 +34,10 @@ abstract interface class DataSource {
   Future<List<TimeOff>?> loadTimeOffData();
 
   Future<List<Message>?> loadMessageData(Message message);
-  
+
   Future<void> sendMessage(String phone);
+
+  Future<List<CostFactor>?> loadCostFactorData();
 }
 
 class RemoteDataSource implements DataSource {
@@ -49,7 +52,8 @@ class RemoteDataSource implements DataSource {
         final List<dynamic> cleanerList = jsonDecode(bodyContent);
         return cleanerList.map((cleaner) => Helper.fromJson(cleaner)).toList();
       } else {
-        print('Failed to load cleaner data. Status code: ${response.statusCode}');
+        print(
+            'Failed to load cleaner data. Status code: ${response.statusCode}');
         return null;
       }
     } catch (e) {
@@ -67,9 +71,11 @@ class RemoteDataSource implements DataSource {
       if (response.statusCode == 200) {
         final bodyContent = utf8.decode(response.bodyBytes);
         final List<dynamic> locationList = jsonDecode(bodyContent);
-        return locationList.map((location) => Location.fromJson(location)).toList();
+        return locationList.map((location) => Location.fromJson(location))
+            .toList();
       } else {
-        print('Failed to load location data. Status code: ${response.statusCode}');
+        print('Failed to load location data. Status code: ${response
+            .statusCode}');
         return null;
       }
     } catch (e) {
@@ -87,9 +93,11 @@ class RemoteDataSource implements DataSource {
       if (response.statusCode == 200) {
         final bodyContent = utf8.decode(response.bodyBytes);
         final List<dynamic> customerList = jsonDecode(bodyContent);
-        return customerList.map((customer) => Customer.fromJson(customer)).toList();
+        return customerList.map((customer) => Customer.fromJson(customer))
+            .toList();
       } else {
-        print('Failed to load customer data. Status code: ${response.statusCode}');
+        print('Failed to load customer data. Status code: ${response
+            .statusCode}');
         return null;
       }
     } catch (e) {
@@ -107,9 +115,11 @@ class RemoteDataSource implements DataSource {
       if (response.statusCode == 200) {
         final bodyContent = utf8.decode(response.bodyBytes);
         final List<dynamic> servicesList = jsonDecode(bodyContent);
-        return servicesList.map((services) => Services.fromJson(services)).toList();
+        return servicesList.map((services) => Services.fromJson(services))
+            .toList();
       } else {
-        print('Failed to load services data. Status code: ${response.statusCode}');
+        print('Failed to load services data. Status code: ${response
+            .statusCode}');
         return null;
       }
     } catch (e) {
@@ -128,9 +138,11 @@ class RemoteDataSource implements DataSource {
         // print(response.body);
         final bodyContent = utf8.decode(response.bodyBytes);
         final List<dynamic> requestList = jsonDecode(bodyContent);
-        return requestList.map((request) => Requests.fromJson(request)).toList();
+        return requestList.map((request) => Requests.fromJson(request))
+            .toList();
       } else {
-        print('Failed to load request data. Status code: ${response.statusCode}');
+        print(
+            'Failed to load request data. Status code: ${response.statusCode}');
         return null;
       }
     } catch (e) {
@@ -159,7 +171,8 @@ class RemoteDataSource implements DataSource {
         }
         return await loadRequestDetailId(requestIds);
       } else {
-        print('Failed to load request detail data. Status code: ${response.statusCode}');
+        print('Failed to load request detail data. Status code: ${response
+            .statusCode}');
         return null;
       }
     } catch (e) {
@@ -178,9 +191,11 @@ class RemoteDataSource implements DataSource {
       if (response.statusCode == 200) {
         final bodyContent = utf8.decode(response.bodyBytes);
         final List<dynamic> detailsList = jsonDecode(bodyContent);
-        return detailsList.map((detail) => RequestDetail.fromJson(detail)).toList();
+        return detailsList.map((detail) => RequestDetail.fromJson(detail))
+            .toList();
       } else {
-        print('Failed to load request detail IDs. Status code: ${response.statusCode}');
+        print('Failed to load request detail IDs. Status code: ${response
+            .statusCode}');
         return null;
       }
     } catch (e) {
@@ -190,18 +205,19 @@ class RemoteDataSource implements DataSource {
   }
 
   @override
-  Future<List<TimeOff>?> loadTimeOffData() async{
+  Future<List<TimeOff>?> loadTimeOffData() async {
     const url = 'https://api.homekare.site/timeOff/test';
     final uri = Uri.parse(url);
-    try{
+    try {
       final response = await http.get(uri);
-      if(response.statusCode == 200){
+      if (response.statusCode == 200) {
         final bodyContent = utf8.decode(response.bodyBytes);
         final List<dynamic> timeOffList = jsonDecode(bodyContent);
         return timeOffList.map((timeOff) => TimeOff.fromJson(timeOff)).toList();
       }
       else {
-        print('Failed to load request detail IDs. Status code: ${response.statusCode}');
+        print('Failed to load request detail IDs. Status code: ${response
+            .statusCode}');
         return null;
       }
     }
@@ -237,8 +253,9 @@ class RemoteDataSource implements DataSource {
   }
 
   @override
-  Future<List<Message>?> loadMessageData(Message message) async{
-    final url = Uri.parse('https://api.homekare.site/message?phone=${message.phone}');
+  Future<List<Message>?> loadMessageData(Message message) async {
+    final url = Uri.parse(
+        'https://api.homekare.site/message?phone=${message.phone}');
     try {
       final response = await http.get(url);
 
@@ -263,8 +280,8 @@ class RemoteDataSource implements DataSource {
     final headers = {'Content-Type': 'application/json'};
     final body = jsonEncode({'phone': phone});
 
-    try{
-      final response = await http.post(uri,headers: headers,body: body);
+    try {
+      final response = await http.post(uri, headers: headers, body: body);
       if (response.statusCode == 200) {
         if (kDebugMode) {
           print('Requests posted successfully!');
@@ -275,6 +292,29 @@ class RemoteDataSource implements DataSource {
       }
     } catch (e) {
       print('Error posting requests: $e');
+    }
+  }
+
+  @override
+  Future<List<CostFactor>?> loadCostFactorData() async {
+    final url = "https://api.homekare.site/costFactor";
+    final uri = Uri.parse(url);
+    try {
+      final response = await http.get(uri);
+      if(response.statusCode == 200){
+        final bodyContent = utf8.decode(response.bodyBytes);
+        final List<dynamic> costFactorList = jsonDecode(bodyContent);
+        return costFactorList.map((costFactor) => CostFactor.fromJson(costFactor))
+            .toList();
+      } else {
+        print(
+            'Failed to load request data. Status code: ${response.statusCode}');
+        return null;
+      }
+    }
+    catch (e) {
+      print('Error loading CostFactor data: $e');
+      return null;
     }
   }
 }

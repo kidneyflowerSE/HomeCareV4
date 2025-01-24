@@ -6,15 +6,9 @@ import 'package:foodapp/data/model/request.dart';
 import 'package:foodapp/data/model/service.dart';
 
 class LoginOrRegister extends StatefulWidget {
-  final List<Customer> customers;
-  final List<Requests> requests;
-  final List<Services> services;
 
   const LoginOrRegister({
     super.key,
-    required this.customers,
-    required this.requests,
-    required this.services,
   });
 
   @override
@@ -39,9 +33,6 @@ class _LoginOrRegisterState extends State<LoginOrRegister> {
           ? LoginPage(
               key: const ValueKey('LoginPage'),
               onTap: togglePages,
-              customers: widget.customers,
-              requests: widget.requests,
-              services: widget.services,
             )
           : RegisterPage(
               key: const ValueKey('RegisterPage'),

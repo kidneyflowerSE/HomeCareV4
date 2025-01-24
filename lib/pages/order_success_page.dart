@@ -64,7 +64,7 @@ class OrderSuccess extends StatelessWidget {
                       MaterialPageRoute(
                         builder: (context) => const HomePage(
                           customer: [],
-                          featuredStaff: [],
+                          featuredStaff: [], costFactor: [],
                         ),
                       ),
                     );

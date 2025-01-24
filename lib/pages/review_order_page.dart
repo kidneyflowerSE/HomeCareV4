@@ -1,7 +1,9 @@
+import 'dart:math';
+
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:foodapp/data/model/CostFactor.dart';
 import 'package:foodapp/data/model/helper.dart';
-import 'package:foodapp/data/repository/repository.dart';
 import 'package:foodapp/pages/order_success_page.dart';
 import 'package:foodapp/pages/payment_page.dart';
 import '../data/model/customer.dart';
@@ -11,12 +13,14 @@ class ReviewOrderPage extends StatefulWidget {
   final Customer customer;
   final Helper helper;
   final Requests request;
+  final List<CostFactor> costFactors;
 
   const ReviewOrderPage({
     super.key,
     required this.customer,
     required this.helper,
     required this.request,
+    required this.costFactors,
   });
 
   @override
@@ -24,7 +28,7 @@ class ReviewOrderPage extends StatefulWidget {
 }
 
 class _ReviewOrderPageState extends State<ReviewOrderPage> {
-  bool isOnlinePayment = true; // Trạng thái để lưu phương thức thanh toán
+  bool isOnlinePayment = true;
 
   void showPopUpWarning(String warning) {
     AwesomeDialog(
@@ -35,6 +39,140 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
       btnOkOnPress: () {},
       btnCancelOnPress: () {},
     ).show();
+  }
+
+  num totalCostCalculation(String date, String start, String end) {
+    List<DateTime> holidays = [
+      DateTime(2025, 4, 30), // Ngày Giải phóng miền Nam
+      DateTime(2025, 5, 1), // Quốc tế Lao động
+      DateTime(2025, 9, 2), // Quốc khánh
+      DateTime(2025, 6, 1), // Quốc tế Thiếu nhi
+      DateTime(2025, 7, 27), // Ngày Thương binh Liệt sĩ
+      DateTime(2025, 11, 20) // Ngày Nhà giáo Việt Nam
+    ];
+
+    List<Coefficient> otherCoefficientList = [];
+
+    // Lấy móc thời gian hành chính
+    DateTime time = DateTime.parse(date);
+    DateTime now = DateTime(time.year, time.month, time.day);
+    DateTime eightAM = DateTime(now.year, now.month, now.day, 8, 0, 0);
+    DateTime sixPM = DateTime(now.year, now.month, now.day, 16, 0, 0);
+
+    // Chuyển đổi thời gian bắt đầu cho ngày trong tương lai
+    DateTime startTimeNow = DateTime.parse(start);
+    DateTime endTimeNow = DateTime.parse(end);
+    DateTime startTime = DateTime(now.year, now.month, now.day, startTimeNow.hour, startTimeNow.minute, startTimeNow.second);
+    DateTime endTime = DateTime(now.year, now.month, now.day, endTimeNow.hour, endTimeNow.minute, endTimeNow.second);
+
+    // Gía của dịch vụ
+    num basicPrice = widget.request.service.cost;
+
+    // Hệ số cơ bản của dịch vụ
+    num basicCoefficient = 0;
+
+    // Lấy hệ số cơ bản
+    for (var costFactor in widget.costFactors) {
+      if (costFactor.title.compareTo('Hệ số lương cho dịch vụ') == 0) {
+        basicCoefficient = costFactor.coefficientList
+            .firstWhere((coefficient) =>
+                coefficient.title.compareTo('Dịch vụ dọn dẹp') == 0)
+            .value;
+        break;
+      }
+    }
+
+    // Lọc danh sách hệ số khác
+    for (var costFactor in widget.costFactors) {
+      if (costFactor.title.compareTo('Hệ số khác') == 0) {
+        otherCoefficientList = costFactor.coefficientList;
+      }
+    }
+
+    num totalCost = basicPrice * basicCoefficient;
+    print('giá cơ bản: ${basicPrice}');
+    print('hệ số dịch vụ: ${basicCoefficient}');
+    print("giá cơ bản bình thường ${totalCost}");
+
+    // Hệ số cho ngày lễ, Tết, Noel
+    num holidayCoefficient = 1;
+    if (holidays.any((holiday) =>
+        holiday.month == startTime.month && holiday.day == startTime.day)) {
+      holidayCoefficient =
+          otherCoefficientList.firstWhere((e) => e.title == 'Hệ số lễ').value;
+    } else if (startTime.month == 12 && startTime.day == 25) {
+      // Noel
+      holidayCoefficient =
+          otherCoefficientList.firstWhere((e) => e.title == 'Hệ số noel').value;
+    } else if (startTime.month == 1 && startTime.day == 1) {
+      // Tết
+      holidayCoefficient =
+          otherCoefficientList.firstWhere((e) => e.title == 'Hệ số tết').value;
+    }
+
+    // Hệ số cho ngày cuối tuần
+    num weekendCoefficient = 1;
+    if (startTime.weekday == DateTime.saturday ||
+        startTime.weekday == DateTime.sunday) {
+      weekendCoefficient = otherCoefficientList
+          .firstWhere((e) => e.title == 'Hệ số làm việc ngày cuối tuần')
+          .value;
+    }
+
+    // Lấy hệ số lớn hơn giữa ngày lễ và cuối tuần
+    num maxCoefficient = max(holidayCoefficient, weekendCoefficient);
+    print('hệ số cho ngày lễ và cuối tuần ${maxCoefficient}');
+
+    // Tổng số giờ tăng ca
+    num otherCoefficent = 0;
+
+    // Kiểm tra ngoài giờ
+    num overTime = 1;
+    num hours = 0;
+    DateTime newStartTime = startTime;
+    DateTime newEndTime = endTime;
+    if (startTime.isBefore(eightAM) || endTime.isAfter(sixPM)) {
+      overTime = otherCoefficientList
+          .firstWhere((e) => e.title == 'Hệ số ngoài giờ')
+          .value;
+
+      // Kiểm tra nếu startTime trước 8h sáng
+      if (startTime.isBefore(eightAM)) {
+        // Thời gian chênh lệch buổi sáng
+        Duration startDifference = eightAM.difference(startTime);
+        hours += startDifference.inMinutes / 60.0;
+
+        // Cập nhật startTime mới
+        newStartTime = eightAM;
+      }
+
+      // Kiểm tra nếu endTime sau 6h tối
+      if (endTime.isAfter(sixPM)) {
+        Duration endDifference = endTime.difference(sixPM);
+        num endHours = endDifference.inMinutes / 60.0;
+        hours += endHours;
+
+        // Cập nhật newEndTime mới
+        newEndTime = sixPM;
+      }
+    }
+
+    // Tính toán tổng chi phí tăng ca
+    otherCoefficent =
+        hours * overTime + (newEndTime.difference(newStartTime).inMinutes / 60);
+    print('tổng số giờ tăng ca: ${hours}');
+    print('hệ số tăng ca: ${overTime}');
+    print('thời gian bắt đầu: ${newStartTime}');
+    print('thời gian bắt đầu: ${newEndTime}');
+    print(
+        'tổng số giờ làm trong hành chính: ${(newEndTime.difference(newStartTime).inMinutes / 60)}');
+
+    // Nhân overtime với hệ số lớn hơn giữa ngày lễ và cuối tuần
+    otherCoefficent *= maxCoefficient;
+
+    print('tông chi phí: ${totalCost * otherCoefficent}');
+    // Tính tổng chi phí
+    return totalCost * otherCoefficent;
   }
 
   Widget _buildSectionTitle(String title) {
@@ -77,8 +215,52 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
     );
   }
 
+  Widget _buildInfoRow(String label, String value) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontFamily: 'Quicksand',
+                color: Colors.grey,
+                fontSize: screenWidth > 600 ? 16 : 14,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(
+                fontFamily: 'Quicksand',
+                fontSize: screenWidth > 600 ? 16 : 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    num totalCost = 0;
+
+    List<String>? dateList = widget.request.startDate?.split(",");
+    for (var date in dateList!) {
+      totalCost += totalCostCalculation(
+          date, widget.request.startTime, widget.request.endTime);
+    }
+
+    print(totalCost);
+    print(widget.request.startDate);
+
     return Scaffold(
       backgroundColor: const Color(0xFFFAFAFA),
       appBar: AppBar(
@@ -259,17 +441,6 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
       ),
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(20),
-        // decoration: BoxDecoration(
-        //   color: Colors.white,
-        //   boxShadow: [
-        //     BoxShadow(
-        //       color: Colors.grey.withOpacity(0.1),
-        //       spreadRadius: 1,
-        //       blurRadius: 10,
-        //       offset: const Offset(0, -2),
-        //     ),
-        //   ],
-        // ),
         child: SizedBox(
           width: double.infinity,
           height: 54,
@@ -281,7 +452,8 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => PaymentPage(
-                      amount: 500000, customer: widget.customer,
+                      amount: 500000,
+                      customer: widget.customer,
                     ),
                   ),
                 );
@@ -290,15 +462,15 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => OrderSuccess(customer: widget.customer,),
+                    builder: (context) => OrderSuccess(
+                      customer: widget.customer,
+                    ),
                   ),
                 );
               }
             },
             style: ElevatedButton.styleFrom(
-              // backgroundColor: const Color(0xFF2E7D32),
               backgroundColor: Colors.green,
-
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -314,33 +486,6 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildInfoRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontFamily: 'Quicksand',
-              color: Colors.grey,
-              fontSize: 14,
-            ),
-          ),
-          Text(
-            value,
-            style: const TextStyle(
-              fontFamily: 'Quicksand',
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
       ),
     );
   }

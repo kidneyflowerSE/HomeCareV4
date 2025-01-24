@@ -1,24 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:foodapp/components/my_button.dart';
 import 'package:foodapp/components/my_textfield.dart';
+import 'package:foodapp/data/model/CostFactor.dart';
 import 'package:foodapp/data/model/customer.dart';
 import 'package:foodapp/data/model/request.dart';
 import 'package:foodapp/data/model/service.dart';
 import 'package:foodapp/pages/home_page.dart';
 import 'package:foodapp/pages/register_page.dart';
 
+import '../data/repository/repository.dart';
+
 class LoginPage extends StatefulWidget {
   final void Function()? onTap;
 
-  final List<Customer> customers;
-  final List<Requests> requests;
-  final List<Services> services;
-
   const LoginPage({
     super.key,
-    required this.customers,
-    required this.requests,
-    required this.services,
     this.onTap,
   });
 
@@ -30,9 +26,35 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   List<Requests> requestsCustomer = [];
+  List<Customer> customers = [];
+  List<Requests> requests = [];
+  List<Services> services = [];
+  List<CostFactor> costFactor = [];
 
   String? phoneError;
   String? passwordError;
+
+  @override
+  void initState() {
+    super.initState();
+    loadData();
+  }
+
+  Future<void> loadData() async {
+    var repository = DefaultRepository();
+
+    final customerData = await repository.loadCustomer();
+    final requestData = await repository.loadRequest();
+    final servicesData = await repository.loadServices();
+    final costFactorData = await repository.loadCostFactor();
+
+    setState(() {
+      customers = customerData ?? [];
+      requests = requestData ?? [];
+      services = servicesData ?? [];
+      costFactor = costFactorData ?? [];
+    });
+  }
 
   void login() {
     setState(() {
@@ -62,9 +84,9 @@ class _LoginPageState extends State<LoginPage> {
     bool isValid = false;
     int customerIndex = 0;
 
-    for (int i = 0; i < widget.customers.length; i++) {
-      if (widget.customers[i].phone == phone &&
-          widget.customers[i].password == password) {
+    for (int i = 0; i < customers.length; i++) {
+      if (customers[i].phone == phone &&
+          customers[i].password == password) {
         isValid = true;
         customerIndex = i;
         break;
@@ -72,19 +94,20 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     if (isValid) {
-      requestsCustomer = widget.requests
+      requestsCustomer = requests
           .where((request) =>
               request.customerInfo.fullName ==
-              widget.customers[customerIndex].name)
+              customers[customerIndex].name)
           .toList();
 
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => HomePage(
-            customer: widget.customers[customerIndex],
+            customer: customers[customerIndex],
             requests: requestsCustomer,
-            services: widget.services,
+            services: services,
+            costFactor: costFactor,
             featuredStaff: [
               {
                 'name': 'Phạm Nguyễn Quốc Huy',

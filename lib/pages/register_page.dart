@@ -230,11 +230,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const LoginPage(
-                          customers: [],
-                          requests: [],
-                          services: [],
-                        ),
+                        builder: (context) => const LoginPage(),
                       ),
                     ),
                     child: const Text(

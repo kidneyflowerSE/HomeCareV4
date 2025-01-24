@@ -21,10 +21,6 @@ class _SplashScreenState extends State<SplashScreen>
   String _fullText = "Cho cuộc sống tiện lợi hơn";
   String _dots = "";
 
-  List<Customer> customers = [];
-  List<Requests> requests = [];
-  List<Services> services = [];
-
   @override
   void initState() {
     super.initState();
@@ -57,23 +53,6 @@ class _SplashScreenState extends State<SplashScreen>
     });
 
     // Tải dữ liệu khi splashscreen chạy
-    loadData();
-  }
-
-  Future<void> loadData() async {
-    var repository = DefaultRepository();
-
-    final customerData = await repository.loadCustomer();
-    final requestData = await repository.loadRequest();
-    final servicesData = await repository.loadServices();
-
-    setState(() {
-      customers = customerData ?? [];
-      requests = requestData ?? [];
-      services = servicesData ?? [];
-    });
-
-    // Chuyển sang LoginPage sau khi dữ liệu được tải
     Future.delayed(const Duration(seconds: 5), _navigateToLoginPage);
   }
 
@@ -83,9 +62,6 @@ class _SplashScreenState extends State<SplashScreen>
         pageBuilder: (context, animation, secondaryAnimation) =>
             LoginOrRegister(
           key: const ValueKey("LoginOrRegister"),
-          customers: customers,
-          requests: requests,
-          services: services,
         ),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeTransition(

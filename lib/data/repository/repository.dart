@@ -1,3 +1,4 @@
+import 'package:foodapp/data/model/CostFactor.dart';
 import 'package:foodapp/data/model/helper.dart';
 import 'package:foodapp/data/model/customer.dart';
 import 'package:foodapp/data/model/message.dart';
@@ -29,6 +30,8 @@ abstract interface class Repository {
   Future<void> sendMessage(String phone);
 
   Future<List<Message>?> loadMessage(Message message);
+
+  Future<List<CostFactor>?> loadCostFactor();
 }
 
 class DefaultRepository implements Repository {
@@ -82,5 +85,10 @@ class DefaultRepository implements Repository {
   @override
   Future<void> sendMessage(String phone) async{
     return await remoteDataSource.sendMessage(phone);
+  }
+
+  @override
+  Future<List<CostFactor>?> loadCostFactor() async{
+    return await remoteDataSource.loadCostFactorData();
   }
 }

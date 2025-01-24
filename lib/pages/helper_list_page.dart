@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:foodapp/components/my_employee_detail.dart';
+import 'package:foodapp/data/model/CostFactor.dart';
 import 'package:foodapp/data/model/TimeOff.dart';
 import 'package:foodapp/data/model/customer.dart';
 import 'package:foodapp/data/model/helper.dart';
@@ -12,6 +13,7 @@ import 'package:table_calendar/table_calendar.dart';
 class HelperList extends StatefulWidget {
   final Customer customer;
   final Requests request;
+  final List<CostFactor> costFactors;
   final List<DateTime> listDate;
   final bool isOnDemand;
 
@@ -21,6 +23,7 @@ class HelperList extends StatefulWidget {
     required this.request,
     required this.listDate,
     required this.isOnDemand,
+    required this.costFactors,
   });
 
   @override
@@ -155,6 +158,7 @@ class _HelperListState extends State<HelperList> {
                       customer: widget.customer,
                       helper: helper,
                       request: widget.request,
+                      costFactors: widget.costFactors,
                     ),
                   ),
                 );

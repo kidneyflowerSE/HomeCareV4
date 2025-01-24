@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:foodapp/data/model/CostFactor.dart';
 import 'package:foodapp/pages/services_order.dart';
 import '../data/model/service.dart';
 
 class ServiceListMenu extends StatefulWidget {
   final dynamic customer;
   final List<Services> services;
+  final List<CostFactor> costFactors;
 
   const ServiceListMenu(
-      {Key? key, required this.customer, required this.services})
+      {Key? key, required this.customer, required this.services, required this.costFactors})
       : super(key: key);
 
   @override
@@ -142,6 +144,7 @@ class _ServiceListMenuState extends State<ServiceListMenu> {
         pageBuilder: (context, animation, secondaryAnimation) => ServicesOrder(
           customer: widget.customer,
           service: widget.services[index],
+          costFactors: widget.costFactors,
         ),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(1.0, 0.0);

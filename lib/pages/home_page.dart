@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:foodapp/components/feature_helper_list.dart';
 import 'package:foodapp/components/service_list_menu.dart';
+import 'package:foodapp/data/model/CostFactor.dart';
 import 'package:foodapp/pages/activity_page.dart';
 import 'package:foodapp/pages/choose_location_page.dart';
 import 'package:foodapp/pages/notification_page.dart';
@@ -15,6 +16,7 @@ class HomePage extends StatefulWidget {
   final List<Services>? services;
   final List<Requests>? requests;
   final List<Map<String, String>> featuredStaff;
+  final List<CostFactor> costFactor;
 
   const HomePage({
     super.key,
@@ -22,6 +24,7 @@ class HomePage extends StatefulWidget {
     this.services,
     this.requests,
     required this.featuredStaff,
+    required this.costFactor,
   });
 
   @override
@@ -40,6 +43,7 @@ class _HomePageState extends State<HomePage> {
         customer: widget.customer,
         services: widget.services!,
         featuredStaff: widget.featuredStaff,
+        costFactors: widget.costFactor,
       ),
       ActivityPage(
         customer: widget.customer,
@@ -67,6 +71,7 @@ class _HomePageState extends State<HomePage> {
               builder: (context) => ServicesOrder(
                 customer: widget.customer,
                 service: widget.services![0],
+                costFactors: widget.costFactor,
               ),
             ),
           );
@@ -164,6 +169,7 @@ class _HomePageState extends State<HomePage> {
 class HomeContent extends StatefulWidget {
   final Customer customer;
   final List<Services> services;
+  final List<CostFactor> costFactors;
   final List<Map<String, String>> featuredStaff;
 
   const HomeContent({
@@ -171,6 +177,7 @@ class HomeContent extends StatefulWidget {
     required this.customer,
     required this.services,
     required this.featuredStaff,
+    required this.costFactors,
   });
 
   @override
@@ -395,6 +402,7 @@ class _HomeContentState extends State<HomeContent> {
           child: ServiceListMenu(
             customer: widget.customer,
             services: widget.services,
+            costFactors: widget.costFactors,
           ),
         ),
       ],

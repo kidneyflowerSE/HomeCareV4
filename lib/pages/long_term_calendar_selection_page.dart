@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:foodapp/data/model/CostFactor.dart';
 import 'package:foodapp/data/model/request.dart';
-import 'package:foodapp/pages/helper_list_page.dart';
 import '../data/model/customer.dart';
+import 'package:foodapp/pages/helper_list_page.dart';
 
 class CustomCalendar extends StatefulWidget {
   final List<DateTime> initialSelectedDates;
@@ -9,6 +10,7 @@ class CustomCalendar extends StatefulWidget {
   final DateTime? maxDate;
   final Customer customer;
   final Requests request;
+  final List<CostFactor> costFactors;
 
   CustomCalendar({
     Key? key,
@@ -17,6 +19,7 @@ class CustomCalendar extends StatefulWidget {
     this.maxDate,
     required this.customer,
     required this.request,
+    required this.costFactors,
   }) : super(key: key);
 
   @override
@@ -36,7 +39,6 @@ class _CustomCalendarState extends State<CustomCalendar> {
     super.initState();
     _selectedDates = widget.initialSelectedDates;
 
-    // Nếu có ngày chọn sẵn, đặt ngày đầu tiên làm ngày focus
     if (_selectedDates.isNotEmpty) {
       _focusedDate = _selectedDates.first;
     }
@@ -54,7 +56,8 @@ class _CustomCalendarState extends State<CustomCalendar> {
   }
 
   int _calculatePageIndex(DateTime date) {
-    return (date.year * 12 + date.month) - (DateTime(2000, 1).year * 12 + DateTime(2000, 1).month);
+    return (date.year * 12 + date.month) -
+        (DateTime(2000, 1).year * 12 + DateTime(2000, 1).month);
   }
 
   DateTime _calculateDateFromPageIndex(int pageIndex) {
@@ -62,21 +65,22 @@ class _CustomCalendarState extends State<CustomCalendar> {
     return DateTime(baseDate.year + pageIndex ~/ 12, pageIndex % 12 + 1);
   }
 
-  List<DateTime> _generateDaysInMonth(DateTime date) {
+  List<DateTime?> _generateDaysInMonth(DateTime date) {
     final firstDayOfMonth = DateTime(date.year, date.month, 1);
     final lastDayOfMonth = DateTime(date.year, date.month + 1, 0);
 
-    return List.generate(
+    int leadingDays = (firstDayOfMonth.weekday - 1) % 7;
+
+    List<DateTime?> days = List.generate(
       lastDayOfMonth.day,
           (index) => DateTime(date.year, date.month, index + 1),
     );
-  }
 
-  List<DateTime> _generateDaysInWeek(DateTime date) {
-    final firstDayOfWeek = date.subtract(Duration(days: date.weekday - 1));
-    return List.generate(7, (index) {
-      return firstDayOfWeek.add(Duration(days: index));
-    });
+    for (int i = 0; i < leadingDays; i++) {
+      days.insert(0, null);
+    }
+
+    return days;
   }
 
   bool _isDateInRange(DateTime date) {
@@ -85,7 +89,8 @@ class _CustomCalendarState extends State<CustomCalendar> {
 
     if (minDate != null && date.isBefore(minDate)) return false;
     if (maxDate != null && date.isAfter(maxDate)) return false;
-    if (date.isBefore(DateTime.now().subtract(const Duration(days: 1)))) return false;
+    if (date.isBefore(DateTime.now().subtract(const Duration(days: 1))))
+      return false;
 
     return true;
   }
@@ -94,12 +99,10 @@ class _CustomCalendarState extends State<CustomCalendar> {
     if (!_isDateInRange(date)) return;
 
     setState(() {
-      // Nếu chỉ còn 2 ngày, không cho phép hủy thêm ngày
       if (_selectedDates.length <= 2 && _selectedDates.contains(date)) {
-        return; // Không làm gì nếu số ngày chọn đã là 2 và người dùng cố gắng hủy
+        return;
       }
 
-      // Thêm hoặc xóa ngày khỏi danh sách chọn
       if (_selectedDates.contains(date)) {
         _selectedDates.remove(date);
       } else {
@@ -139,7 +142,8 @@ class _CustomCalendarState extends State<CustomCalendar> {
                     12,
                         (index) => DropdownMenuItem(
                       value: index + 1,
-                      child: Text("${index + 1}", style: const TextStyle(fontSize: 16)),
+                      child: Text("${index + 1}",
+                          style: const TextStyle(fontSize: 16)),
                     ),
                   ),
                   onChanged: (newMonth) {
@@ -184,9 +188,7 @@ class _CustomCalendarState extends State<CustomCalendar> {
               },
               itemBuilder: (context, pageIndex) {
                 final date = _calculateDateFromPageIndex(pageIndex);
-                final days = _isWeekView
-                    ? _generateDaysInWeek(date)
-                    : _generateDaysInMonth(date);
+                final days = _generateDaysInMonth(date);
 
                 return Column(
                   children: [
@@ -208,7 +210,8 @@ class _CustomCalendarState extends State<CustomCalendar> {
                     ),
                     Expanded(
                       child: GridView.builder(
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 7,
                           crossAxisSpacing: 4.0,
                           mainAxisSpacing: 4.0,
@@ -216,6 +219,11 @@ class _CustomCalendarState extends State<CustomCalendar> {
                         itemCount: days.length,
                         itemBuilder: (context, index) {
                           final day = days[index];
+
+                          if (day == null) {
+                            return Container();
+                          }
+
                           final isSelected = _selectedDates.contains(day);
                           final isInRange = _isDateInRange(day);
 
@@ -226,7 +234,8 @@ class _CustomCalendarState extends State<CustomCalendar> {
                               decoration: BoxDecoration(
                                 color: isSelected ? Colors.blue : Colors.white,
                                 border: isSelected
-                                    ? Border.all(color: Colors.blueAccent, width: 2)
+                                    ? Border.all(
+                                    color: Colors.blueAccent, width: 2)
                                     : null,
                                 borderRadius: BorderRadius.circular(8.0),
                               ),
@@ -235,7 +244,9 @@ class _CustomCalendarState extends State<CustomCalendar> {
                                 day.day.toString(),
                                 style: TextStyle(
                                   color: isInRange
-                                      ? (isSelected ? Colors.white : Colors.black)
+                                      ? (isSelected
+                                      ? Colors.white
+                                      : Colors.black)
                                       : Colors.grey,
                                   fontWeight: isSelected
                                       ? FontWeight.bold
@@ -265,6 +276,7 @@ class _CustomCalendarState extends State<CustomCalendar> {
                       request: widget.request,
                       listDate: _selectedDates,
                       isOnDemand: false,
+                      costFactors: widget.costFactors,
                     ),
                   ),
                 );
