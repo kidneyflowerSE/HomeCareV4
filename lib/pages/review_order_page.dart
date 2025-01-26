@@ -41,7 +41,8 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
     ).show();
   }
 
-  num totalCostCalculation(String date, String start, String end) {
+  Map<String, dynamic> totalCostCalculation(
+      String date, String start, String end) {
     List<DateTime> holidays = [
       DateTime(2025, 4, 30), // Ngày Giải phóng miền Nam
       DateTime(2025, 5, 1), // Quốc tế Lao động
@@ -62,8 +63,10 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
     // Chuyển đổi thời gian bắt đầu cho ngày trong tương lai
     DateTime startTimeNow = DateTime.parse(start);
     DateTime endTimeNow = DateTime.parse(end);
-    DateTime startTime = DateTime(now.year, now.month, now.day, startTimeNow.hour, startTimeNow.minute, startTimeNow.second);
-    DateTime endTime = DateTime(now.year, now.month, now.day, endTimeNow.hour, endTimeNow.minute, endTimeNow.second);
+    DateTime startTime = DateTime(now.year, now.month, now.day,
+        startTimeNow.hour, startTimeNow.minute, startTimeNow.second);
+    DateTime endTime = DateTime(now.year, now.month, now.day, endTimeNow.hour,
+        endTimeNow.minute, endTimeNow.second);
 
     // Gía của dịch vụ
     num basicPrice = widget.request.service.cost;
@@ -171,8 +174,20 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
     otherCoefficent *= maxCoefficient;
 
     print('tông chi phí: ${totalCost * otherCoefficent}');
+    num finalCost = totalCost * otherCoefficent;
     // Tính tổng chi phí
-    return totalCost * otherCoefficent;
+    // return totalCost * otherCoefficent;
+    return {
+      'basicPrice': basicPrice,
+      'totalCost': totalCost,
+      'basicCoefficient': basicCoefficient,
+      'holidayCoefficient': holidayCoefficient,
+      'weekendCoefficient': weekendCoefficient,
+      'maxCoefficient': maxCoefficient,
+      'overTimeCoefficient': overTime,
+      'overTimeHours': hours,
+      'finalCost': finalCost,
+    };
   }
 
   Widget _buildSectionTitle(String title) {
@@ -215,6 +230,39 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
     );
   }
 
+  // Widget _buildInfoRow(String label, String value) {
+  //   final screenWidth = MediaQuery.of(context).size.width;
+
+  //   return Padding(
+  //     padding: const EdgeInsets.only(bottom: 8),
+  //     child: Row(
+  //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //       children: [
+  //         Expanded(
+
+  //           child: Text(
+  //             label,
+  //             style: TextStyle(
+  //               fontFamily: 'Quicksand',
+  //               color: Colors.grey,
+  //               fontSize: screenWidth > 600 ? 16 : 14,
+  //             ),
+  //           ),
+  //         ),
+  //         Expanded(
+  //           child: Text(
+  //             value,
+  //             style: TextStyle(
+  //               fontFamily: 'Quicksand',
+  //               fontSize: screenWidth > 600 ? 16 : 14,
+  //               fontWeight: FontWeight.w600,
+  //             ),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
   Widget _buildInfoRow(String label, String value) {
     final screenWidth = MediaQuery.of(context).size.width;
 
@@ -223,7 +271,8 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(
+          Flexible(
+            flex: 2, // Chia 2 phần
             child: Text(
               label,
               style: TextStyle(
@@ -233,9 +282,11 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
               ),
             ),
           ),
-          Expanded(
+          Flexible(
+            flex: 1, // Chia 1 phần
             child: Text(
               value,
+              textAlign: TextAlign.right, // Căn phải nếu cần
               style: TextStyle(
                 fontFamily: 'Quicksand',
                 fontSize: screenWidth > 600 ? 16 : 14,
@@ -251,15 +302,24 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
   @override
   Widget build(BuildContext context) {
     num totalCost = 0;
+    num finalCost = 0;
 
-    List<String>? dateList = widget.request.startDate?.split(",");
-    for (var date in dateList!) {
-      totalCost += totalCostCalculation(
-          date, widget.request.startTime, widget.request.endTime);
-    }
+    // List<String>? dateList = widget.request.startDate?.split(",");
+    // for (var date in dateList!) {
+    //   finalCost += totalCostCalculation(
+    //       date, widget.request.startTime, widget.request.endTime);
+    // }
 
     print(totalCost);
     print(widget.request.startDate);
+    Map<String, dynamic> costData = totalCostCalculation(
+        widget.request.oderDate,
+        widget.request.startTime,
+        widget.request.endTime);
+    final basePrice = costData['basePrice'] ?? 0.0;
+    final basicCoefficient = costData['basicCoefficient'] ?? 0.0;
+    final overTimeHours = costData['overTimeHours'] ?? 0.0;
+    final overTimeCoefficient = costData['overTimeCoefficient'] ?? 0.0;
 
     return Scaffold(
       backgroundColor: const Color(0xFFFAFAFA),
@@ -345,17 +405,6 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                         color: Colors.grey,
                       ),
                     ),
-                    trailing: OutlinedButton(
-                      onPressed: () {},
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFF2E7D32),
-                        side: const BorderSide(color: Color(0xFF2E7D32)),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      ),
-                      child: const Text('Thay đổi'),
-                    ),
                   ),
                 ],
               ),
@@ -375,8 +424,12 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                   ),
                   const SizedBox(height: 16),
                   _buildInfoRow(
-                      'Ngày làm việc', 'Thứ năm, ngày 26/09/2024 - 14:00'),
-                  _buildInfoRow('Làm trong', '3 giờ, 14:00 - 17:00'),
+                      'Ngày làm việc', widget.request.startDate ?? 'N/A'),
+                  _buildInfoRow(
+                    'Làm trong',
+                    // '${(DateTime.parse(widget.request.endTime).difference(DateTime.parse(widget.request.startTime))).inHours} giờ, ${(widget.request.startTime)} - ${widget.request.endTime}'
+                    '${(DateTime.parse(widget.request.endTime).difference(DateTime.parse(widget.request.startTime))).inHours} giờ, ${DateTime.parse(widget.request.startTime).hour}:${DateTime.parse(widget.request.startTime).minute} - ${DateTime.parse(widget.request.endTime).hour}:${DateTime.parse(widget.request.endTime).minute}',
+                  ),
                   const Divider(
                     height: 24,
                     color: Colors.grey,
@@ -390,7 +443,72 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  _buildInfoRow('Khối lượng công việc', '85m² / 3 phòng'),
+                  _buildInfoRow('Khối lượng công việc',
+                      widget.request.service.title ?? 'N/A'),
+                ],
+              ),
+            ),
+            _buildSectionTitle('Chi phí dịch vụ'),
+            _buildCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // _buildInfoRow(
+                  //   'Giá cơ bản',
+                  //   '${widget.request.service.cost} VNĐ',
+                  // ),
+                  // _buildInfoRow(
+                  //   'Hệ số dịch vụ cơ bản',
+                  //   '${widget.costFactors.firstWhere((costFactor) => costFactor.title == 'Hệ số lương cho dịch vụ').coefficientList.firstWhere((coefficient) => coefficient.title == 'Dịch vụ dọn dẹp').value}',
+                  // ),
+                  _buildInfoRow(
+                      'Số giờ làm', '${costData['overTimeHours']} giờ'),
+                  _buildInfoRow('Giá cơ bản', '${widget.request.service.cost}'),
+                  // _buildInfoRow(
+                  //   'Hệ số ngoài giờ',
+                  //   '${widget.costFactors.firstWhere((costFactor) => costFactor.title == 'Hệ số khác').coefficientList.firstWhere((coefficient) => coefficient.title == 'Hệ số ngoài giờ').value}',
+                  // ),
+                  _buildInfoRow(
+                    'Số giờ làm ngoài giờ',
+                    '${costData['overTimeHours']} giờ',
+                  ),
+                  // _buildInfoRow(
+                  //   'Hệ số ngoài giờ',
+                  //   '${widget.costFactors.firstWhere((costFactor) => costFactor.title == 'Hệ số khác').coefficientList.firstWhere((coefficient) => coefficient.title == 'Hệ số ngoài giờ').value}',
+                  // ),
+                  _buildInfoRow('Giá dịch vụ ngoài giờ',
+                      '${widget.request.service.cost * costData['overTimeCoefficient']}'),
+                  // _buildInfoRow('Dịch vụ thêm', '' ?? '0'),
+
+                  // _buildInfoRow(
+                  //   'Hệ số làm việc ngày cuối tuần',
+                  //   '${widget.costFactors.firstWhere((costFactor) => costFactor.title == 'Hệ số khác').coefficientList.firstWhere((coefficient) => coefficient.title == 'Hệ số làm việc ngày cuối tuần').value}',
+                  // ),
+                  // _buildInfoRow(
+                  //   'Hệ số lễ',
+                  //   '${widget.costFactors.firstWhere((costFactor) => costFactor.title == 'Hệ số khác').coefficientList.firstWhere((coefficient) => coefficient.title == 'Hệ số lễ').value}',
+                  // ),
+                  // _buildInfoRow(
+                  //   'Hệ số noel',
+                  //   '${widget.costFactors.firstWhere((costFactor) => costFactor.title == 'Hệ số khác').coefficientList.firstWhere((coefficient) => coefficient.title == 'Hệ số noel').value}',
+                  // ),
+                  // _buildInfoRow(
+                  //   'Hệ số Tết',
+                  //   '${widget.costFactors.firstWhere((costFactor) => costFactor.title == 'Hệ số khác').coefficientList.firstWhere((coefficient) => coefficient.title == 'Hệ số tết').value}',
+                  // ),
+                  // _buildInfoRow(
+                  //   'Tất cả hệ số',
+                  //   '${widget.costFactors.firstWhere((costFactor) => costFactor.title == 'Hệ số khác').coefficientList.map((coefficient) => coefficient.title).join(', ')}',
+                  // ),
+                  const Divider(
+                    height: 24,
+                    color: Colors.grey,
+                  ),
+                  _buildInfoRow(
+                    'Tổng chi phí',
+                    // '${costData['finalCost']} VNĐ',
+                    '${widget.request.service.cost * costData['overTimeCoefficient'] + widget.request.service.cost * costData['basicCoefficient']} VNĐ',
+                  ),
                 ],
               ),
             ),
