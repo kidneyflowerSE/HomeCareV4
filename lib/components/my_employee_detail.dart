@@ -1,136 +1,90 @@
 import 'package:flutter/material.dart';
-import 'package:foodapp/components/my_button.dart';
+import 'package:foodapp/data/model/helper.dart';
 
 class MyEmployeeDetail extends StatelessWidget {
-  const MyEmployeeDetail({super.key});
+  final Helper helper;
+
+  const MyEmployeeDetail({super.key, required this.helper});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          _buildSliverAppBar(context),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 80),
-              child: Column(
-                children: [
-                  _buildEmployeeId(),
-                  _buildProfileSection(),
-                  _buildStatistics(),
-                  _buildSkillsSection(),
-                  _buildAboutSection(),
-                  _buildReviewsSection(),
-                ],
-              ),
-            ),
+      appBar: AppBar(
+        title: const Text(
+          "Chi tiết nhân viên",
+          style: TextStyle(
+            color: Colors.white,
+            fontFamily: 'Quicksand',
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
           ),
-        ],
-      ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, -5),
-            ),
-          ],
         ),
+        centerTitle: true,
+        backgroundColor: Colors.green,
+      ),
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        child: MyButton(
-          text: "Đặt lịch với nhân viên này",
-          onTap: () {
-            // Thêm logic xử lý khi bấm nút
-          },
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSliverAppBar(BuildContext context) {
-    return SliverAppBar(
-      expandedHeight: MediaQuery.of(context).size.height * 0.25,
-      pinned: true,
-      flexibleSpace: FlexibleSpaceBar(
-        background: Stack(
-          fit: StackFit.expand,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Image.asset(
-              'lib/images/staff/anhhuy.jpg',
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(color: Colors.grey); // Placeholder nếu ảnh lỗi
-              },
-            ),
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.transparent,
-                    Colors.black.withOpacity(0.7),
-                  ],
-                ),
-              ),
-            ),
+            const SizedBox(height: 16),
+            _buildEmployeeId(helper.helperId ?? ''),
+            const SizedBox(height: 16),
+            _buildProfileSection(helper),
+            const SizedBox(height: 20),
+            _buildStatistics(helper),
+            const SizedBox(height: 20),
+            _buildSkillsSection(helper.jobs),
+            const SizedBox(height: 20),
+            _buildAboutSection(helper.experienceDescription ?? ''),
+            const SizedBox(height: 20),
+            _buildAdditionalInfo(helper),
+            const SizedBox(height: 20),
+            _buildWorkingAreaSection(helper.workingArea),
+            const SizedBox(height: 20),
+            _buildHealthCertificates(helper.healthCertificates),
           ],
         ),
       ),
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
-        onPressed: () {
-          Navigator.pop(context); // Quay lại màn hình trước
-        },
-      ),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.favorite_border, color: Colors.white),
-          onPressed: () {
-            // Thêm logic yêu thích
-          },
-        ),
-        IconButton(
-          icon: const Icon(Icons.share, color: Colors.white),
-          onPressed: () {
-            // Thêm logic chia sẻ
-          },
-        ),
-      ],
     );
   }
 
-  Widget _buildEmployeeId() {
-    return Container(
-      margin: const EdgeInsets.only(top: 16),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.green[50],
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.green.shade200),
-      ),
-      child: const Text(
-        "Mã nhân viên: #49549",
-        style: TextStyle(
-          color: Colors.green,
-          fontWeight: FontWeight.w600,
-          fontFamily: 'Quicksand',
-          fontSize: 14,
+  Widget _buildEmployeeId(String employeeId) {
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: Colors.green[50],
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.green.shade200),
+        ),
+        child: Text(
+          "Mã nhân viên: $employeeId",
+          style: const TextStyle(
+            color: Colors.green,
+            fontWeight: FontWeight.w600,
+            fontFamily: 'Quicksand',
+            fontSize: 14,
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildProfileSection() {
-    return Padding(
-      padding: const EdgeInsets.all(16),
+  Widget _buildProfileSection(Helper helper) {
+    return Center(
       child: Column(
         children: [
-          const Text(
-            "Phạm Nguyễn Quốc Huy",
-            style: TextStyle(
+          CircleAvatar(
+            radius: 60,
+            backgroundImage: NetworkImage(helper.avatar ?? ''),
+            onBackgroundImageError: (error, stackTrace) =>
+                const Icon(Icons.person, size: 60),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            helper.fullName ?? 'Không có tên',
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
               fontFamily: 'Quicksand',
@@ -143,7 +97,7 @@ class MyEmployeeDetail extends StatelessWidget {
               const Icon(Icons.location_on, color: Colors.grey, size: 16),
               const SizedBox(width: 4),
               Text(
-                "Quận Thủ Đức, TP.Hồ Chí Minh",
+                helper.address ?? 'Không có địa chỉ',
                 style: TextStyle(
                   color: Colors.grey[600],
                   fontFamily: 'Quicksand',
@@ -156,7 +110,7 @@ class MyEmployeeDetail extends StatelessWidget {
     );
   }
 
-  Widget _buildStatistics() {
+  Widget _buildStatistics(Helper helper) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -174,24 +128,26 @@ class MyEmployeeDetail extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _buildStatItem("20", "Tuổi", Icons.cake),
-          _buildStatItem("5.0", "Đánh giá", Icons.star,
-              iconColor: Colors.amber),
-          _buildStatItem("582", "Giờ làm", Icons.access_time),
-          _buildStatItem("239", "Lượt thuê", Icons.people),
+          _buildStatItem(
+              helper.yearOfExperience.toString(), "Năm KN", Icons.work),
+          _buildStatItem(
+              helper.height.toString(), "Chiều cao (cm)", Icons.height),
+          _buildStatItem(
+              helper.weight.toString(), "Cân nặng (kg)", Icons.line_weight),
+          _buildStatItem(
+              helper.gender ?? 'Không rõ', "Giới tính", Icons.person),
         ],
       ),
     );
   }
 
-  Widget _buildStatItem(String value, String label, IconData icon,
-      {Color? iconColor}) {
+  Widget _buildStatItem(String value, String label, IconData icon) {
     return Column(
       children: [
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 16, color: iconColor ?? Colors.grey[600]),
+            Icon(icon, size: 16, color: Colors.grey[600]),
             const SizedBox(width: 4),
             Text(
               value,
@@ -216,35 +172,27 @@ class MyEmployeeDetail extends StatelessWidget {
     );
   }
 
-  Widget _buildSkillsSection() {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            "Kỹ năng",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Quicksand',
-            ),
+  Widget _buildSkillsSection(List<String> skills) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Kỹ năng",
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Quicksand',
           ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              _buildSkillChip("Quét nhà", Icons.cleaning_services),
-              _buildSkillChip("Rửa chén", Icons.wash),
-              _buildSkillChip("Nấu cơm", Icons.restaurant),
-              _buildSkillChip("Giặt đồ", Icons.local_laundry_service),
-              _buildSkillChip("Lau nhà", Icons.moped),
-              _buildSkillChip("Dọn phòng", Icons.bedroom_parent),
-            ],
-          ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: skills
+              .map((skill) => _buildSkillChip(skill, Icons.cleaning_services))
+              .toList(),
+        ),
+      ],
     );
   }
 
@@ -275,136 +223,151 @@ class MyEmployeeDetail extends StatelessWidget {
     );
   }
 
-  Widget _buildAboutSection() {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            "Giới thiệu",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Quicksand',
-            ),
+  Widget _buildAboutSection(String about) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Giới thiệu",
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Quicksand',
           ),
-          const SizedBox(height: 12),
-          Text(
-            "Tôi có 3 năm kinh nghiệm làm việc nhà. Tôi luôn đảm bảo công việc được hoàn thành đúng giờ và chất lượng. Tôi thích sự gọn gàng và ngăn nắp.",
-            style: TextStyle(
-              color: Colors.grey[600],
-              height: 1.5,
-              fontFamily: 'Quicksand',
-            ),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          about,
+          style: TextStyle(
+            color: Colors.grey[600],
+            height: 1.5,
+            fontFamily: 'Quicksand',
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
-  Widget _buildReviewsSection() {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                "Đánh giá gần đây",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Quicksand',
-                ),
-              ),
-              TextButton(
-                onPressed: () {
-                  // Logic khi xem tất cả đánh giá
-                },
-                child: const Text("Xem tất cả"),
-              ),
-            ],
+  Widget _buildAdditionalInfo(Helper helper) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Thông tin bổ sung",
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Quicksand',
           ),
-          const SizedBox(height: 12),
-          _buildReviewItem(),
-          _buildReviewItem(),
-        ],
-      ),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          "Quốc tịch: ${helper.nationality ?? 'Không rõ'}",
+          style: TextStyle(
+            color: Colors.grey[600],
+            fontFamily: 'Quicksand',
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          "Trình độ học vấn: ${helper.educationLevel ?? 'Không rõ'}",
+          style: TextStyle(
+            color: Colors.grey[600],
+            fontFamily: 'Quicksand',
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          "Ngày bắt đầu làm việc: ${helper.startDate ?? 'Không rõ'}",
+          style: TextStyle(
+            color: Colors.grey[600],
+            fontFamily: 'Quicksand',
+          ),
+        ),
+      ],
     );
   }
 
-  Widget _buildReviewItem() {
+  Widget _buildWorkingAreaSection(WorkingArea workingArea) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Khu vực làm việc",
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Quicksand',
+          ),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          "Tỉnh: ${workingArea.province}",
+          style: TextStyle(
+            color: Colors.grey[600],
+            height: 1.5,
+            fontFamily: 'Quicksand',
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          "Quận: ${workingArea.districts.join(', ')}",
+          style: TextStyle(
+            color: Colors.grey[600],
+            height: 1.5,
+            fontFamily: 'Quicksand',
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildHealthCertificates(List<String> certificates) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Chứng chỉ sức khỏe",
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Quicksand',
+          ),
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children:
+              certificates.map((cert) => _buildCertificate(cert)).toList(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCertificate(String certificateUrl) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
+      width: 160,
+      height: 90,
       decoration: BoxDecoration(
-        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        border: Border.all(color: Colors.grey.shade300),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 20,
-                backgroundColor: Colors.grey[200],
-                child: const Icon(Icons.person),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Image.network(
+          certificateUrl,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return Container(
+              color: Colors.grey[200],
+              child: const Icon(
+                Icons.image_not_supported,
+                color: Colors.grey,
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "Nguyễn Văn A",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Quicksand',
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        Icon(Icons.star, size: 16, color: Colors.amber[400]),
-                        Icon(Icons.star, size: 16, color: Colors.amber[400]),
-                        Icon(Icons.star, size: 16, color: Colors.amber[400]),
-                        Icon(Icons.star, size: 16, color: Colors.amber[400]),
-                        Icon(Icons.star, size: 16, color: Colors.amber[400]),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              Text(
-                "2 ngày trước",
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 12,
-                  fontFamily: 'Quicksand',
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            "Nhân viên làm việc rất tốt và chuyên nghiệp. Sẽ thuê lại lần sau.",
-            style: TextStyle(
-              color: Colors.grey[600],
-              height: 1.5,
-              fontFamily: 'Quicksand',
-            ),
-          ),
-        ],
+            );
+          },
+        ),
       ),
     );
   }

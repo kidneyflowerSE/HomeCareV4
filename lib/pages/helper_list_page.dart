@@ -187,7 +187,7 @@ class _HelperListState extends State<HelperList> {
                                   ),
                                 ),
                               ),
-                              _buildRating(4.5), // Add helper's rating here
+                              _buildRating(4.5), // Placeholder for rating
                             ],
                           ),
                           const SizedBox(height: 8),
@@ -210,8 +210,9 @@ class _HelperListState extends State<HelperList> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) =>
-                                          const MyEmployeeDetail(),
+                                      builder: (context) => MyEmployeeDetail(
+                                        helper: helper,
+                                      ),
                                     ),
                                   );
                                 },
