@@ -570,7 +570,11 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => PaymentPage(
-                      amount: 500000,
+                      amount: widget.request.service.cost.toDouble() *
+                              costData['overTimeCoefficient'].toDouble() +
+                          widget.request.service.cost.toDouble() *
+                              costData['basicCoefficient'].toDouble(),
+                      // Tổng chi phí
                       customer: widget.customer,
                     ),
                   ),
