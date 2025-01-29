@@ -8,12 +8,15 @@ import 'package:foodapp/pages/order_success_page.dart';
 import 'package:foodapp/pages/payment_page.dart';
 import '../data/model/customer.dart';
 import '../data/model/request.dart';
+import '../data/model/service.dart';
+import '../data/repository/repository.dart';
 
 class ReviewOrderPage extends StatefulWidget {
   final Customer customer;
   final Helper helper;
   final Requests request;
   final List<CostFactor> costFactors;
+  final List<Services> services;
 
   const ReviewOrderPage({
     super.key,
@@ -21,6 +24,7 @@ class ReviewOrderPage extends StatefulWidget {
     required this.helper,
     required this.request,
     required this.costFactors,
+    required this.services,
   });
 
   @override
@@ -576,16 +580,23 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                               costData['basicCoefficient'].toDouble(),
                       // Tổng chi phí
                       customer: widget.customer,
+                      costFactors: widget.costFactors,
+                      services: widget.services,
+                      request: widget.request,
                     ),
                   ),
                 );
               } else {
+                var repository = DefaultRepository();
+                repository.sendRequest(widget.request);
                 // Điều hướng tới OrderSuccess
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => OrderSuccess(
                       customer: widget.customer,
+                      costFactors: widget.costFactors,
+                      services: widget.services,
                     ),
                   ),
                 );

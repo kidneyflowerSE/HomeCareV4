@@ -13,7 +13,7 @@ import '../data/model/service.dart';
 
 class HomePage extends StatefulWidget {
   final dynamic customer;
-  final List<Services>? services;
+  final List<Services> services;
   final List<Requests>? requests;
   final List<Map<String, String>> featuredStaff;
   final List<CostFactor> costFactor;
@@ -21,7 +21,7 @@ class HomePage extends StatefulWidget {
   const HomePage({
     super.key,
     this.customer,
-    this.services,
+    required this.services,
     this.requests,
     required this.featuredStaff,
     required this.costFactor,
@@ -41,7 +41,7 @@ class _HomePageState extends State<HomePage> {
     _pages.addAll([
       HomeContent(
         customer: widget.customer,
-        services: widget.services!,
+        services: widget.services,
         featuredStaff: widget.featuredStaff,
         costFactors: widget.costFactor,
       ),
@@ -70,8 +70,8 @@ class _HomePageState extends State<HomePage> {
             MaterialPageRoute(
               builder: (context) => ServicesOrder(
                 customer: widget.customer,
-                service: widget.services![0],
-                costFactors: widget.costFactor,
+                service: widget.services[0],
+                costFactors: widget.costFactor, services: widget.services,
               ),
             ),
           );

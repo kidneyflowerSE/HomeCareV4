@@ -1,26 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:foodapp/data/model/CostFactor.dart';
 import 'package:foodapp/data/model/customer.dart';
-import 'package:foodapp/pages/activity_page.dart';
+import 'package:foodapp/data/model/service.dart';
 import 'package:foodapp/pages/home_page.dart';
 
-class OrderSuccess extends StatelessWidget {
-  const OrderSuccess({super.key, required Customer customer});
+class OrderSuccess extends StatefulWidget {
+  final Customer customer;
+  final List<CostFactor> costFactors;
+  final List<Services> services;
 
+  const OrderSuccess(
+      {super.key,
+      required this.customer,
+      required this.costFactors,
+      required this.services});
+
+  @override
+  State<OrderSuccess> createState() => _OrderSuccessState();
+}
+
+class _OrderSuccessState extends State<OrderSuccess> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   automaticallyImplyLeading: false,
-      //   title: const Text(
-      //     "Đặt đơn thành công",
-      //     style: TextStyle(
-      //       fontFamily: 'Quicksand',
-      //       fontWeight: FontWeight.w700,
-      //       fontSize: 20,
-      //     ),
-      //   ),
-      //   backgroundColor: Colors.green,
-      // ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(20),
@@ -59,12 +61,31 @@ class OrderSuccess extends StatelessWidget {
                 height: 54,
                 child: ElevatedButton(
                   onPressed: () {
+                    print(widget.customer);
+                    print(widget.costFactors);
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const HomePage(
-                          customer: [],
-                          featuredStaff: [], costFactor: [],
+                        builder: (context) => HomePage(
+                          customer: widget.customer,
+                          featuredStaff: [
+                            {
+                              'name': 'Phạm Nguyễn Quốc Huy',
+                              'avatar': 'lib/images/staff/anhhuy.jpg',
+                              'position': 'Thợ sửa ổng nước',
+                              'rating': "4.8",
+                              'completedJobs': "120",
+                            },
+                            {
+                              'name': 'Trần Phi Hùng',
+                              'avatar': 'lib/images/staff/anhhung.jpg',
+                              'position': 'Thợ điện chuyên nghiệp',
+                              'rating': "4.5",
+                              'completedJobs': "98",
+                            },
+                          ],
+                          costFactor: widget.costFactors,
+                          services: widget.services,
                         ),
                       ),
                     );

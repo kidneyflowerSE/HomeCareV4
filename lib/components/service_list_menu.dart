@@ -143,8 +143,8 @@ class _ServiceListMenuState extends State<ServiceListMenu> {
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) => ServicesOrder(
           customer: widget.customer,
-          service: widget.services[index],
-          costFactors: widget.costFactors,
+          service: widget.services[0],
+          costFactors: widget.costFactors, services: widget.services,
         ),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(1.0, 0.0);

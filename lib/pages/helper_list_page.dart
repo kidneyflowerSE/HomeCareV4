@@ -10,12 +10,15 @@ import 'package:foodapp/pages/review_order_page.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+import '../data/model/service.dart';
+
 class HelperList extends StatefulWidget {
   final Customer customer;
   final Requests request;
   final List<CostFactor> costFactors;
   final List<DateTime> listDate;
   final bool isOnDemand;
+  final List<Services> services;
 
   const HelperList({
     super.key,
@@ -23,7 +26,7 @@ class HelperList extends StatefulWidget {
     required this.request,
     required this.listDate,
     required this.isOnDemand,
-    required this.costFactors,
+    required this.costFactors, required this.services,
   });
 
   @override
@@ -158,7 +161,7 @@ class _HelperListState extends State<HelperList> {
                       customer: widget.customer,
                       helper: helper,
                       request: widget.request,
-                      costFactors: widget.costFactors,
+                      costFactors: widget.costFactors, services: widget.services,
                     ),
                   ),
                 );

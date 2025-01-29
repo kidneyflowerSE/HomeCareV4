@@ -34,7 +34,7 @@ class _TimeStartState extends State<TimeStart> {
     } else {
       if (referenceDate.hour > 15 && referenceDate.day == now.day) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          showPopUpWarning(
+          showPopUpWarning(context,
               'Thời gian hiện tại đã qua 15:00. Vui lòng chọn ngày khác');
         });
       } else if (referenceDate.hour >= 6 && referenceDate.hour < 14) {
@@ -125,16 +125,16 @@ class _TimeStartState extends State<TimeStart> {
 
         // Nếu thời gian hiện tại đã qua 15:00 (3 giờ chiều), thông báo lỗi
         if (now.hour >= 15) {
-          showPopUpWarning(
+          showPopUpWarning(context,
               'Thời gian hiện tại đã qua 15:00. Vui lòng chọn ngày khác');
           return;
         } else if (selectedDateTime.isBefore(now)) {
-          showPopUpWarning(
+          showPopUpWarning(context,
               'Thời gian không được chọn trước thời gian hiện tại');
           return;
         } else if (selectedDateTime.isBefore(startTime) ||
             selectedDateTime.isAfter(endTime)) {
-          showPopUpWarning('Thời gian phải từ 6:00 đến 15:00 hôm nay');
+          showPopUpWarning(context,'Thời gian phải từ 6:00 đến 15:00 hôm nay');
           return;
         }
       } else {
@@ -145,7 +145,7 @@ class _TimeStartState extends State<TimeStart> {
 
         if (selectedDateTime.isBefore(startTime) ||
             selectedDateTime.isAfter(endTime)) {
-          showPopUpWarning('Thời gian phải từ 6:00 đến 18:00 cho ngày khác');
+          showPopUpWarning(context,'Thời gian phải từ 6:00 đến 18:00 cho ngày khác');
           return;
         }
       }
@@ -158,16 +158,78 @@ class _TimeStartState extends State<TimeStart> {
     }
   }
 
-  void showPopUpWarning(String warning) {
-    AwesomeDialog(
+  void showPopUpWarning(BuildContext context, String warning) {
+    showDialog(
       context: context,
-      animType: AnimType.scale,
-      dialogType: DialogType.warning,
-      desc: warning,
-      btnOkOnPress: () {},
-      btnCancelOnPress: () {},
-    ).show();
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          elevation: 10,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Icon cảnh báo
+                Icon(
+                  Icons.warning_amber_rounded,
+                  color: Colors.orange,
+                  size: 60,
+                ),
+                const SizedBox(height: 16),
+                // Tiêu đề
+                Text(
+                  "Cảnh Báo",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.orange,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                // Nội dung
+                Text(
+                  warning,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                // Nút OK
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Đóng dialog
+                  },
+                  child: Text(
+                    "OK",
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
+
 
   @override
   Widget build(BuildContext context) {

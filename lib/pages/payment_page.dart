@@ -1,15 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:foodapp/data/model/CostFactor.dart';
+import 'package:foodapp/data/model/request.dart';
 import 'package:foodapp/pages/order_success_page.dart';
+import 'package:http/http.dart';
 
 import '../data/model/customer.dart';
+import '../data/model/service.dart';
+import '../data/repository/repository.dart';
 
 class PaymentPage extends StatefulWidget {
   final double amount;
   final Customer customer;
+  final List<CostFactor> costFactors;
+  final List<Services> services;
+  final Requests request;
 
   const PaymentPage({
     super.key,
-    required this.amount, required this.customer,
+    required this.amount,
+    required this.customer,
+    required this.costFactors, required this.services, required this.request,
   });
 
   @override
@@ -382,9 +392,17 @@ class _PaymentPageState extends State<PaymentPage> {
     if (mounted) {
       setState(() => isProcessing = false);
 
+      var repository = DefaultRepository();
+      repository.sendRequest(widget.request);
+
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => OrderSuccess(customer: widget.customer,)),
+        MaterialPageRoute(
+            builder: (context) => OrderSuccess(
+                  customer: widget.customer,
+                  costFactors: widget.costFactors,
+                  services: widget.services,
+                )),
       );
     }
   }

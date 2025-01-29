@@ -4,6 +4,8 @@ import 'package:foodapp/data/model/request.dart';
 import '../data/model/customer.dart';
 import 'package:foodapp/pages/helper_list_page.dart';
 
+import '../data/model/service.dart';
+
 class CustomCalendar extends StatefulWidget {
   final List<DateTime> initialSelectedDates;
   final DateTime? minDate;
@@ -11,6 +13,7 @@ class CustomCalendar extends StatefulWidget {
   final Customer customer;
   final Requests request;
   final List<CostFactor> costFactors;
+  final List<Services> services;
 
   CustomCalendar({
     Key? key,
@@ -19,7 +22,7 @@ class CustomCalendar extends StatefulWidget {
     this.maxDate,
     required this.customer,
     required this.request,
-    required this.costFactors,
+    required this.costFactors, required this.services,
   }) : super(key: key);
 
   @override
@@ -276,7 +279,7 @@ class _CustomCalendarState extends State<CustomCalendar> {
                       request: widget.request,
                       listDate: _selectedDates,
                       isOnDemand: false,
-                      costFactors: widget.costFactors,
+                      costFactors: widget.costFactors, services: widget.services,
                     ),
                   ),
                 );

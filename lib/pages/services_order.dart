@@ -18,12 +18,13 @@ class ServicesOrder extends StatefulWidget {
   final Customer customer;
   final Services service;
   final List<CostFactor> costFactors;
+  final List<Services> services;
 
   const ServicesOrder(
       {super.key,
       required this.customer,
       required this.service,
-      required this.costFactors});
+      required this.costFactors, required this.services});
 
   @override
   State<ServicesOrder> createState() => _ServicesOrderState();
@@ -314,7 +315,7 @@ class _ServicesOrderState extends State<ServicesOrder>
                       request: request,
                       listDate: List.generate(1, (index) => startDate!),
                       isOnDemand: true,
-                      costFactors: widget.costFactors,
+                      costFactors: widget.costFactors, services: [],
                     ),
                   ),
                 );
@@ -331,7 +332,7 @@ class _ServicesOrderState extends State<ServicesOrder>
                       request: request,
                       maxDate: endDate,
                       minDate: startDate,
-                      costFactors: widget.costFactors,
+                      costFactors: widget.costFactors, services: widget.services,
                       // minDate: DateTime(2025, 1, 2),
                       // maxDate: DateTime(2025, 1, 15),
                     ),
