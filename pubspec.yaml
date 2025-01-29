@@ -49,7 +49,15 @@ dependencies:
   flutter_staggered_grid_view: ^0.7.0
   dropdown_button2: ^2.3.9
   animations: ^2.0.11
+  flutter_launcher_icons: ^0.14.3
 
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "lib/images/logo.png"  # Đổi thành đường dẫn icon của bạn
+  adaptive_icon_background: "#ffffff"  # Màu nền adaptive icon (Android)
+  adaptive_icon_foreground: "lib/images/logo.png"  # Adaptive icon foreground
 
 
 dev_dependencies:
