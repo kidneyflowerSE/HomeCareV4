@@ -22,6 +22,7 @@ class OrderSuccess extends StatefulWidget {
 class _OrderSuccessState extends State<OrderSuccess> {
   @override
   Widget build(BuildContext context) {
+    print(widget.services);
     return Scaffold(
       body: Center(
         child: Padding(

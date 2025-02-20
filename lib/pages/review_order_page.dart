@@ -72,7 +72,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
     DateTime endTime = DateTime(now.year, now.month, now.day, endTimeNow.hour,
         endTimeNow.minute, endTimeNow.second);
 
-    // Gía của dịch vụ
+    // Gíá của dịch vụ
     num basicPrice = widget.request.service.cost;
 
     // Hệ số cơ bản của dịch vụ
@@ -165,8 +165,9 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
     }
 
     // Tính toán tổng chi phí tăng ca
+    num workingTime = (newEndTime.difference(newStartTime).inMinutes / 60);
     otherCoefficent =
-        hours * overTime + (newEndTime.difference(newStartTime).inMinutes / 60);
+        hours * overTime + workingTime;
     print('tổng số giờ tăng ca: ${hours}');
     print('hệ số tăng ca: ${overTime}');
     print('thời gian bắt đầu: ${newStartTime}');
@@ -174,14 +175,16 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
     print(
         'tổng số giờ làm trong hành chính: ${(newEndTime.difference(newStartTime).inMinutes / 60)}');
 
+    print('thời gian bắt đầu: ${otherCoefficent}');
+
     // Nhân overtime với hệ số lớn hơn giữa ngày lễ và cuối tuần
     otherCoefficent *= maxCoefficient;
 
     print('tông chi phí: ${totalCost * otherCoefficent}');
     num finalCost = totalCost * otherCoefficent;
     // Tính tổng chi phí
-    // return totalCost * otherCoefficent;
     return {
+      'workingTime': workingTime,
       'basicPrice': basicPrice,
       'totalCost': totalCost,
       'basicCoefficient': basicCoefficient,
@@ -190,7 +193,8 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
       'maxCoefficient': maxCoefficient,
       'overTimeCoefficient': overTime,
       'overTimeHours': hours,
-      'finalCost': finalCost,
+      'finalCost': finalCost.round(),
+      'overTimeCost': overTime * maxCoefficient * basicPrice
     };
   }
 
@@ -466,8 +470,8 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                   //   '${widget.costFactors.firstWhere((costFactor) => costFactor.title == 'Hệ số lương cho dịch vụ').coefficientList.firstWhere((coefficient) => coefficient.title == 'Dịch vụ dọn dẹp').value}',
                   // ),
                   _buildInfoRow(
-                      'Số giờ làm', '${costData['overTimeHours']} giờ'),
-                  _buildInfoRow('Giá cơ bản', '${widget.request.service.cost}'),
+                      'Số giờ làm', '${costData['workingTime']} giờ'),
+                  _buildInfoRow('Giá cơ bản', '${costData['basicPrice'] * costData['basicCoefficient']}'),
                   // _buildInfoRow(
                   //   'Hệ số ngoài giờ',
                   //   '${widget.costFactors.firstWhere((costFactor) => costFactor.title == 'Hệ số khác').coefficientList.firstWhere((coefficient) => coefficient.title == 'Hệ số ngoài giờ').value}',
@@ -481,7 +485,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                   //   '${widget.costFactors.firstWhere((costFactor) => costFactor.title == 'Hệ số khác').coefficientList.firstWhere((coefficient) => coefficient.title == 'Hệ số ngoài giờ').value}',
                   // ),
                   _buildInfoRow('Giá dịch vụ ngoài giờ',
-                      '${widget.request.service.cost * costData['overTimeCoefficient']}'),
+                      '${costData['overTimeCost']}'),
                   // _buildInfoRow('Dịch vụ thêm', '' ?? '0'),
 
                   // _buildInfoRow(
@@ -511,7 +515,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                   _buildInfoRow(
                     'Tổng chi phí',
                     // '${costData['finalCost']} VNĐ',
-                    '${widget.request.service.cost * costData['overTimeCoefficient'] + widget.request.service.cost * costData['basicCoefficient']} VNĐ',
+                    '${costData['finalCost']} VNĐ',
                   ),
                 ],
               ),

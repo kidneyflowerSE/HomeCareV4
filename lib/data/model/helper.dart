@@ -147,7 +147,7 @@ class WorkingArea {
 
   factory WorkingArea.fromJson(Map<String, dynamic> map) {
     return WorkingArea(
-      province: map['province'],
+      province: map['province'] ?? "Không có thông tin",
       districts: List<String>.from(map['districts'] ?? []),
     );
   }

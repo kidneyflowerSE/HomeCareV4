@@ -74,6 +74,7 @@ class _ServicesOrderState extends State<ServicesOrder>
 
   @override
   Widget build(BuildContext context) {
+    print(widget.services);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.green,
@@ -315,7 +316,7 @@ class _ServicesOrderState extends State<ServicesOrder>
                       request: request,
                       listDate: List.generate(1, (index) => startDate!),
                       isOnDemand: true,
-                      costFactors: widget.costFactors, services: [],
+                      costFactors: widget.costFactors, services: widget.services,
                     ),
                   ),
                 );

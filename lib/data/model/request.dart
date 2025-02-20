@@ -8,11 +8,11 @@ class Requests {
   String startTime;
   String endTime;
   String requestType;
-  int totalCost;
+  num totalCost;
   String status;
   bool deleted;
   Comment comment;
-  int profit;
+  num profit;
   String? helperId;
   String? startDate;
 

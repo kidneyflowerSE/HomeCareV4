@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:foodapp/pages/F.A.QPage.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -101,8 +102,11 @@ class ProfilePage extends StatelessWidget {
                     }),
                     MenuItem(Icons.question_mark_rounded, "Câu hỏi thường gặp",
                         () {
-                      _showStaticDialog(
-                          context, "Câu hỏi thường gặp đang được thử nghiệm.");
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => FAQScreen()),
+                          );
                     }),
                     MenuItem(Icons.question_answer_rounded,
                         "Góp ý, khiếu nại qua App", () {
