@@ -97,6 +97,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.19.1"
+  convex_bottom_bar:
+    dependency: "direct main"
+    description:
+      name: convex_bottom_bar
+      sha256: ebf0f3deb1e8e99374d844fee7485d2980ec502dedfaad395c12118477933aef
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.2.0"
   crypto:
     dependency: transitive
     description:
@@ -200,6 +208,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.2"
+  horizontal_date_picker_flutter:
+    dependency: "direct main"
+    description:
+      name: horizontal_date_picker_flutter
+      sha256: "2266e6547b7a487891c2cbe30537241bf5208a1685b2c3f1f10718eda1c65df3"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.1"
   http:
     dependency: "direct main"
     description:
@@ -368,6 +384,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.4.15"
+  salomon_bottom_bar:
+    dependency: "direct main"
+    description:
+      name: salomon_bottom_bar
+      sha256: e20abf2e449749432223a8b4e6647c212eef6c2b638e0ed8cc92eff9529c2b48
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.3.2"
   simple_gesture_detector:
     dependency: transitive
     description:

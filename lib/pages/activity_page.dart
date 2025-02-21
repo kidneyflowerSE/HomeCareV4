@@ -20,7 +20,7 @@ class _ActivityPageState extends State<ActivityPage>
   late TabController _tabController;
   List<Requests> requests = [];
   List<Requests>? requestCustomer = [];
-  bool isLoading = true;  // Thêm biến để theo dõi trạng thái tải dữ liệu
+  bool isLoading = true; // Thêm biến để theo dõi trạng thái tải dữ liệu
 
   @override
   void initState() {
@@ -37,7 +37,7 @@ class _ActivityPageState extends State<ActivityPage>
       requestCustomer = requests
           .where((request) => request.customerInfo.fullName == widget.customer.name)
           .toList();
-      isLoading = false;  // Đặt trạng thái là không còn tải dữ liệu
+      isLoading = false; // Đặt trạng thái là không còn tải dữ liệu
     });
   }
 
@@ -91,20 +91,21 @@ class _ActivityPageState extends State<ActivityPage>
         ),
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator())  // Hiển thị loading khi đang tải
+          ? Center(
+              child:
+                  CircularProgressIndicator()) // Hiển thị loading khi đang tải
           : TabBarView(
-        controller: _tabController,
-        children: [
-          OnDemand(requests: onDemandRequest!),
-          LongTerm(
-            requests: longTermRequest!,
-          ),
-        ],
-      ),
+              controller: _tabController,
+              children: [
+                OnDemand(requests: onDemandRequest!),
+                LongTerm(
+                  requests: longTermRequest!,
+                ),
+              ],
+            ),
     );
   }
 }
-
 
 class OnDemand extends StatefulWidget {
   final List<Requests> requests;
