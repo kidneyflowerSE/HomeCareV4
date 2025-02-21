@@ -34,19 +34,106 @@ class ReviewOrderPage extends StatefulWidget {
 class _ReviewOrderPageState extends State<ReviewOrderPage> {
   bool isOnlinePayment = true;
 
-  void showPopUpWarning(String warning) {
-    AwesomeDialog(
+  void showCostDetailsPopup(
+      BuildContext context, Map<String, dynamic> costData) {
+    showDialog(
       context: context,
-      animType: AnimType.scale,
-      dialogType: DialogType.warning,
-      desc: warning,
-      btnOkOnPress: () {},
-      btnCancelOnPress: () {},
-    ).show();
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          elevation: 10,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: SingleChildScrollView(
+              // Đảm bảo hiển thị hết nội dung nếu quá dài
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Tiêu đề popup
+                  Center(
+                    child: Text(
+                      "Chi tiết chi phí",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Hiển thị nội dung tính toán chi phí trong card
+                  _buildCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildInfoRow(
+                          'Số giờ làm',
+                          '${costData['workingTime'].toInt()} giờ ${((costData['workingTime'] - costData['workingTime'].toInt()) * 60).toInt()} phút',
+                        ),
+                        _buildInfoRow(
+                          'Giá cơ bản',
+                          '${costData['basicPrice'] * costData['basicCoefficient']} VNĐ',
+                        ),
+                        _buildInfoRow(
+                          'Số giờ làm ngoài giờ',
+                          '${costData['overTimeHours']} giờ',
+                        ),
+                        _buildInfoRow(
+                          'Giá dịch vụ ngoài giờ',
+                          '${costData['overTimeCost']} VNĐ',
+                        ),
+                        const Divider(height: 24, color: Colors.grey),
+                        _buildInfoRow(
+                          'Tổng chi phí',
+                          '${costData['finalCost']} VNĐ',
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Nút đóng popup
+                  Center(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Đóng popup
+                      },
+                      child: Text(
+                        "Đóng",
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Map<String, dynamic> totalCostCalculation(
-      String date, String start, String end) {
+      String date, String start, String end)
+  {
     List<DateTime> holidays = [
       DateTime(2025, 4, 30), // Ngày Giải phóng miền Nam
       DateTime(2025, 5, 1), // Quốc tế Lao động
@@ -166,8 +253,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
 
     // Tính toán tổng chi phí tăng ca
     num workingTime = (newEndTime.difference(newStartTime).inMinutes / 60);
-    otherCoefficent =
-        hours * overTime + workingTime;
+    otherCoefficent = hours * overTime + workingTime;
     print('tổng số giờ tăng ca: ${hours}');
     print('hệ số tăng ca: ${overTime}');
     print('thời gian bắt đầu: ${newStartTime}');
@@ -183,8 +269,11 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
     print('tông chi phí: ${totalCost * otherCoefficent}');
     num finalCost = totalCost * otherCoefficent;
     // Tính tổng chi phí
+
+    widget.request.totalCost = finalCost;
+
     return {
-      'workingTime': workingTime,
+      'workingTime': workingTime + hours,
       'basicPrice': basicPrice,
       'totalCost': totalCost,
       'basicCoefficient': basicCoefficient,
@@ -271,7 +360,9 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
   //     ),
   //   );
   // }
-  Widget _buildInfoRow(String label, String value) {
+  Widget _buildInfoRow(String label, String value,
+      {String? buttonText, VoidCallback? onPressed})
+  {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Padding(
@@ -280,7 +371,8 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Flexible(
-            flex: 2, // Chia 2 phần
+            flex: (buttonText == null) ? 2 : 1,
+            // Nếu có button thì chia 3 phần, nếu không thì chia 2
             child: Text(
               label,
               style: TextStyle(
@@ -291,10 +383,10 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
             ),
           ),
           Flexible(
-            flex: 1, // Chia 1 phần
+            flex: 1,
             child: Text(
               value,
-              textAlign: TextAlign.right, // Căn phải nếu cần
+              textAlign: TextAlign.right,
               style: TextStyle(
                 fontFamily: 'Quicksand',
                 fontSize: screenWidth > 600 ? 16 : 14,
@@ -302,6 +394,24 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
               ),
             ),
           ),
+          if (buttonText != null &&
+              onPressed != null) // Chỉ hiển thị nếu có nút bấm
+            Flexible(
+              flex: 1,
+              child: TextButton(
+                onPressed: onPressed,
+                child: Text(
+                  buttonText,
+                  style: TextStyle(
+                    fontFamily: 'Quicksand',
+                    fontSize: screenWidth > 600 ? 14 : 12,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.blue,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -311,23 +421,28 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
   Widget build(BuildContext context) {
     num totalCost = 0;
     num finalCost = 0;
+    num workingTime = 0;
+    List<Map<String, dynamic>> singleDayCostData = [];
+    bool isOnDemand = true;
+    late Map<String, dynamic> costData;
 
-    // List<String>? dateList = widget.request.startDate?.split(",");
-    // for (var date in dateList!) {
-    //   finalCost += totalCostCalculation(
-    //       date, widget.request.startTime, widget.request.endTime);
-    // }
+    List<String>? dateList = widget.request.startDate?.split(",");
+    if (dateList!.length > 1) isOnDemand = false;
+    for (var date in dateList) {
+      costData = totalCostCalculation(
+          date, widget.request.startTime, widget.request.endTime);
+      singleDayCostData.add(costData);
+      finalCost += costData["finalCost"];
+      workingTime += costData["workingTime"];
+    }
 
     print(totalCost);
     print(widget.request.startDate);
-    Map<String, dynamic> costData = totalCostCalculation(
-        widget.request.oderDate,
-        widget.request.startTime,
-        widget.request.endTime);
-    final basePrice = costData['basePrice'] ?? 0.0;
-    final basicCoefficient = costData['basicCoefficient'] ?? 0.0;
-    final overTimeHours = costData['overTimeHours'] ?? 0.0;
-    final overTimeCoefficient = costData['overTimeCoefficient'] ?? 0.0;
+
+    // final basePrice = costData['basePrice'] ?? 0.0;
+    // final basicCoefficient = costData['basicCoefficient'] ?? 0.0;
+    // final overTimeHours = costData['overTimeHours'] ?? 0.0;
+    // final overTimeCoefficient = costData['overTimeCoefficient'] ?? 0.0;
 
     return Scaffold(
       backgroundColor: const Color(0xFFFAFAFA),
@@ -398,7 +513,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                       child: Icon(Icons.person, color: Color(0xFF2E7D32)),
                     ),
                     title: Text(
-                      widget.customer.name ?? 'Tên không có sẵn',
+                      widget.customer.name,
                       style: const TextStyle(
                         fontFamily: 'Quicksand',
                         fontSize: 16,
@@ -406,7 +521,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                       ),
                     ),
                     subtitle: Text(
-                      widget.customer.phone ?? 'Số điện thoại không có sẵn',
+                      widget.customer.phone,
                       style: const TextStyle(
                         fontFamily: 'Quicksand',
                         fontSize: 14,
@@ -436,7 +551,8 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                   _buildInfoRow(
                     'Làm trong',
                     // '${(DateTime.parse(widget.request.endTime).difference(DateTime.parse(widget.request.startTime))).inHours} giờ, ${(widget.request.startTime)} - ${widget.request.endTime}'
-                    '${(DateTime.parse(widget.request.endTime).difference(DateTime.parse(widget.request.startTime))).inHours} giờ, ${DateTime.parse(widget.request.startTime).hour}:${DateTime.parse(widget.request.startTime).minute} - ${DateTime.parse(widget.request.endTime).hour}:${DateTime.parse(widget.request.endTime).minute}',
+                    // '${(DateTime.parse(widget.request.endTime).difference(DateTime.parse(widget.request.startTime))).inHours} giờ, ${DateTime.parse(widget.request.startTime).hour}:${DateTime.parse(widget.request.startTime).minute} - ${DateTime.parse(widget.request.endTime).hour}:${DateTime.parse(widget.request.endTime).minute}',
+                    '${workingTime.toInt()} giờ ${((workingTime - workingTime.toInt()) * 60).toInt()} phút',
                   ),
                   const Divider(
                     height: 24,
@@ -457,69 +573,97 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
               ),
             ),
             _buildSectionTitle('Chi phí dịch vụ'),
-            _buildCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // _buildInfoRow(
-                  //   'Giá cơ bản',
-                  //   '${widget.request.service.cost} VNĐ',
-                  // ),
-                  // _buildInfoRow(
-                  //   'Hệ số dịch vụ cơ bản',
-                  //   '${widget.costFactors.firstWhere((costFactor) => costFactor.title == 'Hệ số lương cho dịch vụ').coefficientList.firstWhere((coefficient) => coefficient.title == 'Dịch vụ dọn dẹp').value}',
-                  // ),
-                  _buildInfoRow(
-                      'Số giờ làm', '${costData['workingTime']} giờ'),
-                  _buildInfoRow('Giá cơ bản', '${costData['basicPrice'] * costData['basicCoefficient']}'),
-                  // _buildInfoRow(
-                  //   'Hệ số ngoài giờ',
-                  //   '${widget.costFactors.firstWhere((costFactor) => costFactor.title == 'Hệ số khác').coefficientList.firstWhere((coefficient) => coefficient.title == 'Hệ số ngoài giờ').value}',
-                  // ),
-                  _buildInfoRow(
-                    'Số giờ làm ngoài giờ',
-                    '${costData['overTimeHours']} giờ',
-                  ),
-                  // _buildInfoRow(
-                  //   'Hệ số ngoài giờ',
-                  //   '${widget.costFactors.firstWhere((costFactor) => costFactor.title == 'Hệ số khác').coefficientList.firstWhere((coefficient) => coefficient.title == 'Hệ số ngoài giờ').value}',
-                  // ),
-                  _buildInfoRow('Giá dịch vụ ngoài giờ',
-                      '${costData['overTimeCost']}'),
-                  // _buildInfoRow('Dịch vụ thêm', '' ?? '0'),
+            isOnDemand
+                ? _buildCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // _buildInfoRow(
+                        //   'Giá cơ bản',
+                        //   '${widget.request.service.cost} VNĐ',
+                        // ),
+                        // _buildInfoRow(
+                        //   'Hệ số dịch vụ cơ bản',
+                        //   '${widget.costFactors.firstWhere((costFactor) => costFactor.title == 'Hệ số lương cho dịch vụ').coefficientList.firstWhere((coefficient) => coefficient.title == 'Dịch vụ dọn dẹp').value}',
+                        // ),
+                        _buildInfoRow('Số giờ làm',
+                            '${costData['workingTime'].toInt()} giờ ${((costData['workingTime'] - costData['workingTime'].toInt()) * 60).toInt()} phút'),
+                        _buildInfoRow('Giá cơ bản',
+                            '${costData['basicPrice'] * costData['basicCoefficient']}'),
+                        // _buildInfoRow(
+                        //   'Hệ số ngoài giờ',
+                        //   '${widget.costFactors.firstWhere((costFactor) => costFactor.title == 'Hệ số khác').coefficientList.firstWhere((coefficient) => coefficient.title == 'Hệ số ngoài giờ').value}',
+                        // ),
+                        _buildInfoRow(
+                          'Số giờ làm ngoài giờ',
+                          '${costData['overTimeHours']} giờ',
+                        ),
+                        // _buildInfoRow(
+                        //   'Hệ số ngoài giờ',
+                        //   '${widget.costFactors.firstWhere((costFactor) => costFactor.title == 'Hệ số khác').coefficientList.firstWhere((coefficient) => coefficient.title == 'Hệ số ngoài giờ').value}',
+                        // ),
+                        _buildInfoRow('Giá dịch vụ ngoài giờ',
+                            '${costData['overTimeCost']}'),
+                        // _buildInfoRow('Dịch vụ thêm', '' ?? '0'),
 
-                  // _buildInfoRow(
-                  //   'Hệ số làm việc ngày cuối tuần',
-                  //   '${widget.costFactors.firstWhere((costFactor) => costFactor.title == 'Hệ số khác').coefficientList.firstWhere((coefficient) => coefficient.title == 'Hệ số làm việc ngày cuối tuần').value}',
-                  // ),
-                  // _buildInfoRow(
-                  //   'Hệ số lễ',
-                  //   '${widget.costFactors.firstWhere((costFactor) => costFactor.title == 'Hệ số khác').coefficientList.firstWhere((coefficient) => coefficient.title == 'Hệ số lễ').value}',
-                  // ),
-                  // _buildInfoRow(
-                  //   'Hệ số noel',
-                  //   '${widget.costFactors.firstWhere((costFactor) => costFactor.title == 'Hệ số khác').coefficientList.firstWhere((coefficient) => coefficient.title == 'Hệ số noel').value}',
-                  // ),
-                  // _buildInfoRow(
-                  //   'Hệ số Tết',
-                  //   '${widget.costFactors.firstWhere((costFactor) => costFactor.title == 'Hệ số khác').coefficientList.firstWhere((coefficient) => coefficient.title == 'Hệ số tết').value}',
-                  // ),
-                  // _buildInfoRow(
-                  //   'Tất cả hệ số',
-                  //   '${widget.costFactors.firstWhere((costFactor) => costFactor.title == 'Hệ số khác').coefficientList.map((coefficient) => coefficient.title).join(', ')}',
-                  // ),
-                  const Divider(
-                    height: 24,
-                    color: Colors.grey,
+                        // _buildInfoRow(
+                        //   'Hệ số làm việc ngày cuối tuần',
+                        //   '${widget.costFactors.firstWhere((costFactor) => costFactor.title == 'Hệ số khác').coefficientList.firstWhere((coefficient) => coefficient.title == 'Hệ số làm việc ngày cuối tuần').value}',
+                        // ),
+                        // _buildInfoRow(
+                        //   'Hệ số lễ',
+                        //   '${widget.costFactors.firstWhere((costFactor) => costFactor.title == 'Hệ số khác').coefficientList.firstWhere((coefficient) => coefficient.title == 'Hệ số lễ').value}',
+                        // ),
+                        // _buildInfoRow(
+                        //   'Hệ số noel',
+                        //   '${widget.costFactors.firstWhere((costFactor) => costFactor.title == 'Hệ số khác').coefficientList.firstWhere((coefficient) => coefficient.title == 'Hệ số noel').value}',
+                        // ),
+                        // _buildInfoRow(
+                        //   'Hệ số Tết',
+                        //   '${widget.costFactors.firstWhere((costFactor) => costFactor.title == 'Hệ số khác').coefficientList.firstWhere((coefficient) => coefficient.title == 'Hệ số tết').value}',
+                        // ),
+                        // _buildInfoRow(
+                        //   'Tất cả hệ số',
+                        //   '${widget.costFactors.firstWhere((costFactor) => costFactor.title == 'Hệ số khác').coefficientList.map((coefficient) => coefficient.title).join(', ')}',
+                        // ),
+                        const Divider(
+                          height: 24,
+                          color: Colors.grey,
+                        ),
+                        _buildInfoRow(
+                          'Tổng chi phí',
+                          // '${costData['finalCost']} VNĐ',
+                          '$finalCost VNĐ',
+                        ),
+                      ],
+                    ),
+                  )
+                : _buildCard(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: dateList.length + 2,
+                      itemBuilder: (context, index) {
+                        if (index == dateList.length) {
+                          return const Divider(height: 24, color: Colors.grey);
+                        } else if (index == dateList.length + 1) {
+                          return _buildInfoRow(
+                              'tổng chi phí', '$finalCost VNĐ');
+                        } else if (index < singleDayCostData.length) {
+                          var singleDayCost =
+                              singleDayCostData[index]['finalCost'];
+                          return _buildInfoRow(
+                            'chi phí ngày $index',
+                            '$singleDayCost VNĐ',
+                            buttonText: 'xem chi tiết',
+                            onPressed: () {
+                              showCostDetailsPopup(
+                                  context, singleDayCostData[index]);
+                            },
+                          );
+                        }
+                      },
+                    ),
                   ),
-                  _buildInfoRow(
-                    'Tổng chi phí',
-                    // '${costData['finalCost']} VNĐ',
-                    '${costData['finalCost']} VNĐ',
-                  ),
-                ],
-              ),
-            ),
             _buildSectionTitle('Phương thức thanh toán'),
             _buildCard(
               child: Column(

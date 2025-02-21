@@ -99,7 +99,6 @@ class _LoginPageState extends State<LoginPage> {
               request.customerInfo.fullName ==
               customers[customerIndex].name)
           .toList();
-
       Navigator.push(
         context,
         MaterialPageRoute(

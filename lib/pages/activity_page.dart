@@ -35,7 +35,7 @@ class _ActivityPageState extends State<ActivityPage>
     setState(() {
       requests = data ?? [];
       requestCustomer = requests
-          .where((request) => request.customerInfo.fullName == 'Quốc An Nguyễn')
+          .where((request) => request.customerInfo.fullName == widget.customer.name)
           .toList();
       isLoading = false;  // Đặt trạng thái là không còn tải dữ liệu
     });
