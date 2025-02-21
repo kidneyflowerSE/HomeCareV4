@@ -9,7 +9,10 @@ class ServiceListMenu extends StatefulWidget {
   final List<CostFactor> costFactors;
 
   const ServiceListMenu(
-      {Key? key, required this.customer, required this.services, required this.costFactors})
+      {Key? key,
+      required this.customer,
+      required this.services,
+      required this.costFactors})
       : super(key: key);
 
   @override
@@ -33,7 +36,7 @@ class _ServiceListMenuState extends State<ServiceListMenu> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: GridView.builder(
         physics: const BouncingScrollPhysics(),
@@ -68,7 +71,8 @@ class _ServiceListMenuState extends State<ServiceListMenu> {
   Widget _buildServiceIcon(int index) {
     return Container(
       decoration: BoxDecoration(
-        shape: BoxShape.circle,
+        shape: BoxShape.rectangle,
+        borderRadius: BorderRadius.circular(16),
         color: Colors.white,
         boxShadow: [
           BoxShadow(
@@ -83,25 +87,21 @@ class _ServiceListMenuState extends State<ServiceListMenu> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              shape: BoxShape.circle,
+              borderRadius: BorderRadius.circular(16),
+              shape: BoxShape.rectangle,
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Colors.green.shade50,
-                  Colors.white,
+                  Colors.green,
+                  Colors.green.withOpacity(0.5),
                 ],
               ),
-              border: Border.all(
-                color: Colors.green.withOpacity(0.3),
-                width: 1.5,
-              ),
             ),
-            child: Image.asset(
-              servicesInfo[index]['iconPath']!,
-              height: 32,
-              width: 32,
-              fit: BoxFit.contain,
+            child: Icon(
+              Icons.home_work_outlined,
+              color: Colors.white,
+              size: 32,
             ),
           ),
           Positioned.fill(
@@ -125,9 +125,9 @@ class _ServiceListMenuState extends State<ServiceListMenu> {
       child: Text(
         servicesInfo[index]['label']!,
         style: const TextStyle(
-          fontSize: 13,
+          fontSize: 12,
           fontFamily: 'Quicksand',
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w400,
           height: 1.2,
         ),
         textAlign: TextAlign.center,
@@ -144,7 +144,8 @@ class _ServiceListMenuState extends State<ServiceListMenu> {
         pageBuilder: (context, animation, secondaryAnimation) => ServicesOrder(
           customer: widget.customer,
           service: widget.services[0],
-          costFactors: widget.costFactors, services: widget.services,
+          costFactors: widget.costFactors,
+          services: widget.services,
         ),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(1.0, 0.0);

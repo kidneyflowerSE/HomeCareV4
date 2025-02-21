@@ -4,6 +4,7 @@ import 'package:foodapp/data/model/customer.dart';
 import 'package:foodapp/data/model/request.dart';
 import 'package:foodapp/data/model/service.dart';
 import 'package:foodapp/data/repository/repository.dart';
+import 'package:foodapp/pages/profile_page.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});

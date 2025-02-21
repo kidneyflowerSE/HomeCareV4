@@ -1,8 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:foodapp/data/model/customer.dart';
 import 'package:foodapp/pages/F.A.QPage.dart';
+import 'package:foodapp/pages/choose_location_page.dart';
+import 'package:foodapp/pages/edit_information_page.dart';
 
-class ProfilePage extends StatelessWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+class ProfilePage extends StatefulWidget {
+  final Customer customer;
+  ProfilePage({required this.customer});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  int index = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -12,8 +23,63 @@ class ProfilePage extends StatelessWidget {
           // SliverAppBar
           SliverAppBar(
             expandedHeight: 200,
+            automaticallyImplyLeading: false,
             floating: false,
             pinned: true,
+            actions: [
+              // In the ProfilePage class, modify the GestureDetector inside the SliverAppBar actions:
+
+              GestureDetector(
+                onTap: () async {
+                  final updatedCustomer = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => EditInformationPage(
+                        customer: widget.customer,
+                      ),
+                    ),
+                  );
+
+                  if (updatedCustomer != null) {
+                    setState(() {
+                      // Update the customer information if changes were made
+                      widget.customer.name = updatedCustomer.name;
+                      widget.customer.phone = updatedCustomer.phone;
+                      // The addresses would have been updated by reference already
+                    });
+                  }
+                },
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  margin: const EdgeInsets.only(right: 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Chỉnh sửa',
+                        style: const TextStyle(
+                          color: Colors.green,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Quicksand',
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Icon(
+                        Icons.edit_rounded,
+                        color: Colors.green,
+                        size: 20,
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            ],
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
                 decoration: BoxDecoration(
@@ -24,7 +90,7 @@ class ProfilePage extends StatelessWidget {
                   ),
                 ),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     const CircleAvatar(
                       radius: 50,
@@ -32,15 +98,16 @@ class ProfilePage extends StatelessWidget {
                       child: Icon(Icons.person, size: 50, color: Colors.green),
                     ),
                     const SizedBox(height: 10),
-                    const Text(
-                      "User Name", // Tên tĩnh cho UI
-                      style: TextStyle(
+                    Text(
+                      '${widget.customer.name}',
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                         fontFamily: 'Quicksand',
                       ),
                     ),
+                    _buildLocationSection(),
                   ],
                 ),
               ),
@@ -102,11 +169,10 @@ class ProfilePage extends StatelessWidget {
                     }),
                     MenuItem(Icons.question_mark_rounded, "Câu hỏi thường gặp",
                         () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => FAQScreen()),
-                          );
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => FAQScreen()),
+                      );
                     }),
                     MenuItem(Icons.question_answer_rounded,
                         "Góp ý, khiếu nại qua App", () {
@@ -223,6 +289,51 @@ class ProfilePage extends StatelessWidget {
         trailing:
             const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
         onTap: item.onTap,
+      ),
+    );
+  }
+
+  Widget _buildLocationSection() {
+    return GestureDetector(
+      onTap: () async {
+        final selectedIndex = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ChooseLocationPage(customer: widget.customer),
+          ),
+        );
+        if (selectedIndex != null) {
+          setState(() => index = selectedIndex);
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.location_on_rounded,
+              color: Colors.white,
+            ),
+            const SizedBox(width: 4),
+            Expanded(
+              child: Text(
+                widget.customer.addresses[index].toString(),
+                style: const TextStyle(
+                  fontFamily: 'Quicksand',
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const Icon(
+              Icons.keyboard_arrow_right_rounded,
+              color: Colors.white,
+            ),
+          ],
+        ),
       ),
     );
   }
