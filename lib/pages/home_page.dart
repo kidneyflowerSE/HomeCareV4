@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:foodapp/components/feature_helper_list.dart';
 import 'package:foodapp/components/service_list_menu.dart';
@@ -15,6 +16,9 @@ import '../../data/model/customer.dart';
 import '../data/model/request.dart';
 import '../data/model/service.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+
+import 'package:flutter/material.dart';
+import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 
 class HomePage extends StatefulWidget {
   final dynamic customer;
@@ -53,7 +57,7 @@ class _HomePageState extends State<HomePage> {
       ActivityPage(
         customer: widget.customer,
       ),
-      const NotificationPage(),
+      NotificationPage(),
       ProfilePage(customer: widget.customer),
     ]);
   }
@@ -67,103 +71,44 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_selectedIndex],
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ServicesOrder(
-                customer: widget.customer,
-                service: widget.services[0],
-                costFactors: widget.costFactor,
-                services: widget.services,
-              ),
-            ),
-          );
-        },
-        shape: const CircleBorder(),
-        backgroundColor: Theme.of(context).primaryColor,
-        elevation: 4,
-        child: Container(
-          width: 60,
-          height: 60,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: LinearGradient(
-              colors: [Colors.green.shade400, Colors.green.shade700],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-          child: const Icon(Icons.add, size: 30, color: Colors.white),
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      body: _pages[_selectedIndex.clamp(0, _pages.length - 1)],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
+          color: Colors.white,
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.1),
-              blurRadius: 10,
+              blurRadius: 6,
               offset: const Offset(0, -2),
             ),
           ],
         ),
-        child: BottomAppBar(
-          shape: const CircularNotchedRectangle(),
-          notchMargin: 12,
-          elevation: 0,
-          child: Container(
-            height: 65,
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Flexible(
-                    child: _buildNavButton(
-                        0, Icons.dashboard_rounded, "Trang chủ")),
-                Flexible(
-                    child: _buildNavButton(
-                        1, Icons.calendar_month_rounded, "Hoạt động")),
-                const SizedBox(width: 48),
-                Flexible(
-                    child: _buildNavButton(
-                        2, Icons.notifications_rounded, "Thông báo")),
-                Flexible(
-                    child: _buildNavButton(3, Icons.person_rounded, "Cá nhân")),
-              ],
+        child: SalomonBottomBar(
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
+          selectedItemColor: Colors.green,
+          unselectedItemColor: Colors.grey,
+          curve: Curves.easeInOut,
+          items: [
+            SalomonBottomBarItem(
+              icon: const Icon(Icons.dashboard_rounded),
+              title: const Text("Trang chủ"),
+              selectedColor: Colors.green,
             ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNavButton(int index, IconData icon, String label) {
-    final isSelected = _selectedIndex == index;
-    return InkWell(
-      onTap: () => setState(() => _selectedIndex = index),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              size: 24,
-              color: isSelected ? Colors.green : Colors.grey.shade600,
+            SalomonBottomBarItem(
+              icon: const Icon(Icons.calendar_month_rounded),
+              title: const Text("Hoạt động"),
+              selectedColor: Colors.blue,
             ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 8,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                color: isSelected ? Colors.green : Colors.grey.shade600,
-                fontFamily: 'Quicksand',
-              ),
+            SalomonBottomBarItem(
+              icon: const Icon(Icons.notifications_rounded),
+              title: const Text("Thông báo"),
+              selectedColor: Colors.orange,
+            ),
+            SalomonBottomBarItem(
+              icon: const Icon(Icons.person_rounded),
+              title: const Text("Cá nhân"),
+              selectedColor: Colors.purple,
             ),
           ],
         ),
@@ -235,18 +180,39 @@ class _HomeContentState extends State<HomeContent> {
     });
   }
 
+  String getGreetingMessage() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) {
+      return 'Chào buổi sáng,';
+    } else if (hour < 18) {
+      return 'Chào buổi chiều,';
+    } else {
+      return 'Chào buổi tối,';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.green,
-        toolbarHeight: 80,
+        backgroundColor: Colors.transparent,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.green.shade500, Colors.green.shade700],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+        toolbarHeight: 60,
         title: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'Chào buổi tối,',
+              getGreetingMessage(),
               style: const TextStyle(
                 fontFamily: 'Quicksand',
                 fontSize: 20,
@@ -254,7 +220,7 @@ class _HomeContentState extends State<HomeContent> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
             Text(
               widget.customer.name,
               style: const TextStyle(
@@ -264,6 +230,7 @@ class _HomeContentState extends State<HomeContent> {
                 fontWeight: FontWeight.bold,
               ),
             ),
+            const SizedBox(height: 8),
           ],
         ),
         centerTitle: true,

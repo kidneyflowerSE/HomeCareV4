@@ -24,7 +24,8 @@ class ServicesOrder extends StatefulWidget {
       {super.key,
       required this.customer,
       required this.service,
-      required this.costFactors, required this.services});
+      required this.costFactors,
+      required this.services});
 
   @override
   State<ServicesOrder> createState() => _ServicesOrderState();
@@ -87,46 +88,13 @@ class _ServicesOrderState extends State<ServicesOrder>
         ),
         title: Container(
           padding: const EdgeInsets.symmetric(horizontal: 6),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Text(
-                'Đặt người giúp việc',
-                style: TextStyle(
-                  fontFamily: 'Quicksand',
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
-              ),
-              Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    color: Colors.white,
-                  ),
-                  height: 28,
-                  width: 80,
-                  alignment: Alignment.center,
-                  child: const Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "Lịch sử",
-                        style: TextStyle(
-                          fontFamily: 'Quicksand',
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                        ),
-                      ),
-                      SizedBox(width: 5),
-                      Icon(
-                        Icons.history_toggle_off_rounded,
-                        size: 14,
-                      ),
-                    ],
-                  )),
-            ],
+          child: Text(
+            'Dịch vụ: ${widget.services[0].title}',
+            style: TextStyle(
+              fontFamily: 'Quicksand',
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
           ),
         ),
         automaticallyImplyLeading: false,
@@ -316,7 +284,8 @@ class _ServicesOrderState extends State<ServicesOrder>
                       request: request,
                       listDate: List.generate(1, (index) => startDate!),
                       isOnDemand: true,
-                      costFactors: widget.costFactors, services: widget.services,
+                      costFactors: widget.costFactors,
+                      services: widget.services,
                     ),
                   ),
                 );
@@ -333,7 +302,8 @@ class _ServicesOrderState extends State<ServicesOrder>
                       request: request,
                       maxDate: endDate,
                       minDate: startDate,
-                      costFactors: widget.costFactors, services: widget.services,
+                      costFactors: widget.costFactors,
+                      services: widget.services,
                       // minDate: DateTime(2025, 1, 2),
                       // maxDate: DateTime(2025, 1, 15),
                     ),
@@ -573,3 +543,455 @@ class _LongTermState extends State<LongTerm> {
     );
   }
 }
+
+// import 'package:flutter/material.dart';
+// import 'package:foodapp/components/address_type.dart';
+// import 'package:foodapp/components/time_selection.dart';
+// import 'package:foodapp/data/model/CostFactor.dart';
+// import 'package:foodapp/data/model/request.dart';
+// import 'package:foodapp/pages/long_term_calendar_selection_page.dart';
+// import 'package:intl/intl.dart';
+
+// import '../../data/model/customer.dart';
+// import '../../data/model/location.dart';
+// import '../../data/repository/repository.dart';
+// import '../components/city_selected.dart';
+// import '../components/my_button.dart';
+// import '../data/model/service.dart';
+// import 'helper_list_page.dart';
+
+// class ServicesOrder extends StatefulWidget {
+//   final Customer customer;
+//   final Services service;
+//   final List<CostFactor> costFactors;
+//   final List<Services> services;
+
+//   const ServicesOrder({
+//     super.key,
+//     required this.customer,
+//     required this.service,
+//     required this.costFactors,
+//     required this.services,
+//   });
+
+//   @override
+//   State<ServicesOrder> createState() => _ServicesOrderState();
+// }
+
+// class _ServicesOrderState extends State<ServicesOrder>
+//     with SingleTickerProviderStateMixin {
+//   late TabController _tabController;
+//   List<Location> locations = [];
+//   List<Customer> customers = [];
+//   bool isLoading = true;
+//   String orderType = 'Ngắn hạn';
+//   DateTime? selectedDate;
+//   DateTime? startDate =
+//       DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+//   DateTime? endDate =
+//       DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)
+//           .add(const Duration(days: 1));
+//   TimeOfDay? _startTime;
+//   TimeOfDay? _endTime;
+//   Location? selectedProvince;
+//   String? selectedDistrict;
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     _tabController = TabController(length: 2, vsync: this);
+//     loadData();
+//   }
+
+//   Future<void> loadData() async {
+//     var repository = DefaultRepository();
+//     var dataLocation = await repository.loadLocation();
+//     var dataCustomer = await repository.loadCustomer();
+//     setState(() {
+//       locations = dataLocation ?? [];
+//       customers = dataCustomer ?? [];
+//       isLoading = false;
+//     });
+//   }
+
+//   @override
+//   void dispose() {
+//     _tabController.dispose();
+//     super.dispose();
+//   }
+
+//   void _handleNextStep() {
+//     selectedDate ??= DateTime.now();
+//     DateTime? selectedEndDate = endDate ?? selectedDate;
+
+//     if (_startTime != null && _endTime != null) {
+//       var request = Requests(
+//         customerInfo: CustomerInfo(
+//           fullName: widget.customer.name,
+//           phone: widget.customer.phone,
+//           address: widget.customer.addresses[0].detailedAddress,
+//           usedPoint: widget.customer.points[0].point,
+//         ),
+//         service: RequestService(
+//           title: widget.service.title,
+//           coefficientService: 0.0,
+//           coefficientOther: 0.0,
+//           cost: widget.service.basicPrice,
+//         ),
+//         location: selectedProvince != null
+//             ? RequestLocation(
+//                 province: selectedProvince!.name,
+//                 district: selectedDistrict ?? '',
+//               )
+//             : RequestLocation(province: '', district: ''),
+//         id: '',
+//         oderDate: DateTime.now().toIso8601String(),
+//         scheduleIds: [],
+//         startDate: DateFormat('yyyy-MM-dd').format(selectedDate!),
+//         startTime: DateTime(
+//           selectedDate!.year,
+//           selectedDate!.month,
+//           selectedDate!.day,
+//           _startTime!.hour,
+//           _startTime!.minute,
+//         ).toIso8601String(),
+//         endTime: DateTime(
+//           selectedEndDate!.year,
+//           selectedEndDate.month,
+//           selectedEndDate.day,
+//           _endTime!.hour,
+//           _endTime!.minute,
+//         ).toIso8601String(),
+//         requestType: orderType,
+//         totalCost: 0,
+//         status: 'chưa tiến hành',
+//         deleted: false,
+//         comment: Comment(review: '', loseThings: false, breakThings: false),
+//         profit: 0,
+//       );
+
+//       if (_tabController.index == 0) {
+//         request.endTime = DateTime(
+//           selectedDate!.year,
+//           selectedDate!.month,
+//           selectedDate!.day,
+//           _endTime!.hour,
+//           _endTime!.minute,
+//         ).toIso8601String();
+
+//         Navigator.push(
+//           context,
+//           MaterialPageRoute(
+//             builder: (context) => HelperList(
+//               customer: widget.customer,
+//               request: request,
+//               listDate: List.generate(1, (index) => startDate!),
+//               isOnDemand: true,
+//               costFactors: widget.costFactors,
+//               services: widget.services,
+//             ),
+//           ),
+//         );
+//       } else {
+//         Navigator.push(
+//           context,
+//           MaterialPageRoute(
+//             builder: (context) => CustomCalendar(
+//               initialSelectedDates: List.generate(
+//                 endDate!.difference(startDate!).inDays + 1,
+//                 (index) => startDate!.add(Duration(days: index)),
+//               ),
+//               customer: widget.customer,
+//               request: request,
+//               maxDate: endDate,
+//               minDate: startDate,
+//               costFactors: widget.costFactors,
+//               services: widget.services,
+//             ),
+//           ),
+//         );
+//       }
+//     }
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       body: CustomScrollView(
+//         slivers: [
+//           SliverAppBar(
+//             expandedHeight: 110,
+//             pinned: true,
+//             floating: false,
+//             backgroundColor: Colors.green,
+//             flexibleSpace: FlexibleSpaceBar(
+//               background: Container(
+//                   decoration: const BoxDecoration(
+//                     gradient: LinearGradient(
+//                       colors: [Colors.green, Colors.lightGreen],
+//                       begin: Alignment.topCenter,
+//                       end: Alignment.bottomCenter,
+//                     ),
+//                   ),
+//                   child: Padding(
+//                     padding: const EdgeInsets.symmetric(horizontal: 46),
+//                     child: Column(
+//                       mainAxisAlignment: MainAxisAlignment.center,
+//                       children: [
+//                         Text(
+//                           // Chỗ này thay 0 theo index là được
+//                           'Dịch vụ: ${widget.services[0].title}',
+//                           style: TextStyle(
+//                             color: Colors.white,
+//                             fontSize: 20,
+//                             fontWeight: FontWeight.bold,
+//                             fontFamily: 'Quicksand',
+//                           ),
+//                           maxLines: 1,
+//                           overflow: TextOverflow.ellipsis,
+//                         ),
+//                       ],
+//                     ),
+//                   )),
+//             ),
+//             bottom: PreferredSize(
+//               preferredSize: const Size.fromHeight(48),
+//               child: Container(
+//                 decoration: const BoxDecoration(
+//                   color: Colors.white,
+//                   borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+//                 ),
+//                 child: TabBar(
+//                   controller: _tabController,
+//                   labelColor: Colors.green,
+//                   unselectedLabelColor: Colors.black54,
+//                   indicatorSize: TabBarIndicatorSize.tab,
+//                   indicator: const UnderlineTabIndicator(
+//                     borderSide: BorderSide(color: Colors.green, width: 3),
+//                   ),
+//                   tabs: const [
+//                     Tab(text: 'Theo ngày'),
+//                     Tab(text: 'Dài hạn'),
+//                   ],
+//                 ),
+//               ),
+//             ),
+//           ),
+//           SliverFillRemaining(
+//             child: TabBarView(
+//               controller: _tabController,
+//               children: [
+//                 ServiceOrderTab(
+//                   isOnDemand: true,
+//                   locations: locations,
+//                   customers: customers,
+//                   onTimeChanged: (startTime, endTime) {
+//                     setState(() {
+//                       _startTime = startTime;
+//                       if (endTime == null && startTime != null) {
+//                         _endTime = TimeOfDay(
+//                           hour: _startTime!.hour + 2,
+//                           minute: _startTime!.minute,
+//                         );
+//                       } else {
+//                         _endTime = endTime;
+//                       }
+//                     });
+//                   },
+//                   onDateChanged: (date, isStartDate) {
+//                     setState(() {
+//                       if (isStartDate == 'start') {
+//                         selectedDate = date;
+//                         startDate = date;
+//                         endDate = null;
+//                       }
+//                     });
+//                   },
+//                   onProvinceSelected: (Location province) {
+//                     setState(() {
+//                       selectedProvince = province;
+//                     });
+//                   },
+//                   onDistrictSelected: (String district) {
+//                     setState(() {
+//                       selectedDistrict = district;
+//                     });
+//                   },
+//                 ),
+//                 ServiceOrderTab(
+//                   isOnDemand: false,
+//                   locations: locations,
+//                   customers: customers,
+//                   onTimeChanged: (startTime, endTime) {
+//                     setState(() {
+//                       _startTime = startTime;
+//                       if (endTime == null && startTime != null) {
+//                         _endTime = TimeOfDay(
+//                           hour: _startTime!.hour + 2,
+//                           minute: _startTime!.minute,
+//                         );
+//                       } else {
+//                         _endTime = endTime;
+//                       }
+//                     });
+//                   },
+//                   onDateChanged: (date, isStartDate) {
+//                     setState(() {
+//                       if (isStartDate == 'start') {
+//                         selectedDate = date;
+//                         startDate = date;
+//                       } else {
+//                         endDate = date;
+//                         orderType = 'Dài hạn';
+//                       }
+//                     });
+//                   },
+//                   onProvinceSelected: (Location province) {
+//                     setState(() {
+//                       selectedProvince = province;
+//                     });
+//                   },
+//                   onDistrictSelected: (String district) {
+//                     setState(() {
+//                       selectedDistrict = district;
+//                     });
+//                   },
+//                 ),
+//               ],
+//             ),
+//           ),
+//         ],
+//       ),
+//       bottomNavigationBar: SafeArea(
+//         child: Padding(
+//           padding: const EdgeInsets.all(16.0),
+//           child: ElevatedButton(
+//             onPressed: _handleNextStep,
+//             style: ElevatedButton.styleFrom(
+//               backgroundColor: Colors.green,
+//               foregroundColor: Colors.white,
+//               padding: const EdgeInsets.symmetric(vertical: 16),
+//               shape: RoundedRectangleBorder(
+//                 borderRadius: BorderRadius.circular(12),
+//               ),
+//             ),
+//             child: const Text(
+//               'Tiếp theo',
+//               style: TextStyle(
+//                 fontSize: 16,
+//                 fontWeight: FontWeight.bold,
+//                 fontFamily: 'Quicksand',
+//               ),
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+// class ServiceOrderTab extends StatefulWidget {
+//   final bool isOnDemand;
+//   final List<Location> locations;
+//   final List<Customer> customers;
+//   final Function(TimeOfDay?, TimeOfDay?)? onTimeChanged;
+//   final Function(Location)? onProvinceSelected;
+//   final Function(String)? onDistrictSelected;
+//   final Function(DateTime?, String?)? onDateChanged;
+
+//   const ServiceOrderTab({
+//     super.key,
+//     required this.isOnDemand,
+//     required this.locations,
+//     required this.customers,
+//     this.onTimeChanged,
+//     this.onProvinceSelected,
+//     this.onDistrictSelected,
+//     this.onDateChanged,
+//   });
+
+//   @override
+//   State<ServiceOrderTab> createState() => _ServiceOrderTabState();
+// }
+
+// class _ServiceOrderTabState extends State<ServiceOrderTab> {
+//   Location? selectedProvince;
+//   String? selectedDistrict;
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return SingleChildScrollView(
+//       child: Padding(
+//         padding: const EdgeInsets.all(20),
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             const Text(
+//               "Thời gian",
+//               style: TextStyle(
+//                 fontFamily: 'Quicksand',
+//                 fontWeight: FontWeight.w600,
+//                 fontSize: 18,
+//               ),
+//             ),
+//             const SizedBox(height: 24),
+//             Card(
+//               elevation: 2,
+//               shape: RoundedRectangleBorder(
+//                 borderRadius: BorderRadius.circular(16),
+//               ),
+//               child: Padding(
+//                 padding: const EdgeInsets.all(16),
+//                 child: TimeSelection(
+//                   onTimeChanged: widget.onTimeChanged,
+//                   onDateChanged: widget.onDateChanged,
+//                   isOnDemand: widget.isOnDemand,
+//                 ),
+//               ),
+//             ),
+//             const SizedBox(height: 24),
+//             const Text(
+//               "Địa điểm",
+//               style: TextStyle(
+//                 fontFamily: 'Quicksand',
+//                 fontWeight: FontWeight.w600,
+//                 fontSize: 18,
+//               ),
+//             ),
+//             const SizedBox(height: 12),
+//             Card(
+//               elevation: 2,
+//               shape: RoundedRectangleBorder(
+//                 borderRadius: BorderRadius.circular(16),
+//               ),
+//               child: Padding(
+//                 padding: const EdgeInsets.all(16),
+//                 child: Column(
+//                   children: [
+//                     SelectLocation(
+//                       locations: widget.locations,
+//                       onProvinceSelected: (Location province) {
+//                         setState(() {
+//                           selectedProvince = province;
+//                         });
+//                         widget.onProvinceSelected?.call(province);
+//                       },
+//                       onDistrictSelected: (String district) {
+//                         setState(() {
+//                           selectedDistrict = district;
+//                         });
+//                         widget.onDistrictSelected?.call(district);
+//                       },
+//                     ),
+//                     const SizedBox(height: 16),
+//                     const AddressType(),
+//                   ],
+//                 ),
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }

@@ -45,7 +45,7 @@ class _TimeStartState extends State<TimeStart> {
         );
       } else {
         _selectedTime =
-        null; // Giữ _selectedTime là null nếu không có điều kiện nào được thỏa mãn
+            null; // Giữ _selectedTime là null nếu không có điều kiện nào được thỏa mãn
       }
     }
 
@@ -129,23 +129,24 @@ class _TimeStartState extends State<TimeStart> {
               'Thời gian hiện tại đã qua 15:00. Vui lòng chọn ngày khác');
           return;
         } else if (selectedDateTime.isBefore(now)) {
-          showPopUpWarning(context,
-              'Thời gian không được chọn trước thời gian hiện tại');
+          showPopUpWarning(
+              context, 'Thời gian không được chọn trước thời gian hiện tại');
           return;
         } else if (selectedDateTime.isBefore(startTime) ||
             selectedDateTime.isAfter(endTime)) {
-          showPopUpWarning(context,'Thời gian phải từ 6:00 đến 15:00 hôm nay');
+          showPopUpWarning(context, 'Thời gian phải từ 6:00 đến 15:00 hôm nay');
           return;
         }
       } else {
         // Ràng buộc thời gian từ 06:00 đến 18:00 cho ngày khác
         final DateTime startTime = referenceDate.copyWith(hour: 6, minute: 0);
         final DateTime endTime =
-        referenceDate.copyWith(hour: 18, minute: 0); // 18:00 cho ngày khác
+            referenceDate.copyWith(hour: 18, minute: 0); // 18:00 cho ngày khác
 
         if (selectedDateTime.isBefore(startTime) ||
             selectedDateTime.isAfter(endTime)) {
-          showPopUpWarning(context,'Thời gian phải từ 6:00 đến 18:00 cho ngày khác');
+          showPopUpWarning(
+              context, 'Thời gian phải từ 6:00 đến 18:00 cho ngày khác');
           return;
         }
       }
@@ -172,20 +173,14 @@ class _TimeStartState extends State<TimeStart> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Icon cảnh báo
-                Icon(
-                  Icons.warning_amber_rounded,
-                  color: Colors.orange,
-                  size: 60,
-                ),
-                const SizedBox(height: 16),
                 // Tiêu đề
                 Text(
-                  "Cảnh Báo",
+                  "Lưu ý",
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: Colors.orange,
+                    color: Colors.green,
+                    fontFamily: 'Quicksand',
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -196,18 +191,19 @@ class _TimeStartState extends State<TimeStart> {
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.black87,
+                    fontFamily: 'Quicksand',
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
                 // Nút OK
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
+                    backgroundColor: Colors.green,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
+                      horizontal: 32,
                       vertical: 12,
                     ),
                   ),
@@ -229,7 +225,6 @@ class _TimeStartState extends State<TimeStart> {
       },
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
