@@ -39,10 +39,14 @@ class _ServicesOrderState extends State<ServicesOrder>
   bool isLoading = true;
   String orderType = 'Ngắn hạn';
   DateTime? selectedDate;
-  DateTime? startDate =
-      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
-  DateTime? endDate =
-      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)
+  DateTime? startDate = DateTime.now().hour > 8
+      ? DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)
+          .add(const Duration(days: 1))
+      : DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+  DateTime? endDate = DateTime.now().hour > 8
+      ? DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)
+          .add(const Duration(days: 2))
+      : DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)
           .add(const Duration(days: 1));
   TimeOfDay? _startTime;
   TimeOfDay? _endTime;
@@ -205,7 +209,12 @@ class _ServicesOrderState extends State<ServicesOrder>
         child: MyButton(
           text: "Tiếp theo",
           onTap: () {
-            selectedDate ??= DateTime.now();
+            var now = DateTime.now();
+            if (now.hour > 8) {
+              selectedDate ??= now.add(Duration(days: 1));
+            } else {
+              selectedDate ??= DateTime.now();
+            }
             DateTime? selectedEndDate = endDate ?? selectedDate;
             if (_startTime != null && _endTime != null) {
               // Create a Request object

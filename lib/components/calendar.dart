@@ -5,11 +5,8 @@ class CalendarDropdown extends StatefulWidget {
   final Function(DateTime) onDateSelected;
   final DateTime? initialDate;
 
-  const CalendarDropdown({
-    super.key,
-    required this.onDateSelected,
-    this.initialDate,
-  });
+  const CalendarDropdown(
+      {super.key, required this.onDateSelected, this.initialDate});
 
   @override
   _CalendarDropdownState createState() => _CalendarDropdownState();
@@ -19,7 +16,21 @@ class _CalendarDropdownState extends State<CalendarDropdown> {
   DateTime? _selectedDate;
 
   DateTime _getDefaultDate() {
-    return widget.initialDate ?? DateTime.now();
+    final now = DateTime.now();
+    // if (now.hour >= 20 || (now.hour < 6 && now.minute == 0)) {
+    //   return now.add(const Duration(days: 1)); // Next day
+    // } else {
+    //   return now; // Today
+    // }
+    if(widget.initialDate == null && _selectedDate == null && now.hour > 8){
+      return now.add(const Duration(days: 1));
+    } else if(widget.initialDate != null && _selectedDate == null && now.hour > 8){
+      return now.add(const Duration(days: 2));
+    } else {
+      return widget.initialDate != null
+          ? now.add(const Duration(days: 1))
+          : now;
+    }
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -28,45 +39,9 @@ class _CalendarDropdownState extends State<CalendarDropdown> {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: initialDate,
-      firstDate: DateTime.now(), // ⬅️ Không cho phép chọn ngày trước hôm nay
+      firstDate: _getDefaultDate(),
       lastDate: DateTime(2100),
-      helpText: "Chọn ngày", // Tiêu đề hộp thoại
-      cancelText: "Hủy", // Nút Hủy
-      confirmText: "Xác nhận", // Nút Xác nhận
-      fieldHintText: "dd/MM/yyyy", // Gợi ý nhập ngày
-      fieldLabelText: "Nhập ngày", // Nhãn ô nhập ngày
-      builder: (context, child) {
-        return Theme(
-          data: ThemeData.light().copyWith(
-            primaryColor: Colors.green, // Màu tiêu đề
-            colorScheme: ColorScheme.light(
-              primary: Colors.green, // Màu chính của lịch
-              onPrimary: Colors.white, // Màu chữ trên tiêu đề
-              surface: Colors.white, // Màu nền hộp thoại
-              onSurface: Colors.black, // Màu chữ chính
-            ),
-            textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.green, // Màu của nút Hủy & OK
-              ),
-            ),
-            textTheme: const TextTheme(
-              titleLarge: TextStyle(
-                fontFamily: 'Quicksand',
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-              bodyLarge: TextStyle(
-                fontFamily: 'Quicksand',
-                fontSize: 16,
-              ),
-            ),
-          ),
-          child: child!,
-        );
-      },
     );
-
     if (pickedDate != null && pickedDate != _selectedDate) {
       setState(() {
         _selectedDate = pickedDate;
@@ -91,15 +66,19 @@ class _CalendarDropdownState extends State<CalendarDropdown> {
             Text(
               _selectedDate != null
                   ? DateFormat('dd/MM/yyyy').format(_selectedDate!)
-                  : "Chọn ngày",
+                  : DateFormat('dd/MM/yyyy').format(_getDefaultDate()),
               style: const TextStyle(
                 fontSize: 15,
-                color: Colors.black87,
+                color: Colors.grey,
+                fontStyle: FontStyle.italic,
                 fontFamily: 'Quicksand',
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const Icon(Icons.calendar_month_rounded, color: Colors.green),
+            const Icon(
+              Icons.calendar_month_rounded,
+              color: Colors.green,
+            ),
           ],
         ),
       ),
