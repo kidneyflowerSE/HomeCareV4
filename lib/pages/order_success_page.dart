@@ -69,22 +69,6 @@ class _OrderSuccessState extends State<OrderSuccess> {
                       MaterialPageRoute(
                         builder: (context) => HomePage(
                           customer: widget.customer,
-                          featuredStaff: [
-                            {
-                              'name': 'Phạm Nguyễn Quốc Huy',
-                              'avatar': 'lib/images/staff/anhhuy.jpg',
-                              'position': 'Thợ sửa ổng nước',
-                              'rating': "4.8",
-                              'completedJobs': "120",
-                            },
-                            {
-                              'name': 'Trần Phi Hùng',
-                              'avatar': 'lib/images/staff/anhhung.jpg',
-                              'position': 'Thợ điện chuyên nghiệp',
-                              'rating': "4.5",
-                              'completedJobs': "98",
-                            },
-                          ],
                           costFactor: widget.costFactors,
                           services: widget.services,
                         ),

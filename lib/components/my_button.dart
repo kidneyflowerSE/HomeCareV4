@@ -24,7 +24,7 @@ class _MyButtonState extends State<MyButton> {
     });
 
     // Simulate a delay for 3 seconds (like waiting for data)
-    await Future.delayed(const Duration(seconds: 3));
+    await Future.delayed(const Duration(seconds: 1));
 
     setState(() {
       _isLoading = false;

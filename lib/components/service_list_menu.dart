@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:foodapp/data/model/CostFactor.dart';
+import 'package:foodapp/pages/all_service_page.dart';
 import 'package:foodapp/pages/services_order.dart';
 import '../data/model/service.dart';
 
@@ -8,111 +9,148 @@ class ServiceListMenu extends StatefulWidget {
   final List<Services> services;
   final List<CostFactor> costFactors;
 
-  const ServiceListMenu(
-      {Key? key,
-      required this.customer,
-      required this.services,
-      required this.costFactors})
-      : super(key: key);
+  const ServiceListMenu({
+    Key? key,
+    required this.customer,
+    required this.services,
+    required this.costFactors,
+  }) : super(key: key);
 
   @override
   State<ServiceListMenu> createState() => _ServiceListMenuState();
 }
 
 class _ServiceListMenuState extends State<ServiceListMenu> {
-  final List<Map<String, String>> servicesInfo = [
-    {'iconPath': 'lib/images/services/bridge.png', 'label': 'Dọn nhà'},
-    {'iconPath': 'lib/images/services/choi.png', 'label': 'Chăm sóc bé'},
-    {
-      'iconPath': 'lib/images/services/clean.png',
-      'label': 'Chăm sóc người già'
-    },
-    {'iconPath': 'lib/images/services/nobiet.png', 'label': 'Chăm sóc sản phụ'},
-    {'iconPath': 'lib/images/services/rubbish.png', 'label': 'Nuôi bệnh'},
-    {'iconPath': 'lib/images/services/wash.png', 'label': 'Đưa đón bé đi học'},
-    {'iconPath': 'lib/images/services/xabong.png', 'label': 'Nấu ăn'},
-    {'iconPath': 'lib/images/services/xit.png', 'label': 'Vệ sinh phòng'},
+  final servicesInfo = <Map<String, dynamic>>[
+    {'icon': Icons.cleaning_services, 'label': 'Dọn nhà'},
+    {'icon': Icons.child_care, 'label': 'Chăm sóc bé'},
+    {'icon': Icons.elderly, 'label': 'Chăm sóc người già'},
+    {'icon': Icons.pregnant_woman, 'label': 'Chăm sóc sản phụ'},
+    {'icon': Icons.medical_services, 'label': 'Nuôi bệnh'},
+    {'icon': Icons.school, 'label': 'Đưa đón bé'},
+    {'icon': Icons.restaurant, 'label': 'Nấu ăn'},
+    {'icon': Icons.cleaning_services_outlined, 'label': 'Vệ sinh phòng'},
   ];
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: GridView.builder(
-        physics: const BouncingScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 4,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 24,
-          childAspectRatio: 0.75,
-        ),
-        itemCount: servicesInfo.length,
-        itemBuilder: (context, index) {
-          return _buildServiceItem(index, context);
-        },
-      ),
-    );
-  }
-
-  Widget _buildServiceItem(int index, BuildContext context) {
-    return InkWell(
-      onTap: () => _navigateToService(index, context),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildServiceIcon(index),
-          const SizedBox(height: 8),
-          _buildServiceLabel(index),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildServiceIcon(int index) {
-    return Container(
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        shape: BoxShape.rectangle,
-        borderRadius: BorderRadius.circular(16),
         color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.green.withOpacity(0.15),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
-      child: Stack(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          // Tiêu đề + Xem tất cả
+
+          Text(
+            'Danh sách dịch vụ',
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+              fontFamily: 'Quicksand',
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          Wrap(
+            spacing: 16, // Khoảng cách ngang giữa các item
+            runSpacing: 20, // Khoảng cách dọc giữa các dòng
+            alignment: WrapAlignment.start, // Canh lề theo chiều ngang
+            children: List.generate(
+              servicesInfo.length,
+              (index) => _buildServiceItem(index),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: Colors.green.shade50,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: TextButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AllServicesPage(
+                        customer: widget.customer,
+                        services: widget.services,
+                        costFactors: widget.costFactors),
+                  ),
+                );
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Xem tất cả',
+                    style: TextStyle(
+                      color: Colors.green,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: 'Quicksand',
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Icon(
+                    Icons.arrow_forward_ios,
+                    color: Colors.green,
+                    size: 16,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildServiceItem(int index) {
+    return InkWell(
+      onTap: () => _navigateToService(index),
+      borderRadius: BorderRadius.circular(12),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              shape: BoxShape.rectangle,
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Colors.green,
-                  Colors.green.withOpacity(0.5),
-                ],
-              ),
+              color: Colors.green.shade50,
+              borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
-              Icons.home_work_outlined,
-              color: Colors.white,
-              size: 32,
+              servicesInfo[index]['icon'] as IconData,
+              color: Colors.green.shade700,
+              size: 32, // Tăng icon size
             ),
           ),
-          Positioned.fill(
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                customBorder: const CircleBorder(),
-                onTap: () => _navigateToService(index, context),
-                splashColor: Colors.green.withOpacity(0.1),
-                highlightColor: Colors.green.withOpacity(0.05),
+          const SizedBox(height: 8),
+          SizedBox(
+            width: 70, // Đảm bảo text không bị cắt quá nhỏ
+            child: Text(
+              servicesInfo[index]['label'],
+              style: const TextStyle(
+                fontFamily: 'Quicksand',
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
               ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -120,24 +158,7 @@ class _ServiceListMenuState extends State<ServiceListMenu> {
     );
   }
 
-  Widget _buildServiceLabel(int index) {
-    return Expanded(
-      child: Text(
-        servicesInfo[index]['label']!,
-        style: const TextStyle(
-          fontSize: 12,
-          fontFamily: 'Quicksand',
-          fontWeight: FontWeight.w400,
-          height: 1.2,
-        ),
-        textAlign: TextAlign.center,
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-      ),
-    );
-  }
-
-  void _navigateToService(int index, BuildContext context) {
+  void _navigateToService(int index) {
     Navigator.push(
       context,
       PageRouteBuilder(
@@ -148,19 +169,18 @@ class _ServiceListMenuState extends State<ServiceListMenu> {
           services: widget.services,
         ),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(1.0, 0.0);
-          const end = Offset.zero;
-          const curve = Curves.easeInOut;
-
-          var tween =
-              Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-          var offsetAnimation = animation.drive(tween);
-
           return SlideTransition(
-            position: offsetAnimation,
-            child: child,
+            position: Tween<Offset>(
+              begin: const Offset(0, 0.1),
+              end: Offset.zero,
+            ).animate(animation),
+            child: FadeTransition(
+              opacity: animation,
+              child: child,
+            ),
           );
         },
+        transitionDuration: const Duration(milliseconds: 300),
       ),
     );
   }

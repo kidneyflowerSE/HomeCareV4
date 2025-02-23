@@ -53,6 +53,7 @@ dependencies:
   horizontal_date_picker_flutter: ^0.0.1
   convex_bottom_bar: ^3.2.0
   salomon_bottom_bar: ^3.3.2
+  lottie: ^3.3.1
 
 
 flutter_launcher_icons:
@@ -110,6 +111,7 @@ flutter:
     - lib/images/payment/vnpay.jpg
     - lib/images/vnpay.png
     - lib/images/momo.png
+    - lib/images/loading.json
 
 
 

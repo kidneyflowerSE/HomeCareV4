@@ -24,7 +24,7 @@ class HomePage extends StatefulWidget {
   final dynamic customer;
   final List<Services> services;
   final List<Requests>? requests;
-  final List<Map<String, String>> featuredStaff;
+
   final List<CostFactor> costFactor;
 
   const HomePage({
@@ -32,7 +32,6 @@ class HomePage extends StatefulWidget {
     this.customer,
     required this.services,
     this.requests,
-    required this.featuredStaff,
     required this.costFactor,
   });
 
@@ -51,7 +50,6 @@ class _HomePageState extends State<HomePage> {
       HomeContent(
         customer: widget.customer,
         services: widget.services,
-        featuredStaff: widget.featuredStaff,
         costFactors: widget.costFactor,
       ),
       ActivityPage(
@@ -121,13 +119,11 @@ class HomeContent extends StatefulWidget {
   final Customer customer;
   final List<Services> services;
   final List<CostFactor> costFactors;
-  final List<Map<String, String>> featuredStaff;
 
   const HomeContent({
     super.key,
     required this.customer,
     required this.services,
-    required this.featuredStaff,
     required this.costFactors,
   });
 
@@ -137,10 +133,11 @@ class HomeContent extends StatefulWidget {
 
 class _HomeContentState extends State<HomeContent> {
   bool _isLoading = true;
-  dynamic index = 0;
+  int _currentBannerPage = 0;
   final PageController _bannerController = PageController();
   Timer? _bannerTimer;
-  int _currentBannerPage = 0;
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      GlobalKey<RefreshIndicatorState>();
 
   @override
   void initState() {
@@ -156,392 +153,543 @@ class _HomeContentState extends State<HomeContent> {
     super.dispose();
   }
 
+  void _startBannerTimer() {
+    _bannerTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
+      if (_bannerController.hasClients) {
+        _currentBannerPage = (_currentBannerPage + 1) % bannerImages.length;
+        _bannerController.animateToPage(
+          _currentBannerPage,
+          duration: const Duration(milliseconds: 800),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
+  }
+
   List<String> bannerImages = [
     'lib/images/banner_1.png',
     'lib/images/banner_2.png',
     'lib/images/banner_3.png',
   ];
 
-  void _startBannerTimer() {
-    _bannerTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
-      if (_currentBannerPage < bannerImages.length - 1) {
-        _currentBannerPage++;
-      } else {
-        _currentBannerPage = 0;
-      }
-
-      if (_bannerController.hasClients) {
-        _bannerController.animateToPage(
-          _currentBannerPage,
-          duration: const Duration(seconds: 1),
-          curve: Curves.easeIn,
-        );
-      }
+  Future<void> _handleRefresh() async {
+    // Simulate data refresh
+    await Future.delayed(const Duration(seconds: 2));
+    setState(() {
+      // Update any necessary data here
     });
-  }
-
-  String getGreetingMessage() {
-    final hour = DateTime.now().hour;
-    if (hour < 12) {
-      return 'Chào buổi sáng,';
-    } else if (hour < 18) {
-      return 'Chào buổi chiều,';
-    } else {
-      return 'Chào buổi tối,';
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Colors.green.shade500, Colors.green.shade700],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomRight,
-            ),
-          ),
-        ),
-        toolbarHeight: 60,
-        title: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              getGreetingMessage(),
-              style: const TextStyle(
-                fontFamily: 'Quicksand',
-                fontSize: 20,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              widget.customer.name,
-              style: const TextStyle(
-                fontFamily: 'Quicksand',
-                fontSize: 20,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-          ],
-        ),
-        centerTitle: true,
-        automaticallyImplyLeading: false,
-      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+          : RefreshIndicator(
+              key: _refreshIndicatorKey,
+              onRefresh: _handleRefresh,
+              color: Colors.green,
+              backgroundColor: Colors.white,
+              child: CustomScrollView(
+                physics: const BouncingScrollPhysics(),
+                slivers: [
+                  // Custom Header
+                  SliverToBoxAdapter(
+                    child: _buildHeader(),
+                  ),
+
+                  // Main Content
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    sliver: SliverList(
+                      delegate: SliverChildListDelegate([
+                        const SizedBox(height: 16),
+                        _buildQuickActions(),
+                        const SizedBox(height: 20),
+                        _buildBannerSection(),
+                        // const SizedBox(height: 24),
+                        // _buildServicesSection(),
+                        const SizedBox(height: 24),
+                        // _buildServiceList(),
+                        _buildServicesSection(),
+                        const SizedBox(height: 24),
+                        _buildRewardSection(context),
+                        const SizedBox(height: 24),
+                        _buildPromotionSection(context),
+                      ]),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+    );
+  }
+
+  Widget _buildServiceList() {
+    final actions = [
+      {'icon': Icons.cleaning_services_rounded, 'label': 'Dọn dẹp'},
+      {'icon': Icons.local_laundry_service_rounded, 'label': 'Giặt ủi'},
+      {'icon': Icons.build_rounded, 'label': 'Sửa chữa'},
+      {'icon': Icons.restaurant_rounded, 'label': 'Nấu ăn'},
+      {'icon': Icons.restaurant_rounded, 'label': 'Nấu ăn'},
+      {'icon': Icons.restaurant_rounded, 'label': 'Nấu ăn'},
+      {'icon': Icons.restaurant_rounded, 'label': 'Nấu ăn'},
+      {'icon': Icons.restaurant_rounded, 'label': 'Nấu ăn'},
+    ];
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Row(
+            children: [
+              Text(
+                'Dịch vụ nổi bật',
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    fontFamily: 'Quicksand'),
+              ),
+              const Spacer(),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AllServicesPage(
+                        services: widget.services,
+                        costFactors: widget.costFactors,
+                        customer: widget.customer,
+                      ),
+                    ),
+                  );
+                },
+                child: const Text(
+                  'Xem tất cả',
+                  style: TextStyle(
+                    color: Colors.green,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'Quicksand',
+                  ),
+                ),
+              ),
+            ],
+          ),
+          // const SizedBox(height: 12),
+          Wrap(
+            spacing: 30,
+            runSpacing: 20,
+            alignment: WrapAlignment.start,
+            children: actions.map((action) {
+              return InkWell(
+                onTap: () {
+                  // Handle action tap
+                },
+                child: Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.green.shade50,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        action['icon'] as IconData,
+                        color: Colors.green.shade700,
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      action['label'] as String,
+                      style: const TextStyle(
+                        fontFamily: 'Quicksand',
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    final hour = DateTime.now().hour;
+    String greeting = hour < 12
+        ? 'Chào buổi sáng'
+        : hour < 18
+            ? 'Chào buổi chiều'
+            : 'Chào buổi tối';
+
+    return Container(
+      padding: EdgeInsets.only(
+        top: MediaQuery.of(context).padding.top,
+        bottom: 20,
+        left: 16,
+        right: 16,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.green,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // Top Row with Greeting and Actions
+          Row(
+            children: [
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // const SizedBox(height: 20),
-                    // _buildLocationSection(),
-                    const SizedBox(height: 16),
-                    _buildWalletCard(),
-                    const SizedBox(height: 16),
-                    _buildBannerSection(),
-                    // FeaturedStaffList(staff: widget.featuredStaff),
-                    // const SizedBox(height: 16),
-                    _buildServicesSection(),
-                    const SizedBox(height: 16),
-                    _buildRewardSection(context),
-                    const SizedBox(height: 16),
-                    _buildPromotionSection(context),
+                    Text(
+                      greeting,
+                      style: TextStyle(
+                        fontFamily: 'Quicksand',
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white.withOpacity(0.8),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      widget.customer.name,
+                      style: const TextStyle(
+                        fontFamily: 'Quicksand',
+                        fontSize: 20,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ],
                 ),
               ),
-            ),
-    );
-  }
-
-  Widget _buildRewardSection(BuildContext context) {
-    final List<Map<String, String>> rewards = [
-      {
-        'image': 'lib/images/logo.png',
-        'title': 'Voucher giảm 50K',
-        'points': '1,000 điểm',
-      },
-      {
-        'image': 'lib/images/logo.png',
-        'title': 'Tặng 1 ly trà sữa',
-        'points': '800 điểm',
-      },
-      {
-        'image': 'lib/images/logo.png',
-        'title': 'Mã giảm giá 20%',
-        'points': '1,500 điểm',
-      },
-    ];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'hCRewards',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-                fontFamily: 'Quicksand',
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                // Xử lý khi nhấn vào xem tất cả
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AllRewardsPage(),
-                  ),
-                );
-              },
-              child: Text(
-                'Xem tất cả',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.green.shade700,
-                  fontFamily: 'Quicksand',
-                ),
-              ),
-            ),
-          ],
-        ),
-        CarouselSlider(
-          options: CarouselOptions(
-            height: 180,
-            autoPlay: true,
-            enlargeCenterPage: false,
-            aspectRatio: 16 / 9,
-            viewportFraction: 0.8,
-            padEnds: false,
-          ),
-          items: rewards.map((reward) {
-            return Builder(
-              builder: (BuildContext context) {
-                return InkWell(
-                  onTap: () {
-                    // Xử lý khi nhấn vào đổi thưởng
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.only(right: 8),
-                    decoration: BoxDecoration(
+              Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(
+                      Icons.search_rounded,
+                      size: 26,
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: Colors.grey.shade200,
-                        width: 1,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 6,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ClipRRect(
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(12),
-                            topRight: Radius.circular(12),
-                          ),
-                          child: Image.asset(
-                            reward['image']!,
-                            width: double.infinity,
-                            height: 100,
-                            fit: BoxFit.contain,
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8),
-                          child: Text(
-                            reward['title']!,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                              fontFamily: 'Quicksand',
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          child: Text(
-                            reward['points']!,
-                            style: const TextStyle(
-                              fontFamily: 'Quicksand',
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.red,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                    onPressed: () {},
                   ),
-                );
-              },
-            );
-          }).toList(),
-        ),
-      ],
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.lightGreen.shade100,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.grey.shade300),
+                    ),
+                    child: PopupMenuButton<String>(
+                      onSelected: (String value) {
+                        // Gọi hàm đổi ngôn ngữ ở đây
+                        print('Đổi sang ngôn ngữ: $value');
+                      },
+                      itemBuilder: (BuildContext context) => [
+                        const PopupMenuItem<String>(
+                          value: 'vi',
+                          child: Text('🇻🇳 Tiếng Việt'),
+                        ),
+                        const PopupMenuItem<String>(
+                          value: 'en',
+                          child: Text('🇬🇧 English'),
+                        ),
+                      ],
+                      child: Row(
+                        children: [
+                          Text(
+                            '🇻🇳',
+                            style: const TextStyle(fontSize: 18),
+                          ),
+                          const SizedBox(width: 5),
+                          const Icon(Icons.arrow_drop_down, size: 22),
+                        ],
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ],
+          ),
+
+          // Wallet Card
+          const SizedBox(height: 20),
+          _buildWalletCard(),
+        ],
+      ),
     );
   }
 
-  Widget _buildPromotionSection(BuildContext context) {
-    final List<Map<String, String>> promotions = [
-      {
-        'image': 'lib/images/logo.png',
-        'title': '800K discount with VPBank Credit',
-        'brand': 'VNPay',
-        'cta': 'Open now',
-      },
-      {
-        'image': 'lib/images/logo.png',
-        'title': 'Discount upto 50K',
-        'brand': 'hCarePay Later',
-        'cta': 'Explore now',
-      },
-      {
-        'image': 'lib/images/logo.png',
-        'title': 'Discount up to 75K',
-        'brand': 'hCareClean',
-        'cta': 'Explore now',
-      },
-      {
-        'image': 'lib/images/logo.png',
-        'title': 'Sun Life give beVoucher 300K',
-        'brand': 'Sun Life',
-        'cta': 'Book now',
-      },
-      {
-        'image': 'lib/images/logo.png',
-        'title': 'Flight tickets discount up to 100K',
-        'brand': 'Service',
-        'cta': 'Book now',
-      },
-      {
-        'image': 'lib/images/logo.png',
-        'title': 'Long-distance trip discount 50K',
-        'brand': 'hCare',
-        'cta': 'Book now',
-      },
+  Widget _buildWalletCard() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            const Color(0xFF1E9D2D),
+            const Color(0xFF0F5418),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.green.withOpacity(0.3),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+            spreadRadius: -2,
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // Top Section
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Balance Section
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          Icons.account_balance_wallet_rounded,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'Số dư ví',
+                        style: TextStyle(
+                          fontFamily: 'Quicksand',
+                          color: Colors.white70,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      const Text(
+                        '50.000.000đ',
+                        style: TextStyle(
+                          fontFamily: 'Quicksand',
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(
+                          Icons.remove_red_eye_outlined,
+                          color: Colors.white,
+                          size: 18,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+
+              // Points Section
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.2),
+                    width: 1,
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.stars_rounded,
+                          color: Colors.amber,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 4),
+                        const Text(
+                          'hcPoints',
+                          style: TextStyle(
+                            fontFamily: 'Quicksand',
+                            color: Colors.white70,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      '5.000',
+                      style: TextStyle(
+                        fontFamily: 'Quicksand',
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+          // Bottom Section
+          const SizedBox(height: 16),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.2),
+                width: 1,
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'Xem chi tiết',
+                  style: TextStyle(
+                    fontFamily: 'Quicksand',
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Icon(
+                  Icons.arrow_forward_rounded,
+                  color: Colors.white.withOpacity(0.8),
+                  size: 16,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuickActions() {
+    final actions = [
+      {'icon': Icons.cleaning_services_rounded, 'label': 'Dọn dẹp'},
+      {'icon': Icons.local_laundry_service_rounded, 'label': 'Giặt ủi'},
+      {'icon': Icons.build_rounded, 'label': 'Sửa chữa'},
+      {'icon': Icons.restaurant_rounded, 'label': 'Nấu ăn'},
     ];
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 0, vertical: 8),
-          child: Text(
-            'Khám phá ưu đãi mới',
-            style: TextStyle(
-              fontFamily: 'Quicksand',
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
           ),
-        ),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 0),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2, // Hiển thị 2 thẻ trên mỗi hàng
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-            childAspectRatio: 0.8,
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            'Dịch vụ nhanh',
+            style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                fontFamily: 'Quicksand'),
           ),
-          itemCount: promotions.length,
-          itemBuilder: (context, index) {
-            final promo = promotions[index];
-            return _buildPromotionCard(promo);
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPromotionCard(Map<String, String> promo) {
-    return InkWell(
-      onTap: () {
-        // Xử lý khi nhấn vào thẻ khuyến mãi
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(12),
-                topRight: Radius.circular(12),
-              ),
-              child: Image.asset(
-                promo['image']!,
-                width: double.infinity,
-                height: 100,
-                fit: BoxFit.contain,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8),
-              child: Text(
-                promo['title']!,
-                style: const TextStyle(
-                  fontFamily: 'Quicksand',
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: actions.map((action) {
+              return InkWell(
+                onTap: () {
+                  // Handle action tap
+                },
+                child: Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.green.shade50,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        action['icon'] as IconData,
+                        color: Colors.green.shade700,
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      action['label'] as String,
+                      style: const TextStyle(
+                        fontFamily: 'Quicksand',
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Text(
-                promo['brand']!,
-                style: const TextStyle(
-                  fontFamily: 'Quicksand',
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.blue,
-                ),
-              ),
-            ),
-          ],
-        ),
+              );
+            }).toList(),
+          ),
+        ],
       ),
     );
   }
@@ -563,177 +711,37 @@ class _HomeContentState extends State<HomeContent> {
             },
             itemCount: bannerImages.length,
             itemBuilder: (context, index) {
-              return ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Stack(
-                  children: [
-                    Image.asset(
-                      bannerImages[index],
-                      width: double.infinity,
-                      height: 160,
-                      fit: BoxFit.cover,
-                    ),
-                    // Gradient overlay để làm rõ dot indicators
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.transparent,
-                            Colors.black.withOpacity(0.3),
-                          ],
-                          stops: const [0.7, 1.0],
-                        ),
-                      ),
-                    ),
-                  ],
+              return Container(
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Image.asset(
+                    bannerImages[index],
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               );
             },
           ),
         ),
-        // Dot indicators - Đặt bên ngoài ảnh
-        const SizedBox(height: 8), // Khoảng cách giữa ảnh và dots
+        const SizedBox(height: 12),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(
             bannerImages.length,
-            (index) => Container(
+            (index) => AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
               margin: const EdgeInsets.symmetric(horizontal: 4),
-              width: 6,
-              height: 6,
+              height: 8,
+              width: _currentBannerPage == index ? 24 : 8,
               decoration: BoxDecoration(
-                shape: BoxShape.circle,
                 color: _currentBannerPage == index
-                    ? const Color.fromARGB(255, 92, 205, 27)
-                    : const Color.fromARGB(255, 3, 106, 34).withOpacity(0.5),
+                    ? Colors.green
+                    : Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(4),
               ),
             ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildLocationSection() {
-    return GestureDetector(
-      onTap: () async {
-        final selectedIndex = await Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ChooseLocationPage(customer: widget.customer),
-          ),
-        );
-        if (selectedIndex != null) {
-          setState(() => index = selectedIndex);
-        }
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-        decoration: BoxDecoration(
-          color: Colors.green.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.location_on_rounded, color: Colors.green),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                widget.customer.addresses[index].toString(),
-                style: const TextStyle(
-                  fontFamily: 'Quicksand',
-                  color: Colors.green,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            const Icon(Icons.keyboard_arrow_right_rounded, color: Colors.green),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildWalletCard() {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        gradient: LinearGradient(
-          colors: [Colors.green.shade500, Colors.green.shade700],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.green.withOpacity(0.3),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            alignment: Alignment.center,
-            child: const Text(
-              'HomeCare - Cho cuộc sống tiện lợi hơn!',
-              style: TextStyle(
-                fontFamily: 'Quicksand',
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: _buildWalletItem(
-                    icon: Icons.account_balance_wallet_rounded,
-                    value: '500.000 đ',
-                  ),
-                ),
-                Container(
-                  width: 1,
-                  height: 40,
-                  color: Colors.white.withOpacity(0.3),
-                ),
-                Expanded(
-                  child: _buildWalletItem(
-                    icon: Icons.stars_rounded,
-                    value: '5.000 hcPoints',
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildWalletItem({required IconData icon, required String value}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(icon, color: Colors.white),
-        const SizedBox(width: 8),
-        Text(
-          value,
-          style: const TextStyle(
-            fontFamily: 'Quicksand',
-            color: Colors.white,
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
           ),
         ),
       ],
@@ -741,6 +749,13 @@ class _HomeContentState extends State<HomeContent> {
   }
 
   Widget _buildServicesSection() {
+    return ServiceListMenu(
+        customer: widget.customer,
+        services: widget.services,
+        costFactors: widget.costFactors);
+  }
+
+  Widget _buildRewardSection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -748,48 +763,251 @@ class _HomeContentState extends State<HomeContent> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Text(
-              "Dịch vụ",
+              'hCRewards',
               style: TextStyle(
                 fontFamily: 'Quicksand',
-                fontWeight: FontWeight.bold,
                 fontSize: 18,
+                fontWeight: FontWeight.bold,
               ),
             ),
             TextButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AllServicesPage(
-                      services: widget.services,
-                      costFactors: widget.costFactors,
-                      customer: widget.customer,
-                    ),
-                  ),
-                );
+                // Navigate to rewards page
               },
               child: Text(
-                "Xem tất cả",
+                'Xem tất cả',
                 style: TextStyle(
+                  color: Colors.green.shade700,
                   fontFamily: 'Quicksand',
                   fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                  color: Colors.green.shade700,
                 ),
               ),
             ),
           ],
         ),
         const SizedBox(height: 16),
-        SizedBox(
-          height: 300,
-          child: ServiceListMenu(
-            customer: widget.customer,
-            services: widget.services,
-            costFactors: widget.costFactors,
+        CarouselSlider(
+          options: CarouselOptions(
+            height: 220,
+            viewportFraction: 0.85,
+            enableInfiniteScroll: true,
+            autoPlay: true,
+            autoPlayInterval: const Duration(seconds: 5),
+            autoPlayAnimationDuration: const Duration(milliseconds: 800),
+            autoPlayCurve: Curves.fastOutSlowIn,
+            enlargeCenterPage: true,
           ),
+          items: _buildRewardCards(),
         ),
       ],
+    );
+  }
+
+  List<Widget> _buildRewardCards() {
+    final rewards = [
+      {
+        'title': 'Giảm 50K ahshdadashdbahsbshsdajsadhahsdashs',
+        'points': '1,000'
+      },
+      {
+        'title': 'Voucher 100K oaskmwanssdadasjskasdnanswaejaesd',
+        'points': '2,000'
+      },
+      {
+        'title': 'Freeship asjdjawasdanasda aweada awandssaswiandsns',
+        'points': '500'
+      },
+    ];
+
+    return rewards.map((reward) {
+      return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 5),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: IntrinsicHeight(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(16)),
+                child: Image.asset(
+                  'lib/images/banner_1.png',
+                  height: 120,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          reward['title']!,
+                          style: const TextStyle(
+                            fontFamily: 'Quicksand',
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      FittedBox(
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.stars_rounded,
+                              size: 16,
+                              color: Colors.green,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${reward['points']} điểm',
+                              style: const TextStyle(
+                                fontFamily: 'Quicksand',
+                                fontSize: 14,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }).toList();
+  }
+
+  Widget _buildPromotionSection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Khuyến mãi',
+              style: TextStyle(
+                fontFamily: 'Quicksand',
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                // Navigate to promotions page
+              },
+              child: Text(
+                'Xem tất cả',
+                style: TextStyle(
+                  color: Colors.green.shade700,
+                  fontFamily: 'Quicksand',
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Wrap(
+          spacing: 12, // Khoảng cách ngang giữa các item
+          runSpacing: 12, // Khoảng cách dọc giữa các item
+          children: List.generate(4, (index) {
+            return SizedBox(
+              width: (MediaQuery.of(context).size.width - 48) / 2, // Chia 2 cột
+              child: _buildPromotionCard(
+                title: 'Giảm ${(index + 1) * 10}K',
+                subtitle: 'Áp dụng cho dịch vụ mới ahdajshdajshdhwahaskda',
+                imageAsset: 'lib/images/banner_2.png',
+              ),
+            );
+          }),
+        )
+      ],
+    );
+  }
+
+  Widget _buildPromotionCard({
+    required String title,
+    required String subtitle,
+    required String imageAsset,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClipRRect(
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(16),
+            ),
+            child: Image.asset(
+              imageAsset,
+              height: 120,
+              width: double.infinity,
+              fit: BoxFit.cover,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontFamily: 'Quicksand',
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    fontFamily: 'Quicksand',
+                    fontSize: 14,
+                    color: Colors.grey,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

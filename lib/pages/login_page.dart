@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:foodapp/components/my_button.dart';
 import 'package:foodapp/components/my_textfield.dart';
 import 'package:foodapp/data/model/CostFactor.dart';
@@ -7,7 +8,7 @@ import 'package:foodapp/data/model/request.dart';
 import 'package:foodapp/data/model/service.dart';
 import 'package:foodapp/pages/home_page.dart';
 import 'package:foodapp/pages/register_page.dart';
-
+import 'package:lottie/lottie.dart';
 import '../data/repository/repository.dart';
 
 class LoginPage extends StatefulWidget {
@@ -22,9 +23,17 @@ class LoginPage extends StatefulWidget {
   State<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState extends State<LoginPage>
+    with SingleTickerProviderStateMixin {
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final FocusNode phoneFocusNode = FocusNode();
+  final FocusNode passwordFocusNode = FocusNode();
+
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
   List<Requests> requestsCustomer = [];
   List<Customer> customers = [];
   List<Requests> requests = [];
@@ -33,102 +42,167 @@ class _LoginPageState extends State<LoginPage> {
 
   String? phoneError;
   String? passwordError;
+  bool isLoading = false;
+  bool isLoginSuccess = false;
 
   @override
   void initState() {
     super.initState();
     loadData();
+    setupAnimations();
+    setupFocusListeners();
   }
 
+  void setupAnimations() {
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeIn,
+    ));
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.5),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOutQuart,
+    ));
+
+    _animationController.forward();
+  }
+
+  void setupFocusListeners() {
+    phoneFocusNode.addListener(() {
+      setState(() {});
+    });
+    passwordFocusNode.addListener(() {
+      setState(() {});
+    });
+  }
+
+  bool isLoadingData = true;
   Future<void> loadData() async {
-    var repository = DefaultRepository();
+    setState(() => isLoadingData = true);
+    try {
+      var repository = DefaultRepository();
+      final customerData = await repository.loadCustomer();
+      final requestData = await repository.loadRequest();
+      final servicesData = await repository.loadServices();
+      final costFactorData = await repository.loadCostFactor();
 
-    final customerData = await repository.loadCustomer();
-    final requestData = await repository.loadRequest();
-    final servicesData = await repository.loadServices();
-    final costFactorData = await repository.loadCostFactor();
-
-    setState(() {
-      customers = customerData ?? [];
-      requests = requestData ?? [];
-      services = servicesData ?? [];
-      costFactor = costFactorData ?? [];
-    });
+      setState(() {
+        customers = customerData ?? [];
+        requests = requestData ?? [];
+        services = servicesData ?? [];
+        costFactor = costFactorData ?? [];
+      });
+    } finally {
+      setState(() => isLoadingData = false);
+    }
   }
 
-  void login() {
+  String? validatePhone(String value) {
+    if (value.isEmpty) {
+      return "Số điện thoại không được để trống";
+    }
+    if (!RegExp(r'^\d{10}$').hasMatch(value)) {
+      return "Số điện thoại không hợp lệ. Vui lòng nhập 10 số";
+    }
+    return null;
+  }
+
+  String? validatePassword(String value) {
+    if (value.isEmpty) {
+      return "Mật khẩu không được để trống";
+    }
+    return null;
+  }
+
+  Future<void> login() async {
+    final phone = phoneController.text.trim();
+    final password = passwordController.text.trim();
+
     setState(() {
-      phoneError = null;
-      passwordError = null;
+      phoneError = validatePhone(phone);
+      passwordError = validatePassword(password);
     });
 
-    String phone = phoneController.text.trim();
-    String password = passwordController.text.trim();
+    if (phoneError != null || passwordError != null) return;
 
-    if (phone.isEmpty) {
-      setState(() => phoneError = "Số điện thoại không được để trống.");
-      return;
-    }
+    setState(() => isLoading = true);
 
-    if (!RegExp(r'^\d{10}$').hasMatch(phone)) {
-      setState(() =>
-          phoneError = "Số điện thoại không hợp lệ. Vui lòng nhập 10 số.");
-      return;
-    }
+    try {
+      await Future.delayed(
+          const Duration(seconds: 2)); // Simulate network delay
 
-    if (password.isEmpty) {
-      setState(() => passwordError = "Mật khẩu không được để trống.");
-      return;
-    }
+      bool isValid = false;
+      int customerIndex = 0;
 
-    bool isValid = false;
-    int customerIndex = 0;
+      for (int i = 0; i < customers.length; i++) {
+        if (customers[i].phone == phone && customers[i].password == password) {
+          isValid = true;
+          customerIndex = i;
+          break;
+        }
+      }
 
-    for (int i = 0; i < customers.length; i++) {
-      if (customers[i].phone == phone &&
-          customers[i].password == password) {
-        isValid = true;
-        customerIndex = i;
-        break;
+      if (isValid) {
+        setState(() {
+          isLoginSuccess = true;
+        });
+        requestsCustomer = requests
+            .where((request) =>
+                request.customerInfo.fullName == customers[customerIndex].name)
+            .toList();
+
+        // Future.delayed(const Duration(seconds: 1), () {
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) => HomePage(
+                customer: customers[customerIndex],
+                requests: requestsCustomer,
+                services: services,
+                costFactor: costFactor,
+              ),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: child,
+                );
+              },
+              transitionDuration: const Duration(milliseconds: 500),
+            ),
+          );
+        }
+      } else {
+        setState(
+            () => passwordError = "Số điện thoại hoặc mật khẩu không đúng");
+      }
+    } finally {
+      if (mounted) {
+        setState(() => isLoading = false);
       }
     }
+  }
 
-    if (isValid) {
-      requestsCustomer = requests
-          .where((request) =>
-              request.customerInfo.fullName ==
-              customers[customerIndex].name)
-          .toList();
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => HomePage(
-            customer: customers[customerIndex],
-            requests: requestsCustomer,
-            services: services,
-            costFactor: costFactor,
-            featuredStaff: [
-              {
-                'name': 'Phạm Nguyễn Quốc Huy',
-                'avatar': 'lib/images/staff/anhhuy.jpg',
-                'position': 'Thợ sửa ổng nước',
-                'rating': "4.8",
-                'completedJobs': "120",
-              },
-              {
-                'name': 'Trần Phi Hùng',
-                'avatar': 'lib/images/staff/anhhung.jpg',
-                'position': 'Thợ điện chuyên nghiệp',
-                'rating': "4.5",
-                'completedJobs': "98",
-              },
-            ],
-          ),
-        ),
-      );
-    } else {
-      setState(() => passwordError = "Số điện thoại hoặc mật khẩu không đúng.");
-    }
+  @override
+  void dispose() {
+    phoneController.dispose();
+    passwordController.dispose();
+    phoneFocusNode.dispose();
+    passwordFocusNode.dispose();
+    _animationController.dispose();
+    super.dispose();
   }
 
   @override
@@ -136,136 +210,190 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 50.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // Logo
-              Image.asset(
-                'lib/images/logo.png',
-                width: 180,
-                height: 180,
-              ),
+      body: Stack(
+        children: [
+          SafeArea(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 24.0, vertical: 30.0),
+                child: FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: SlideTransition(
+                    position: _slideAnimation,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // Logo with hero animation
+                        Hero(
+                          tag: 'app_logo',
+                          child: Image.asset(
+                            'lib/images/logo.png',
+                            width: 180,
+                            height: 180,
+                          ),
+                        ),
 
-              const SizedBox(height: 30),
+                        const SizedBox(height: 20),
 
-              const Text(
-                "Chào mừng trở lại!",
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                  fontFamily: 'Quicksand',
-                ),
-              ),
+                        // Welcome text
+                        TweenAnimationBuilder<double>(
+                          duration: const Duration(milliseconds: 800),
+                          tween: Tween(begin: 0, end: 1),
+                          builder: (context, value, child) {
+                            return Opacity(
+                              opacity: value,
+                              child: child,
+                            );
+                          },
+                          child: Column(
+                            children: const [
+                              Text(
+                                "Chào mừng trở lại!",
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                  fontFamily: 'Quicksand',
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                "Hãy đăng nhập để tiếp tục",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey,
+                                  fontFamily: 'Quicksand',
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
 
-              const SizedBox(height: 8),
-              const Text(
-                "Hãy đăng nhập để tiếp tục",
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey,
-                  fontFamily: 'Quicksand',
-                ),
-              ),
+                        const SizedBox(height: 30),
 
-              const SizedBox(height: 30),
+                        // Phone input
+                        MyTextField(
+                          controller: phoneController,
+                          hintText: "Số điện thoại",
+                          obscureText: false,
+                          keyboardType: TextInputType.number,
+                          errorText: phoneError,
+                          focusNode: phoneFocusNode,
+                          onChanged: (value) {
+                            if (phoneError != null) {
+                              setState(() {
+                                phoneError = validatePhone(value);
+                              });
+                            }
+                          },
+                        ),
 
-              MyTextField(
-                controller: phoneController,
-                hintText: "Số điện thoại",
-                obscureText: false,
-                keyboardType: TextInputType.number,
-              ),
-              if (phoneError != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Text(
-                    phoneError!,
-                    style: const TextStyle(color: Colors.red, fontSize: 14),
-                  ),
-                ),
+                        const SizedBox(height: 15),
 
-              const SizedBox(height: 15),
+                        // Password input
+                        MyTextField(
+                          controller: passwordController,
+                          hintText: "Mật khẩu",
+                          obscureText: true,
+                          keyboardType: TextInputType.text,
+                          errorText: passwordError,
+                          focusNode: passwordFocusNode,
+                          onChanged: (value) {
+                            if (passwordError != null) {
+                              setState(() {
+                                passwordError = validatePassword(value);
+                              });
+                            }
+                          },
+                        ),
 
-              MyTextField(
-                controller: passwordController,
-                hintText: "Mật khẩu",
-                obscureText: true,
-                keyboardType: TextInputType.text,
-              ),
-              if (passwordError != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Text(
-                    passwordError!,
-                    style: const TextStyle(color: Colors.red, fontSize: 14),
-                  ),
-                ),
+                        const SizedBox(height: 25),
 
-              const SizedBox(height: 25),
+                        // Login button
+                        MyButton(
+                          text: isLoading ? "Đang đăng nhập..." : "Đăng nhập",
+                          onTap: isLoading ? null : login,
+                        ),
 
-              MyButton(
-                text: "Đăng nhập",
-                onTap: login,
-              ),
+                        const SizedBox(height: 20),
 
-              const SizedBox(height: 20),
+                        // Divider
+                        Row(
+                          children: const [
+                            Expanded(
+                                child:
+                                    Divider(thickness: 1, color: Colors.grey)),
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 8.0),
+                              child: Text(
+                                "Hoặc",
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontFamily: 'Quicksand',
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                                child:
+                                    Divider(thickness: 1, color: Colors.grey)),
+                          ],
+                        ),
 
-              Row(
-                children: const [
-                  Expanded(child: Divider(thickness: 1, color: Colors.grey)),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Text(
-                      "Hoặc",
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontFamily: 'Quicksand',
-                      ),
+                        const SizedBox(height: 20),
+
+                        // Register link
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              "Chưa có tài khoản?",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontFamily: 'Quicksand',
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const RegisterPage(),
+                                ),
+                              ),
+                              child: const Text(
+                                " Đăng ký",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.green,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'Quicksand',
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                  Expanded(child: Divider(thickness: 1, color: Colors.grey)),
-                ],
+                ),
               ),
-
-              const SizedBox(height: 20),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    "Chưa có tài khoản?",
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black,
-                      fontFamily: 'Quicksand',
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const RegisterPage(),
-                      ),
-                    ),
-                    child: const Text(
-                      " Đăng ký",
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.green,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Quicksand',
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+            ),
           ),
-        ),
+          // if (isLoading)
+          //   Container(
+          //     color: Colors.black.withOpacity(0.5),
+          //     child: Center(
+          //       child: Lottie.asset(
+          //         'lib/images/loading.json',
+          //         width: 200,
+          //         height: 200,
+          //         repeat: true,
+          //       ),
+          //     ),
+          //   ),
+        ],
       ),
     );
   }

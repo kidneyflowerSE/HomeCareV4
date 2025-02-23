@@ -29,6 +29,26 @@ class AllServicesPage extends StatelessWidget {
           'label': 'Chăm sóc người bệnh',
           'isNew': false,
         },
+        {
+          'iconPath': 'lib/images/services/rubbish.png',
+          'label': 'Chăm sóc người bệnh',
+          'isNew': false,
+        },
+        {
+          'iconPath': 'lib/images/services/rubbish.png',
+          'label': 'Chăm sóc người bệnh',
+          'isNew': false,
+        },
+        {
+          'iconPath': 'lib/images/services/rubbish.png',
+          'label': 'Chăm sóc người bệnh',
+          'isNew': false,
+        },
+        {
+          'iconPath': 'lib/images/services/rubbish.png',
+          'label': 'Chăm sóc người bệnh',
+          'isNew': false,
+        },
       ]
     },
     {
@@ -114,7 +134,8 @@ class AllServicesPage extends StatelessWidget {
         ),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back_ios_new_outlined,
+              color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -132,11 +153,8 @@ class AllServicesPage extends StatelessWidget {
   Widget _buildCategorySection(
       BuildContext context, Map<String, dynamic> category) {
     return Container(
-      margin: const EdgeInsets.only(
-        top: 16,
-        left: 16,
-        right: 16,
-      ),
+      margin: const EdgeInsets.only(top: 16, left: 16, right: 16),
+      padding: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -151,18 +169,18 @@ class AllServicesPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          // Tiêu đề danh mục
           Container(
-            padding: const EdgeInsets.all(8),
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(
-                  color: Colors.grey.shade300,
-                  width: 1,
-                ),
-              ),
+              color: Colors.green.shade50,
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(12)),
             ),
             child: Text(
               category['title'],
+              textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -171,94 +189,95 @@ class AllServicesPage extends StatelessWidget {
               ),
             ),
           ),
-          GridView.builder(
+          // Lưới dịch vụ
+          GridView.count(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 4,
-              crossAxisSpacing: 8,
-              mainAxisSpacing: 8,
-              childAspectRatio: 0.9,
-            ),
-            itemCount: category['services'].length,
-            itemBuilder: (context, index) {
-              final service = category['services'][index];
-              return Column(
-                children: [
-                  _buildServiceIcon(service['iconPath']),
-                  _buildServiceLabel(service['label']),
-                ],
-              );
-            },
+            crossAxisCount: 4,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 0.75,
+            children: category['services'].map<Widget>((service) {
+              return _buildServiceItem(context, service);
+            }).toList(),
           ),
-          // const SizedBox(height: 16),
         ],
       ),
     );
   }
 
-  Widget _buildServiceIcon(String iconPath) {
-    return Container(
-      decoration: BoxDecoration(
-        shape: BoxShape.rectangle,
-        borderRadius: BorderRadius.circular(16),
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.green.withOpacity(0.15),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Stack(
+  Widget _buildServiceItem(BuildContext context, Map<String, dynamic> service) {
+    return InkWell(
+      onTap: () => _navigateToService(context),
+      borderRadius: BorderRadius.circular(16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              shape: BoxShape.rectangle,
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Colors.green,
-                  Colors.green.withOpacity(0.5),
-                ],
-              ),
-            ),
-            child: Icon(
-              Icons.home_work_outlined,
-              color: Colors.white,
-              size: 32,
-            ),
-          ),
-          Positioned.fill(
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                customBorder: const CircleBorder(),
-                // onTap: () => _navigateToService(index, context),
-                splashColor: Colors.green.withOpacity(0.1),
-                highlightColor: Colors.green.withOpacity(0.05),
-              ),
-            ),
-          ),
+          _buildServiceIcon(service['iconPath'], service['isNew']),
+          const SizedBox(height: 6),
+          _buildServiceLabel(service['label']),
         ],
       ),
+    );
+  }
+
+  Widget _buildServiceIcon(String iconPath, bool isNew) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.green.withOpacity(0.15),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Image.asset(
+            iconPath,
+            height: 40,
+            width: 40,
+            fit: BoxFit.contain,
+          ),
+        ),
+        if (isNew)
+          Positioned(
+            top: -4,
+            right: -4,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.red,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Text(
+                'NEW',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 
   Widget _buildServiceLabel(String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 0),
+    return Flexible(
       child: Text(
         label,
         style: const TextStyle(
           fontSize: 12,
           fontFamily: 'Quicksand',
-          fontWeight: FontWeight.w400,
+          fontWeight: FontWeight.w500,
           height: 1.2,
         ),
         textAlign: TextAlign.center,
@@ -268,100 +287,16 @@ class AllServicesPage extends StatelessWidget {
     );
   }
 
-  // Widget _buildServiceItem(BuildContext context, Map<String, dynamic> service) {
-  //   return InkWell(
-  //     onTap: () => _navigateToService(context),
-  //     child: Container(
-  //       decoration: BoxDecoration(
-  //         color: Colors.green.shade50,
-  //         borderRadius: BorderRadius.circular(12),
-  //       ),
-  //       child: Stack(
-  //         children: [
-  //           Column(
-  //             mainAxisAlignment: MainAxisAlignment.center,
-  //             children: [
-  //               Container(
-  //                 padding: const EdgeInsets.all(4),
-  //                 // child: Image.asset(
-  //                 //   service['iconPath'],
-  //                 //   height: 48,
-  //                 //   width: 48,
-  //                 //   fit: BoxFit.contain,
-  //                 // ),
-  //                 child: Icon(
-  //                   Icons.cleaning_services,
-  //                   size: 32,
-  //                   color: Colors.green,
-  //                 ),
-  //               ),
-  //               Container(
-  //                 // padding: const EdgeInsets.symmetric(horizontal: 8),
-  //                 child: Text(
-  //                   service['label'],
-  //                   style: const TextStyle(
-  //                     fontSize: 12,
-  //                     fontFamily: 'Quicksand',
-  //                     fontWeight: FontWeight.w400,
-  //                     height: 1.2,
-  //                   ),
-  //                   textAlign: TextAlign.center,
-  //                   maxLines: 2,
-  //                   overflow: TextOverflow.ellipsis,
-  //                 ),
-  //               ),
-  //             ],
-  //           ),
-  //           if (service['isNew'] == true)
-  //             Positioned(
-  //               top: 0,
-  //               right: 0,
-  //               child: Container(
-  //                 padding:
-  //                     const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-  //                 decoration: BoxDecoration(
-  //                   color: Colors.red,
-  //                   borderRadius: BorderRadius.circular(12),
-  //                 ),
-  //                 child: const Text(
-  //                   'NEW',
-  //                   style: TextStyle(
-  //                     color: Colors.white,
-  //                     fontSize: 8,
-  //                     fontWeight: FontWeight.w500,
-  //                   ),
-  //                 ),
-  //               ),
-  //             ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
-
   void _navigateToService(BuildContext context) {
     Navigator.push(
       context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => ServicesOrder(
+      MaterialPageRoute(
+        builder: (context) => ServicesOrder(
           customer: customer,
           service: services[0],
           costFactors: costFactors,
           services: services,
         ),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(
-            opacity: animation,
-            child: SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(0, 0.1),
-                end: Offset.zero,
-              ).animate(animation),
-              child: child,
-            ),
-          );
-        },
-        transitionDuration: const Duration(milliseconds: 300),
       ),
     );
   }
