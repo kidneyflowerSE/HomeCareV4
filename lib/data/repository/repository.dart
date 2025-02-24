@@ -19,6 +19,8 @@ abstract interface class Repository {
 
   Future<List<Customer>?> loadCustomer();
 
+  Future<void> updateCustomer(Customer customer);
+
   Future<List<Requests>?> loadRequest();
 
   Future<List<RequestDetail>?> loadRequestDetail();
@@ -50,6 +52,11 @@ class DefaultRepository implements Repository {
   @override
   Future<List<Customer>?> loadCustomer() async {
     return await remoteDataSource.loadCustomerData();
+  }
+
+  @override
+  Future<void> updateCustomer(Customer customer) async {
+    await remoteDataSource.updateCustomerInfo(customer);
   }
 
   @override

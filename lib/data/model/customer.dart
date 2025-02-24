@@ -19,42 +19,31 @@ class Customer {
     return Customer(
       addresses: (map['addresses'] as List<dynamic>?)
           ?.map((e) => Addresses.fromJson(e as Map<String, dynamic>))
-          .toList() ?? [],  // Default to empty list if null
+          .toList() ?? [],
       points: (map['points'] as List<dynamic>?)
           ?.map((e) => Points.fromJson(e as Map<String, dynamic>))
-          .toList() ?? [],  // Default to empty list if null
-      phone: map['phone'] ?? '',  // Default to empty string if null
-      name: map['fullName'] ?? '',  // Default to empty string if null
-      password: map['password'] ?? '',  // Default to empty string if null
-      email: map['email'] ?? '',  // Default to empty string if null
+          .toList() ?? [],
+      phone: map['phone'] ?? '',
+      name: map['fullName'] ?? '',
+      password: map['password'] ?? '',
+      email: map['email'] ?? '',
     );
   }
 
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is Customer &&
-          runtimeType == other.runtimeType &&
-          points == other.points &&
-          phone == other.phone &&
-          name == other.name &&
-          email == other.email &&
-          password == other.password &&
-          addresses == other.addresses;
-
-  @override
-  int get hashCode =>
-      points.hashCode ^
-      phone.hashCode ^
-      name.hashCode ^
-      email.hashCode ^
-      password.hashCode ^
-      addresses.hashCode;
+  Map<String, dynamic> toJson() {
+    return {
+      'addresses': addresses.map((address) => address.toJson()).toList(),
+      'points': points.map((point) => point.toJson()).toList(),
+      'phone': phone,
+      'fullName': name,
+      'password': password,
+      'email': email,
+    };
+  }
 
   @override
   String toString() {
-    return 'Customer{points: $points, phone: $phone, name: $name, email: $email, password: $password, addresses: $addresses}';
+    return 'Customer{name: $name, phone: $phone, email: $email, password: $password, points: $points, addresses: $addresses}';
   }
 }
 
@@ -66,6 +55,13 @@ class Points {
 
   factory Points.fromJson(Map<String, dynamic> map) {
     return Points(point: map['point'], id: map['_id']);
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      '_id': id,
+      'point': point,
+    };
   }
 
   @override
@@ -80,21 +76,30 @@ class Addresses {
   String? id;
   String detailedAddress;
 
-  Addresses(
-      {required this.province,
-      required this.district,
-      this.id,
-      required this.detailedAddress});
+  Addresses({
+    required this.province,
+    required this.district,
+    this.id,
+    required this.detailedAddress,
+  });
 
   factory Addresses.fromJson(Map<String, dynamic> map) {
     return Addresses(
-      province: map['province'] ?? '',  // Default to empty string if null
-      district: map['district'] ?? '',  // Default to empty string if null
-      id: map['_id'] ?? '',  // Default to empty string if null
-      detailedAddress: map['detailAddress'] ?? '',  // Default to empty string if null
+      province: map['province'] ?? '',
+      district: map['district'] ?? '',
+      id: map['_id'] ?? '',
+      detailedAddress: map['detailAddress'] ?? '',
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'province': province,
+      'district': district,
+      '_id': id,
+      'detailAddress': detailedAddress,
+    };
+  }
 
   @override
   String toString() {

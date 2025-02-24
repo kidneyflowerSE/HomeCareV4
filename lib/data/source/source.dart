@@ -106,6 +106,27 @@ class RemoteDataSource implements DataSource {
     }
   }
 
+  Future<void> updateCustomerInfo(Customer customer) async {
+    final url = 'https://api.homekare.site/customer/${customer.phone}';
+    final uri = Uri.parse(url);
+    final headers = {'Content-Type': 'application/json'};
+    final body = jsonEncode(customer.toJson());
+
+    try {
+      final response = await http.patch(uri, headers: headers, body: body);
+
+      if (response.statusCode == 200) {
+        print('Customer updated successfully!');
+      } else {
+        print('Failed to update customer. Status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+      }
+    } catch (e) {
+      print('Error updating customer: $e');
+    }
+  }
+
+
   @override
   Future<List<Services>?> loadServicesData() async {
     const url = 'https://api.homekare.site/service';

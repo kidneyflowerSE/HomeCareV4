@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:foodapp/data/model/customer.dart';
 import 'package:foodapp/data/model/location.dart';
+import 'package:foodapp/data/repository/repository.dart';
 import 'package:foodapp/pages/edit_location_page.dart';
 
 // Assume we have access to the Address class
@@ -25,11 +26,12 @@ class EditInformationPage extends StatefulWidget {
 }
 
 class _EditInformationPageState extends State<EditInformationPage> {
+  bool isEditingLocation = false;
   late TextEditingController nameController;
   late TextEditingController phoneController;
-  late Location? selectedProvince;
-  late String? selectedDistrict;
-  late String? detailedAddress;
+  Location? selectedProvince;
+  String? selectedDistrict;
+  String? detailedAddress;
   int selectedAddressIndex = 0;
 
   @override
@@ -48,26 +50,31 @@ class _EditInformationPageState extends State<EditInformationPage> {
   }
 
   void updateLocation() {
-    // This method needs to create an Address object instead of a string
-    if (selectedProvince != null &&
-        selectedDistrict != null &&
-        detailedAddress != null) {
-      final fullAddress =
-          "$detailedAddress, $selectedDistrict, ${selectedProvince!.name}";
-
-      setState(() {
-        // Create a new Address object
-        final newAddress = createAddressFromString(fullAddress);
-
-        if (selectedAddressIndex < widget.customer.addresses.length) {
-          // Replace existing address
-          widget.customer.addresses[selectedAddressIndex] = newAddress;
-        } else {
-          // Add new address
-          widget.customer.addresses.add(newAddress);
-        }
-      });
+    if (selectedProvince == null ||
+        selectedDistrict == null ||
+        detailedAddress == null) {
+      print("Error: Chưa chọn đầy đủ thông tin địa chỉ.");
+      return;
     }
+
+    final fullAddress =
+        "$detailedAddress, $selectedDistrict, ${selectedProvince!.name}";
+
+    setState(() {
+      final newAddress = Addresses(
+        province: selectedProvince!.name,
+        district: selectedDistrict!,
+        detailedAddress: detailedAddress!,
+      );
+
+      if (selectedAddressIndex < widget.customer.addresses.length) {
+        widget.customer.addresses[selectedAddressIndex] = newAddress;
+      } else {
+        widget.customer.addresses.add(newAddress);
+      }
+    });
+
+    print("Địa chỉ cập nhật thành công: $fullAddress");
   }
 
   // Helper method to create an Address object from a string
@@ -290,82 +297,128 @@ class _EditInformationPageState extends State<EditInformationPage> {
   }
 
   Widget _buildAddressCard() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 5,
-            offset: const Offset(0, 2),
+    return Column(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                spreadRadius: 1,
+                blurRadius: 5,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Column(
-        children: [
-          // Current address display
-          ListTile(
+          child: ListTile(
             leading:
                 const Icon(Icons.location_on_outlined, color: Colors.green),
             title: Text(
-              widget.customer.addresses.isNotEmpty
-                  ? widget.customer.addresses[selectedAddressIndex].toString()
-                  : "Chưa có địa chỉ",
-              style: const TextStyle(
-                fontFamily: 'Quicksand',
-                fontSize: 14,
-              ),
+              selectedProvince != null &&
+                      selectedDistrict != null &&
+                      detailedAddress != null
+                  ? "$detailedAddress, $selectedDistrict, ${selectedProvince!.name}"
+                  : (widget.customer.addresses.isNotEmpty
+                      ? widget.customer.addresses[selectedAddressIndex]
+                          .toString()
+                      : "Chưa có địa chỉ"),
+              style: const TextStyle(fontSize: 14),
             ),
-            trailing: const Icon(Icons.arrow_forward_ios,
-                size: 16, color: Colors.grey),
-            onTap: () {
-              _navigateToEditLocation();
-            },
+            trailing: IconButton(
+              icon: Icon(
+                isEditingLocation ? Icons.expand_less : Icons.edit,
+                color: Colors.green,
+              ),
+              onPressed: () {
+                if (mounted) {
+                  setState(() {
+                    isEditingLocation = !isEditingLocation;
+                  });
+                }
+              },
+            ),
           ),
-
-          // Address selector if multiple addresses
-          if (widget.customer.addresses.length > 1)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Row(
-                children: [
-                  const Text(
-                    "Chọn địa chỉ: ",
-                    style: TextStyle(
-                      fontFamily: 'Quicksand',
-                      fontSize: 14,
-                    ),
+        ),
+        if (widget.customer.addresses.length > 1)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                const Text(
+                  "Chọn địa chỉ: ",
+                  style: TextStyle(
+                    fontFamily: 'Quicksand',
+                    fontSize: 14,
                   ),
-                  Expanded(
-                    child: DropdownButton<int>(
-                      isExpanded: true,
-                      value: selectedAddressIndex,
-                      onChanged: (int? newValue) {
-                        if (newValue != null) {
-                          setState(() {
-                            selectedAddressIndex = newValue;
-                          });
-                        }
-                      },
-                      items: List.generate(
-                        widget.customer.addresses.length,
-                        (index) => DropdownMenuItem<int>(
-                          value: index,
-                          child: Text(
-                            "Địa chỉ ${index + 1}",
-                            style: const TextStyle(fontFamily: 'Quicksand'),
-                          ),
+                ),
+                Expanded(
+                  child: DropdownButton<int>(
+                    isExpanded: true,
+                    value: selectedAddressIndex,
+                    onChanged: (int? newValue) {
+                      if (newValue != null && mounted) {
+                        setState(() {
+                          selectedAddressIndex = newValue;
+                        });
+                      }
+                    },
+                    items: List.generate(
+                      widget.customer.addresses.length,
+                      (index) => DropdownMenuItem<int>(
+                        value: index,
+                        child: Text(
+                          "Địa chỉ ${index + 1}",
+                          style: const TextStyle(fontFamily: 'Quicksand'),
                         ),
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-        ],
-      ),
+          ),
+        if (isEditingLocation)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: EditLocationPage(
+              customer: widget.customer,
+              onProvinceSelected: (province) {
+                if (mounted) {
+                  setState(() {
+                    selectedProvince = province;
+                    print(province);
+                  });
+                }
+              },
+              onDistrictSelected: (district) {
+                if (mounted) {
+                  setState(() {
+                    selectedDistrict = district;
+                    print(district);
+                  });
+                }
+              },
+              onDetailedAddressChanged: (address) {
+                if (mounted) {
+                  setState(() {
+                    detailedAddress = address;
+                    print(detailedAddress);
+                  });
+                }
+              },
+              onAddressUpdated: () {
+                updateLocation();
+                if (mounted) {
+                  setState(() {
+                    isEditingLocation = false;
+                  });
+                }
+              },
+            ),
+          ),
+      ],
     );
   }
 
@@ -433,6 +486,28 @@ class _EditInformationPageState extends State<EditInformationPage> {
                 // Update customer information
                 widget.customer.name = nameController.text;
                 widget.customer.phone = phoneController.text;
+                List<Addresses> newList = [
+                  Addresses(
+                    province: selectedProvince!.name,
+                    district: selectedDistrict!,
+                    detailedAddress: detailedAddress!,
+                  )
+                ];
+                newList.addAll(widget.customer.addresses); 
+
+                print(widget.customer.addresses);
+
+                // var repository = DefaultRepository();
+                // var data = Customer(
+                //   phone: widget.customer.phone,
+                //   name: widget.customer.name,
+                //   email: widget.customer.email,
+                //   password: widget.customer.password,
+                //   points: widget.customer.points,
+                //   addresses: widget.customer.addresses,
+                // );
+                //
+                // repository.updateCustomer(data);
 
                 // Return updated customer
                 Navigator.pop(context); // Close dialog
