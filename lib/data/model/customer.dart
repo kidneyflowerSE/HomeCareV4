@@ -73,12 +73,14 @@ class Points {
 class Addresses {
   String province;
   String district;
+  String ward;
   String? id;
   String detailedAddress;
 
   Addresses({
     required this.province,
     required this.district,
+    required this.ward,
     this.id,
     required this.detailedAddress,
   });
@@ -88,7 +90,7 @@ class Addresses {
       province: map['province'] ?? '',
       district: map['district'] ?? '',
       id: map['_id'] ?? '',
-      detailedAddress: map['detailAddress'] ?? '',
+      detailedAddress: map['detailAddress'] ?? '', ward: map['ward'] ?? '',
     );
   }
 
@@ -96,6 +98,7 @@ class Addresses {
     return {
       'province': province,
       'district': district,
+      'ward': ward,
       '_id': id,
       'detailAddress': detailedAddress,
     };
@@ -103,6 +106,6 @@ class Addresses {
 
   @override
   String toString() {
-    return '$detailedAddress, $district, $province';
+    return '$detailedAddress, $ward, $district, $province';
   }
 }

@@ -27,7 +27,7 @@ void main() {
 //   // }
 //   // var customers = await repository.loadMessage(Message(phone: '0795335321'));
 //
-//   var customers = await repository.loadCustomer();
+//   var customers = await repository.loadRequest();
 //   if(customers != null){
 //     for(var customer in customers){
 //       debugPrint(customer.toString());

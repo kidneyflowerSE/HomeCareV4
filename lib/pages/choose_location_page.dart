@@ -31,7 +31,7 @@ class _ChooseLocationPageState extends State<ChooseLocationPage> {
       widget.customer.addresses.add(Addresses(
           province: selectedProvince!.name,
           district: selectedDistrict!,
-          detailedAddress: detailedAddressChanged!));
+          detailedAddress: detailedAddressChanged!, ward: ''));
     });
   }
 
@@ -40,7 +40,7 @@ class _ChooseLocationPageState extends State<ChooseLocationPage> {
       widget.customer.addresses[index] = Addresses(
         province: selectedProvince!.name,
         district: selectedDistrict!,
-        detailedAddress: detailedAddressChanged!,
+        detailedAddress: detailedAddressChanged!, ward: '',
       );
     });
   }

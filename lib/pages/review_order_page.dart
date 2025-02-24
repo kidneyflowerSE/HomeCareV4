@@ -55,7 +55,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
   }
 
   void showCostDetailsPopup(
-      BuildContext context, Map<String, dynamic> costData) {
+      BuildContext context, Map<String, dynamic> costData, String date) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -75,7 +75,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                   // Tiêu đề popup
                   Center(
                     child: Text(
-                      "Chi tiết chi phí",
+                      "Chi tiết dịch vụ ngày $date",
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -161,7 +161,8 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
   }
 
   Map<String, dynamic> totalCostCalculation(
-      String date, String start, String end) {
+      String date, String start, String end)
+  {
     List<DateTime> holidays = [
       DateTime(2025, 4, 30), // Ngày Giải phóng miền Nam
       DateTime(2025, 5, 1), // Quốc tế Lao động
@@ -389,7 +390,8 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
   //   );
   // }
   Widget _buildInfoRow(String label, String value,
-      {String? buttonText, VoidCallback? onPressed}) {
+      {String? buttonText, VoidCallback? onPressed})
+  {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Padding(
@@ -736,12 +738,12 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                               var singleDayCost =
                                   singleDayCostData[index]['finalCost'];
                               return _buildInfoRow(
-                                'Chi phí ngày $index',
+                                'Chi phí ngày ${widget.request.startDate?.split(',')[index]}',
                                 // '$singleDayCost đ',
                                 buttonText: 'Xem chi tiết',
                                 onPressed: () {
                                   showCostDetailsPopup(
-                                      context, singleDayCostData[index]);
+                                      context, singleDayCostData[index],widget.request.startDate!.split(',')[index]);
                                 },
                                 _formatCurrency(double.parse('$singleDayCost')),
                               );

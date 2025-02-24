@@ -78,7 +78,7 @@ class _TimeSelectionState extends State<TimeSelection> {
         const SizedBox(height: 5),
         CalendarDropdown(
           onDateSelected: (date) => _updateSelectedDate(date, "start"),
-          initialDate: null,
+          initialDate: null, isStartDate: true,
         ),
         Visibility(
           visible: !widget.isOnDemand,
@@ -97,7 +97,7 @@ class _TimeSelectionState extends State<TimeSelection> {
               const SizedBox(height: 5),
               CalendarDropdown(
                 onDateSelected: (date) => _updateSelectedDate(date, "end"),
-                initialDate: DateTime.now(),
+                initialDate: null, isStartDate: false,
               ),
             ],
           ),

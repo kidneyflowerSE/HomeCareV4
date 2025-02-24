@@ -31,6 +31,7 @@ class _EditInformationPageState extends State<EditInformationPage> {
   late TextEditingController phoneController;
   Location? selectedProvince;
   String? selectedDistrict;
+  String? selectedWard;
   String? detailedAddress;
   int selectedAddressIndex = 0;
 
@@ -64,7 +65,7 @@ class _EditInformationPageState extends State<EditInformationPage> {
       final newAddress = Addresses(
         province: selectedProvince!.name,
         district: selectedDistrict!,
-        detailedAddress: detailedAddress!,
+        detailedAddress: detailedAddress!, ward: selectedWard!,
       );
 
       if (selectedAddressIndex < widget.customer.addresses.length) {
@@ -317,9 +318,9 @@ class _EditInformationPageState extends State<EditInformationPage> {
                 const Icon(Icons.location_on_outlined, color: Colors.green),
             title: Text(
               selectedProvince != null &&
-                      selectedDistrict != null &&
+                      selectedDistrict != null && selectedWard != null &&
                       detailedAddress != null
-                  ? "$detailedAddress, $selectedDistrict, ${selectedProvince!.name}"
+                  ? "$detailedAddress, $selectedWard, $selectedDistrict, ${selectedProvince!.name}"
                   : (widget.customer.addresses.isNotEmpty
                       ? widget.customer.addresses[selectedAddressIndex]
                           .toString()
@@ -397,6 +398,14 @@ class _EditInformationPageState extends State<EditInformationPage> {
                   setState(() {
                     selectedDistrict = district;
                     print(district);
+                  });
+                }
+              },
+              onWardSelected: (ward){
+                if(mounted){
+                  setState(() {
+                    selectedWard = ward;
+                    print(ward);
                   });
                 }
               },
@@ -490,7 +499,7 @@ class _EditInformationPageState extends State<EditInformationPage> {
                   Addresses(
                     province: selectedProvince!.name,
                     district: selectedDistrict!,
-                    detailedAddress: detailedAddress!,
+                    detailedAddress: detailedAddress!, ward: selectedWard!,
                   )
                 ];
                 newList.addAll(widget.customer.addresses); 

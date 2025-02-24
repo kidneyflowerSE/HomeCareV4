@@ -37,7 +37,7 @@ class _TimeStartState extends State<TimeStart> {
           showPopUpWarning(context,
               'Thời gian hiện tại đã qua 15:00. Vui lòng chọn ngày khác');
         });
-      } else if (referenceDate.hour >= 6 && referenceDate.hour < 14) {
+      } else if (referenceDate.hour >= 6 && referenceDate.hour < 15) {
         int additionalHours = referenceDate.minute > 30 ? 4 : 3;
         _selectedTime = TimeOfDay(
           hour: referenceDate.hour + additionalHours,

@@ -40,6 +40,7 @@ class _CustomCalendarState extends State<CustomCalendar> {
   @override
   void initState() {
     super.initState();
+    print(widget.minDate);
     _selectedDates = widget.initialSelectedDates;
 
     if (_selectedDates.isNotEmpty) {

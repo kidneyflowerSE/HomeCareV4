@@ -9,6 +9,7 @@ class EditLocationPage extends StatefulWidget {
   final Customer customer;
   final Function(Location)? onProvinceSelected;
   final Function(String)? onDistrictSelected;
+  final Function(String)? onWardSelected;
   final Function(String)? onDetailedAddressChanged;
   final Function onAddressUpdated;
 
@@ -18,7 +19,7 @@ class EditLocationPage extends StatefulWidget {
     this.onProvinceSelected,
     this.onDistrictSelected,
     this.onDetailedAddressChanged,
-    required this.onAddressUpdated,
+    required this.onAddressUpdated, this.onWardSelected,
   });
 
   @override
@@ -29,6 +30,7 @@ class _EditLocationPageState extends State<EditLocationPage> {
   late List<Location> locations = [];
   Location? selectedProvince;
   String? selectedDistrict;
+  String? selectedWard;
   String? detailedAddress;
   bool isLoading = true;
 
@@ -81,6 +83,12 @@ class _EditLocationPageState extends State<EditLocationPage> {
                     if (widget.onDistrictSelected != null) {
                       widget.onDistrictSelected!(district);
                     }
+                  },
+                  onWardSelected: (String ward){
+                    setState(() {
+                      selectedWard = ward;
+                    });
+                    if(widget.onWardSelected!(ward));
                   },
                 ),
                 const Divider(height: 16, color: Colors.grey),
