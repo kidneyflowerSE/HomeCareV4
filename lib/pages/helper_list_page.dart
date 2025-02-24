@@ -1,16 +1,19 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
-import 'package:foodapp/components/my_employee_detail.dart';
+import 'package:foodapp/pages/helper_detail_page.dart';
+import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
+import 'package:table_calendar/table_calendar.dart';
+import 'package:foodapp/data/model/helper.dart';
+import 'package:foodapp/data/model/customer.dart';
+import 'package:foodapp/data/model/request.dart';
+import 'package:foodapp/data/model/service.dart';
 import 'package:foodapp/data/model/CostFactor.dart';
 import 'package:foodapp/data/model/TimeOff.dart';
-import 'package:foodapp/data/model/customer.dart';
-import 'package:foodapp/data/model/helper.dart';
-import 'package:foodapp/data/model/request.dart';
-import 'package:foodapp/data/repository/repository.dart';
 import 'package:foodapp/pages/review_order_page.dart';
-import 'package:intl/intl.dart';
-import 'package:table_calendar/table_calendar.dart';
-
-import '../data/model/service.dart';
+import 'package:foodapp/components/my_employee_detail.dart';
+import 'package:foodapp/data/repository/repository.dart';
 
 class HelperList extends StatefulWidget {
   final Customer customer;
@@ -26,7 +29,8 @@ class HelperList extends StatefulWidget {
     required this.request,
     required this.listDate,
     required this.isOnDemand,
-    required this.costFactors, required this.services,
+    required this.costFactors,
+    required this.services,
   });
 
   @override
@@ -37,6 +41,8 @@ class _HelperListState extends State<HelperList> {
   late List<Helper> helpers = [];
   late List<TimeOff> timeOffList = [];
   bool _isLoading = true;
+  String _selectedFilter = 'All';
+  final List<String> _filters = ['All', 'Experience', 'Rating', 'Distance'];
 
   @override
   void initState() {
@@ -61,16 +67,38 @@ class _HelperListState extends State<HelperList> {
   Future<void> loadTimeOffData() async {
     var repository = DefaultRepository();
     var data = await repository.loadTimeOff();
-    if (data == null) {
-      timeOffList = [];
-    } else {
-      timeOffList = data;
-    }
+    timeOffList = data ?? [];
   }
 
   @override
   Widget build(BuildContext context) {
-    final helperList = helpers.where((helper) {
+    final filteredHelpers = _filterHelpers();
+
+    return Scaffold(
+      backgroundColor: Colors.grey.shade50,
+      body: CustomScrollView(
+        slivers: [
+          _buildSliverAppBar(),
+          if (_isLoading)
+            const SliverFillRemaining(child: LoadingView())
+          else if (filteredHelpers.isEmpty)
+            const SliverFillRemaining(child: EmptyStateView())
+          else
+            SliverToBoxAdapter(
+              child: Column(
+                children: [
+                  _buildFilterSection(),
+                  _buildHelperGrid(filteredHelpers),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  List<Helper> _filterHelpers() {
+    final availableHelpers = helpers.where((helper) {
       final isHelperInTimeOff =
           timeOffList.any((timeOff) => timeOff.helperId == helper.id);
       if (!isHelperInTimeOff) return true;
@@ -84,254 +112,396 @@ class _HelperListState extends State<HelperList> {
       return !isDateOffWithinRange;
     }).toList();
 
-    return Scaffold(
-      backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.green,
-        title: const Text(
-          'Danh sách người giúp việc',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-            fontFamily: 'Quicksand',
-          ),
-        ),
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios,
-            color: Colors.white,
-          ),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : helperList.isEmpty
-              ? _buildEmptyState()
-              : _buildHelperList(helperList),
-    );
+    switch (_selectedFilter) {
+      case 'Experience':
+        availableHelpers
+            .sort((a, b) => b.yearOfExperience.compareTo(a.yearOfExperience));
+        break;
+      case 'Rating':
+        // Implement rating sort when available
+        break;
+      case 'Distance':
+        // Implement distance sort when available
+        break;
+    }
+
+    return availableHelpers;
   }
 
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.person_off, size: 64, color: Colors.grey[400]),
-          const SizedBox(height: 16),
-          Text(
-            'Không tìm thấy người giúp việc',
+  Widget _buildSliverAppBar() {
+    return SliverAppBar(
+      expandedHeight: 60,
+      floating: true,
+      // pinned: true,
+      backgroundColor: Colors.green,
+      elevation: 0,
+      leading: IconButton(
+        icon: Container(
+          alignment: Alignment.center,
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(Icons.arrow_back_ios_new_outlined,
+              color: Colors.black),
+        ),
+        onPressed: () => Navigator.pop(context),
+      ),
+      flexibleSpace: FlexibleSpaceBar(
+        background: Container(
+          color: Colors.green,
+          padding: const EdgeInsets.fromLTRB(20, 60, 20, 20),
+          child: const Text(
+            'Chọn người giúp việc',
             style: TextStyle(
-              color: Colors.grey[600],
-              fontSize: 16,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
               fontFamily: 'Quicksand',
             ),
+            textAlign: TextAlign.center,
           ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildHelperList(List<Helper> helperList) {
+  Widget _buildFilterSection() {
+    return Container(
+      height: 50,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: _filters.length,
+        separatorBuilder: (context, index) => const SizedBox(width: 12),
+        itemBuilder: (context, index) {
+          final filter = _filters[index];
+          final isSelected = _selectedFilter == filter;
+          return FilterChip(
+            label: Text(filter),
+            selected: isSelected,
+            onSelected: (selected) {
+              setState(() => _selectedFilter = filter);
+            },
+            backgroundColor: isSelected ? Colors.blue : Colors.grey[100],
+            labelStyle: TextStyle(
+              color: isSelected ? Colors.white : Colors.black,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildHelperGrid(List<Helper> helpers) {
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: helperList.length,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.all(20),
+      itemCount: helpers.length,
       itemBuilder: (context, index) {
-        final helper = helperList[index];
         return Padding(
-          padding: const EdgeInsets.only(bottom: 16),
-          child: Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(16),
-              onTap: () {
-                widget.request.helperId = helper.helperId;
-                widget.request.startDate = widget.listDate
-                    .map((date) => DateFormat('yyyy-MM-dd').format(date))
-                    .join(',');
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ReviewOrderPage(
-                      customer: widget.customer,
-                      helper: helper,
-                      request: widget.request,
-                      costFactors: widget.costFactors, services: widget.services,
-                    ),
-                  ),
-                );
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildAvatar(helper.avatar),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  helper.fullName ?? '',
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: 'Quicksand',
-                                  ),
-                                ),
-                              ),
-                              _buildRating(4.5), // Placeholder for rating
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            helper.experienceDescription ?? '',
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 14,
-                              fontFamily: 'Quicksand',
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          _buildTags(helper),
-                          const SizedBox(height: 12),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              TextButton.icon(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => MyEmployeeDetail(
-                                        helper: helper,
-                                      ),
-                                    ),
-                                  );
-                                },
-                                icon: const Icon(Icons.info_outline, size: 20),
-                                label: const Text('Xem chi tiết'),
-                                style: TextButton.styleFrom(
-                                  foregroundColor: Colors.green,
-                                  textStyle: const TextStyle(
-                                    fontFamily: 'Quicksand',
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.bookmark_border),
-                                onPressed: () {
-                                  // Add bookmark functionality
-                                },
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+          padding:
+              const EdgeInsets.only(bottom: 16), // Khoảng cách giữa các item
+          child: HelperCard(
+            helper: helpers[index],
+            onTap: () => _navigateToReviewOrder(helpers[index]),
+            allServices: [],
           ),
         );
       },
     );
   }
 
-  Widget _buildAvatar(String? avatarUrl) {
+  void _navigateToReviewOrder(Helper helper) {
+    widget.request.helperId = helper.helperId;
+    widget.request.startDate = widget.listDate
+        .map((date) => DateFormat('yyyy-MM-dd').format(date))
+        .join(',');
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ReviewOrderPage(
+          customer: widget.customer,
+          helper: helper,
+          request: widget.request,
+          costFactors: widget.costFactors,
+          services: widget.services,
+        ),
+      ),
+    );
+  }
+}
+
+class HelperCard extends StatelessWidget {
+  final Helper helper;
+  final VoidCallback onTap;
+  final List<Service> allServices;
+
+  const HelperCard({
+    Key? key,
+    required this.helper,
+    required this.onTap,
+    required this.allServices,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.1),
+              spreadRadius: 2,
+              blurRadius: 10,
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                _buildAvatar(), // Ảnh đại diện
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildNameAndRating(), // Tên và đánh giá
+                      const SizedBox(height: 4),
+                      _buildExperience(), // Kinh nghiệm
+                      const SizedBox(height: 4),
+                      _buildLocation(), // Khu vực làm việc
+                      // const SizedBox(height: 6),
+                      // _buildJobTags(), // Các công việc có thể làm
+                      // const SizedBox(height: 6),
+                      // _buildActionButton(), // Nút hành động
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                _buildJobTags(),
+              ],
+            ),
+            Row(
+              children: [
+                _buildActionButton(context),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Ảnh đại diện
+  Widget _buildAvatar() {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child: helper.avatar != null && helper.avatar!.isNotEmpty
+          ? Image.network(
+              helper.avatar!,
+              width: 80,
+              height: 80,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return _buildPlaceholderImage();
+              },
+            )
+          : _buildPlaceholderImage(),
+    );
+  }
+
+  Widget _buildPlaceholderImage() {
     return Container(
       width: 80,
       height: 80,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: FadeInImage.assetNetwork(
-          placeholder: 'lib/images/avt.png',
-          image: avatarUrl ?? '',
-          fit: BoxFit.cover,
-          imageErrorBuilder: (context, error, stackTrace) {
-            return Image.asset(
-              'lib/images/avt.png',
-              fit: BoxFit.cover,
-            );
-          },
-          fadeInDuration: const Duration(milliseconds: 300),
-        ),
-      ),
+      color: Colors.grey[200],
+      child: const Icon(Icons.person, size: 40, color: Colors.grey),
     );
   }
 
-  Widget _buildRating(double rating) {
+  /// Tên và đánh giá
+  Widget _buildNameAndRating() {
     return Row(
-      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Icon(Icons.star, color: Colors.amber, size: 18),
-        const SizedBox(width: 4),
-        Text(
-          rating.toString(),
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            fontFamily: 'Quicksand',
+        Expanded(
+          child: Text(
+            helper.fullName ?? 'No Name',
+            style: const TextStyle(
+              fontSize: 16,
+              fontFamily: 'Quicksand',
+              fontWeight: FontWeight.bold,
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
+        ),
+        Row(
+          children: [
+            const Icon(Icons.star, color: Colors.amber, size: 16),
+            const SizedBox(width: 4),
+            Text(
+              '4.8', // Thay thế bằng dữ liệu đánh giá
+              style: const TextStyle(
+                fontSize: 14,
+                fontFamily: 'Quicksand',
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
       ],
     );
   }
 
-  Widget _buildTags(Helper helper) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: [
-        _buildTag('5 năm kinh nghiệm', Icons.work),
-        _buildTag('Đã xác thực', Icons.verified_user),
-        _buildTag('Chuyên nghiệp', Icons.star),
-      ],
+  /// Kinh nghiệm
+  Widget _buildExperience() {
+    return Text(
+      '${helper.yearOfExperience} năm kinh nghiệm',
+      style: TextStyle(
+        fontSize: 14,
+        color: Colors.grey[700],
+        fontFamily: 'Quicksand',
+      ),
     );
   }
 
-  Widget _buildTag(String label, IconData icon) {
+  /// Khu vực làm việc
+  Widget _buildLocation() {
+    return Text(
+      helper.workingArea.province,
+      style: TextStyle(
+        fontSize: 14,
+        fontFamily: 'Quicksand',
+        color: Colors.grey[700],
+      ),
+    );
+  }
+
+  /// Các công việc có thể làm
+  Widget _buildJobTags() {
+    return Expanded(
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal, // Cho phép cuộn ngang
+        child: Row(
+          children: helper.jobs.take(3).map((job) => _buildTag(job)).toList(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTag(String label) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey[300]!),
+        color: Colors.blue.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
       ),
+      child: Text(
+        label,
+        style: const TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+          fontFamily: 'Quicksand',
+        ),
+      ),
+    );
+  }
+
+  /// Nút hành động (Chi tiết)
+  Widget _buildActionButton(BuildContext context) {
+    return Container(
+      alignment: Alignment.center,
       child: Row(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 14, color: Colors.grey[600]),
-          const SizedBox(width: 4),
+          TextButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => HelperDetailPage(helper: helper),
+                ),
+              );
+            },
+            child: const Text(
+              'Chi tiết',
+              style: TextStyle(
+                color: Colors.blue,
+                fontFamily: 'Quicksand',
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: onTap,
+            child: const Text(
+              'Chọn người giúp việc',
+              style: TextStyle(
+                color: Colors.blue,
+                fontFamily: 'Quicksand',
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class LoadingView extends StatelessWidget {
+  const LoadingView({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Lottie.asset(
+        'lib/images/loading.json',
+        width: 200,
+        height: 200,
+        repeat: true,
+      ),
+    );
+  }
+}
+
+class EmptyStateView extends StatelessWidget {
+  const EmptyStateView({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.search_off_rounded, size: 80, color: Colors.grey[300]),
+          const SizedBox(height: 16),
           Text(
-            label,
+            'No Helpers Available',
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey[800],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Try adjusting your filters or try again later',
+            style: TextStyle(
+              fontSize: 16,
               color: Colors.grey[600],
-              fontFamily: 'Quicksand',
             ),
           ),
         ],

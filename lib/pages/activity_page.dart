@@ -35,7 +35,8 @@ class _ActivityPageState extends State<ActivityPage>
     setState(() {
       requests = data ?? [];
       requestCustomer = requests
-          .where((request) => request.customerInfo.fullName == widget.customer.name)
+          .where((request) =>
+              request.customerInfo.fullName == widget.customer.name)
           .toList();
       isLoading = false; // Đặt trạng thái là không còn tải dữ liệu
     });
@@ -45,6 +46,12 @@ class _ActivityPageState extends State<ActivityPage>
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  String formatCurrency(double amount) {
+    final NumberFormat formatter = NumberFormat("#,###", "vi_VN");
+    int roundedAmount = amount.round(); // Làm tròn số
+    return "${formatter.format(roundedAmount)} đ";
   }
 
   @override
@@ -132,6 +139,12 @@ class _OnDemandState extends State<OnDemand> {
         groupedRequests[date] = [request];
       }
     }
+  }
+
+  String formatCurrency(double amount) {
+    final NumberFormat formatter = NumberFormat("#,###", "vi_VN");
+    int roundedAmount = amount.round(); // Làm tròn số
+    return "${formatter.format(roundedAmount)} đ";
   }
 
   @override
@@ -228,7 +241,7 @@ class _OnDemandState extends State<OnDemand> {
                                       style: const TextStyle(
                                         fontFamily: 'Quicksand',
                                         color: Color(0xFF2FA559),
-                                        fontSize: 12,
+                                        fontSize: 14,
                                       ),
                                     ),
                                   ),
@@ -238,13 +251,17 @@ class _OnDemandState extends State<OnDemand> {
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: Image.asset(
-                                      'lib/images/services/clean.png',
-                                      height: 50,
-                                      width: 50,
-                                      fit: BoxFit.cover,
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 16, vertical: 16),
+                                    decoration: BoxDecoration(
+                                      color: Colors.green.shade50,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Icon(
+                                      Icons.cleaning_services_rounded,
+                                      color: Colors.green,
+                                      size: 32,
                                     ),
                                   ),
                                   const SizedBox(width: 12),
@@ -253,13 +270,30 @@ class _OnDemandState extends State<OnDemand> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Text(
-                                          request.service.title,
-                                          style: const TextStyle(
-                                            fontFamily: 'Quicksand',
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              request.service.title,
+                                              style: const TextStyle(
+                                                fontFamily: 'Quicksand',
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            Text(
+                                              // '${request.totalCost}₫',
+                                              formatCurrency(
+                                                  request.totalCost.toDouble()),
+                                              style: const TextStyle(
+                                                fontFamily: 'Quicksand',
+                                                fontSize: 16,
+                                                color: Colors.red,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                         const SizedBox(height: 8),
                                         Text(
@@ -270,18 +304,9 @@ class _OnDemandState extends State<OnDemand> {
                                             color: Colors.grey,
                                           ),
                                           overflow: TextOverflow.ellipsis,
-                                          maxLines: 1,
+                                          maxLines: 2,
                                         ),
                                       ],
-                                    ),
-                                  ),
-                                  Text(
-                                    '${request.totalCost}₫',
-                                    style: const TextStyle(
-                                      fontFamily: 'Quicksand',
-                                      fontSize: 16,
-                                      color: Colors.red,
-                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                 ],
@@ -291,8 +316,49 @@ class _OnDemandState extends State<OnDemand> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  InkWell(
-                                    onTap: () {
+                                  // InkWell(
+                                  //   onTap: () {
+                                  //     Navigator.push(
+                                  //       context,
+                                  //       MaterialPageRoute(
+                                  //         builder: (context) => OrderDetailPage(
+                                  //           request: request,
+                                  //         ),
+                                  //       ),
+                                  //     );
+                                  //   },
+                                  //   child: const Text(
+                                  //     "Chi tiết",
+                                  //     style: TextStyle(
+                                  //       fontFamily: 'Quicksand',
+                                  //       fontSize: 14,
+                                  //       color: Colors.green,
+                                  //       fontWeight: FontWeight.bold,
+                                  //     ),
+                                  //   ),
+                                  // ),
+
+                                  ElevatedButton(
+                                    onPressed: () {},
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.grey[300],
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    child: const Text(
+                                      "Đặt lại",
+                                      style: TextStyle(
+                                        fontFamily: 'Quicksand',
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  ElevatedButton(
+                                    onPressed: () {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
@@ -302,58 +368,21 @@ class _OnDemandState extends State<OnDemand> {
                                         ),
                                       );
                                     },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.green,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
                                     child: const Text(
-                                      "Chi tiết",
+                                      "Xem chi tiết",
                                       style: TextStyle(
                                         fontFamily: 'Quicksand',
                                         fontSize: 14,
-                                        color: Colors.green,
                                         fontWeight: FontWeight.bold,
+                                        color: Colors.white,
                                       ),
                                     ),
-                                  ),
-                                  Row(
-                                    children: [
-                                      ElevatedButton(
-                                        onPressed: () {},
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.grey[300],
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                          ),
-                                        ),
-                                        child: const Text(
-                                          "Đặt dài hạn",
-                                          style: TextStyle(
-                                            fontFamily: 'Quicksand',
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.black87,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 10),
-                                      ElevatedButton(
-                                        onPressed: () {},
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.green,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                          ),
-                                        ),
-                                        child: const Text(
-                                          "Đặt lại",
-                                          style: TextStyle(
-                                            fontFamily: 'Quicksand',
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
                                   ),
                                 ],
                               ),

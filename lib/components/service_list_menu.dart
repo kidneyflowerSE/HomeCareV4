@@ -121,7 +121,7 @@ class _ServiceListMenuState extends State<ServiceListMenu> {
 
   Widget _buildServiceItem(int index) {
     return InkWell(
-      onTap: () => _navigateToService(index),
+      // onTap: () => _navigateToService(index),
       borderRadius: BorderRadius.circular(12),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -158,30 +158,30 @@ class _ServiceListMenuState extends State<ServiceListMenu> {
     );
   }
 
-  void _navigateToService(int index) {
-    Navigator.push(
-      context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => ServicesOrder(
-          customer: widget.customer,
-          service: widget.services[0],
-          costFactors: widget.costFactors,
-          services: widget.services,
-        ),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(0, 0.1),
-              end: Offset.zero,
-            ).animate(animation),
-            child: FadeTransition(
-              opacity: animation,
-              child: child,
-            ),
-          );
-        },
-        transitionDuration: const Duration(milliseconds: 300),
-      ),
-    );
-  }
+  // void _navigateToService(int index) {
+  //   Navigator.push(
+  //     context,
+  //     PageRouteBuilder(
+  //       pageBuilder: (context, animation, secondaryAnimation) => ServicesOrder(
+  //         customer: widget.customer,
+  //         service: widget.services[0],
+  //         costFactors: widget.costFactors,
+  //         services: widget.services,
+  //       ),
+  //       transitionsBuilder: (context, animation, secondaryAnimation, child) {
+  //         return SlideTransition(
+  //           position: Tween<Offset>(
+  //             begin: const Offset(0, 0.1),
+  //             end: Offset.zero,
+  //           ).animate(animation),
+  //           child: FadeTransition(
+  //             opacity: animation,
+  //             child: child,
+  //           ),
+  //         );
+  //       },
+  //       transitionDuration: const Duration(milliseconds: 300),
+  //     ),
+  //   );
+  // }
 }

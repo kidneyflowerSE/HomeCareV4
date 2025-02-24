@@ -54,6 +54,10 @@ dependencies:
   convex_bottom_bar: ^3.2.0
   salomon_bottom_bar: ^3.3.2
   lottie: ^3.3.1
+  cached_network_image: ^3.4.1
+  flutter_staggered_animations: ^1.1.1
+  path_provider: ^2.1.5
+  shimmer: ^3.0.0
 
 
 flutter_launcher_icons:
