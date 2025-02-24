@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../data/model/request.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 class OrderDetailPage extends StatefulWidget {
   final Requests request;
@@ -12,6 +13,12 @@ class OrderDetailPage extends StatefulWidget {
 }
 
 class _OrderDetailPageState extends State<OrderDetailPage> {
+  @override
+  void initState() {
+    super.initState();
+    initializeDateFormatting('vi_VN', null);
+  }
+
   String _formatCurrency(double amount) {
     final NumberFormat formatter = NumberFormat("#,###", "vi_VN");
     double roundedAmount = (amount / 1000).ceil() * 1000;
@@ -21,8 +28,9 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
   double promotion = 5000;
 
   String _formatDate(String dateStr) {
-    DateTime dateTime = DateTime.parse(dateStr);
-    return DateFormat('dd-MM-yyyy').format(dateTime);
+    DateTime dateTime = DateTime.parse(dateStr).toLocal();
+    return DateFormat("EEEE, dd 'Tháng' MM, yyyy - HH:mm", "vi_VN")
+        .format(dateTime);
   }
 
   @override
@@ -58,8 +66,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
   Widget _buildAppBar() {
     return SliverAppBar(
       leading: IconButton(
-        icon:
-            Icon(Icons.arrow_back_ios, color: Colors.white), // Chỉnh icon ở đây
+        icon: Icon(Icons.arrow_back_ios, color: Colors.white),
         onPressed: () {
           Navigator.pop(context);
         },
@@ -163,6 +170,77 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
         children: [
           const Text(
             'Thông tin khách hàng',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Quicksand',
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Container(
+                padding: EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.green.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.person_2_outlined,
+                  color: Colors.green,
+                  size: 32,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.request.customerInfo.fullName,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: 'Quicksand',
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      widget.request.customerInfo.phone,
+                      style: const TextStyle(
+                        color: Colors.grey,
+                        fontFamily: 'Quicksand',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHelperInfo() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Thông tin người giúp việc',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -334,7 +412,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
           ),
           const SizedBox(height: 16),
           _buildPaymentRow(
-            'Cước phí',
+            'Chi phí dịch vụ',
             _formatCurrency(
               widget.request.totalCost.toDouble(),
             ),
@@ -461,28 +539,28 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
       ),
       child: Row(
         children: [
-          Expanded(
-            child: ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.grey[100],
-                foregroundColor: Colors.black87,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: const Text(
-                'Đặt dài hạn',
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontFamily: 'Quicksand',
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 16),
+          // Expanded(
+          //   child: ElevatedButton(
+          //     onPressed: () {},
+          //     style: ElevatedButton.styleFrom(
+          //       backgroundColor: Colors.grey[100],
+          //       foregroundColor: Colors.black87,
+          //       padding: const EdgeInsets.symmetric(vertical: 16),
+          //       elevation: 0,
+          //       shape: RoundedRectangleBorder(
+          //         borderRadius: BorderRadius.circular(12),
+          //       ),
+          //     ),
+          //     child: const Text(
+          //       'Đặt dài hạn',
+          //       style: TextStyle(
+          //         fontWeight: FontWeight.w600,
+          //         fontFamily: 'Quicksand',
+          //       ),
+          //     ),
+          //   ),
+          // ),
+          // const SizedBox(width: 16),
           Expanded(
             child: ElevatedButton(
               onPressed: () {},

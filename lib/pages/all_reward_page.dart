@@ -76,7 +76,12 @@ class _AllRewardsPageState extends State<AllRewardsPage> {
             Container(
               margin: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                // color: Colors.white,
+                gradient: LinearGradient(
+                  colors: [Colors.green.shade600, Colors.green.shade800],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
@@ -92,11 +97,11 @@ class _AllRewardsPageState extends State<AllRewardsPage> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(8),
                     child: const Text(
-                      'Thành viên',
+                      'Thành viên hạng kim cương',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                        color: Colors.white,
                         fontFamily: 'Quicksand',
                       ),
                       textAlign: TextAlign.center,
@@ -111,20 +116,26 @@ class _AllRewardsPageState extends State<AllRewardsPage> {
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Icon(
-                                Icons.stars,
-                                color: Colors.green,
-                                size: 26,
+                              Container(
+                                padding: EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(50)),
+                                child: Icon(
+                                  Icons.stars,
+                                  color: Colors.amber[400],
+                                  size: 26,
+                                ),
                               ),
                               const SizedBox(width: 8),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Điểm hC của bạn',
+                                    'Điểm của bạn',
                                     style: TextStyle(
-                                      color: Colors.grey[700],
-                                      fontWeight: FontWeight.w500,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
                                       fontFamily: 'Quicksand',
                                     ),
                                   ),
@@ -132,7 +143,7 @@ class _AllRewardsPageState extends State<AllRewardsPage> {
                                   Text(
                                     '0',
                                     style: TextStyle(
-                                      color: Colors.green[500],
+                                      color: Colors.white,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 18,
                                       fontFamily: 'Quicksand',
@@ -154,10 +165,16 @@ class _AllRewardsPageState extends State<AllRewardsPage> {
                           padding: const EdgeInsets.symmetric(horizontal: 8),
                           child: Row(
                             children: [
-                              Icon(
-                                Icons.card_giftcard,
-                                color: Colors.green,
-                                size: 26,
+                              Container(
+                                padding: EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(50)),
+                                child: Icon(
+                                  Icons.card_giftcard,
+                                  color: Colors.amber[400],
+                                  size: 26,
+                                ),
                               ),
                               const SizedBox(width: 16),
                               Column(
@@ -166,8 +183,8 @@ class _AllRewardsPageState extends State<AllRewardsPage> {
                                   Text(
                                     'Ưu đãi của tôi',
                                     style: TextStyle(
-                                      color: Colors.grey[700],
-                                      fontWeight: FontWeight.w500,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
                                       fontFamily: 'Quicksand',
                                     ),
                                   ),
@@ -175,7 +192,7 @@ class _AllRewardsPageState extends State<AllRewardsPage> {
                                   Text(
                                     '0',
                                     style: TextStyle(
-                                      color: Colors.green[500],
+                                      color: Colors.white,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 18,
                                       fontFamily: 'Quicksand',

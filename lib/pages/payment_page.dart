@@ -3,6 +3,7 @@ import 'package:foodapp/data/model/CostFactor.dart';
 import 'package:foodapp/data/model/request.dart';
 import 'package:foodapp/pages/order_success_page.dart';
 import 'package:http/http.dart';
+import 'package:intl/intl.dart';
 
 import '../data/model/customer.dart';
 import '../data/model/service.dart';
@@ -19,7 +20,9 @@ class PaymentPage extends StatefulWidget {
     super.key,
     required this.amount,
     required this.customer,
-    required this.costFactors, required this.services, required this.request,
+    required this.costFactors,
+    required this.services,
+    required this.request,
   });
 
   @override
@@ -29,6 +32,12 @@ class PaymentPage extends StatefulWidget {
 class _PaymentPageState extends State<PaymentPage> {
   String selectedPaymentMethod = "bank";
   bool isProcessing = false;
+
+  String formatCurrency(double amount) {
+    final NumberFormat formatter = NumberFormat("#,###", "vi_VN");
+    int roundedAmount = amount.round();
+    return "${formatter.format(roundedAmount)} đ";
+  }
 
   final List<Map<String, dynamic>> paymentMethods = [
     {
@@ -370,7 +379,7 @@ class _PaymentPageState extends State<PaymentPage> {
                     ),
                   )
                 : Text(
-                    "Thanh toán ${widget.amount.toStringAsFixed(0)} VNĐ",
+                    "Thanh toán ${formatCurrency(widget.amount)}",
                     style: const TextStyle(
                       fontSize: 16,
                       color: Colors.white,

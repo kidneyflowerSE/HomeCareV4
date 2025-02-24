@@ -12,6 +12,7 @@ import 'package:foodapp/pages/choose_location_page.dart';
 import 'package:foodapp/pages/notification_page.dart';
 import 'package:foodapp/pages/profile_page.dart';
 import 'package:foodapp/pages/services_order.dart';
+import 'package:foodapp/pages/wallet_page.dart';
 import '../../data/model/customer.dart';
 import '../data/model/request.dart';
 import '../data/model/service.dart';
@@ -42,6 +43,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
   final List<Widget> _pages = [];
+  bool _isHidden = true;
 
   @override
   void initState() {
@@ -179,6 +181,8 @@ class _HomeContentState extends State<HomeContent> {
       // Update any necessary data here
     });
   }
+
+  bool _isHidden = true;
 
   @override
   Widget build(BuildContext context) {
@@ -505,29 +509,32 @@ class _HomeContentState extends State<HomeContent> {
                   ),
                   const SizedBox(height: 8),
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const Text(
-                        '50.000.000đ',
+                      Text(
+                        _isHidden ? '*********' : '500.000.000',
                         style: TextStyle(
                           fontFamily: 'Quicksand',
                           color: Colors.white,
-                          fontSize: 24,
+                          fontSize: _isHidden ? 32 : 20,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 0.5,
                         ),
                       ),
                       const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Icon(
-                          Icons.remove_red_eye_outlined,
+                      IconButton(
+                        icon: Icon(
+                          _isHidden
+                              ? Icons.visibility_off_rounded
+                              : Icons.visibility_rounded,
                           color: Colors.white,
                           size: 18,
                         ),
+                        onPressed: () {
+                          setState(() {
+                            _isHidden = !_isHidden;
+                          });
+                        },
                       ),
                     ],
                   ),
@@ -568,9 +575,9 @@ class _HomeContentState extends State<HomeContent> {
                       ],
                     ),
                     const SizedBox(height: 4),
-                    const Text(
-                      '5.000',
-                      style: TextStyle(
+                    Text(
+                      '${widget.customer.points[0].point}',
+                      style: const TextStyle(
                         fontFamily: 'Quicksand',
                         color: Colors.white,
                         fontSize: 20,
@@ -585,36 +592,46 @@ class _HomeContentState extends State<HomeContent> {
 
           // Bottom Section
           const SizedBox(height: 16),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: Colors.white.withOpacity(0.2),
-                width: 1,
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => WalletPage(),
+                ),
+              );
+            },
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.2),
+                  width: 1,
+                ),
               ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  'Xem chi tiết',
-                  style: TextStyle(
-                    fontFamily: 'Quicksand',
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    'Xem chi tiết',
+                    style: TextStyle(
+                      fontFamily: 'Quicksand',
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 4),
-                Icon(
-                  Icons.arrow_forward_rounded,
-                  color: Colors.white.withOpacity(0.8),
-                  size: 16,
-                ),
-              ],
+                  const SizedBox(width: 4),
+                  Icon(
+                    Icons.arrow_forward_rounded,
+                    color: Colors.white.withOpacity(0.8),
+                    size: 16,
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -624,10 +641,18 @@ class _HomeContentState extends State<HomeContent> {
 
   Widget _buildQuickActions() {
     final actions = [
-      {'icon': Icons.cleaning_services_rounded, 'label': 'Dọn dẹp'},
-      {'icon': Icons.local_laundry_service_rounded, 'label': 'Giặt ủi'},
-      {'icon': Icons.build_rounded, 'label': 'Sửa chữa'},
-      {'icon': Icons.restaurant_rounded, 'label': 'Nấu ăn'},
+      {
+        'icon': Icons.cleaning_services_rounded,
+        'label': 'Dọn dẹp',
+        'isNew': true,
+      },
+      {
+        'icon': Icons.local_laundry_service_rounded,
+        'label': 'Giặt ủi',
+        'isNew': true
+      },
+      {'icon': Icons.build_rounded, 'label': 'Sửa chữa', 'isNew': false},
+      {'icon': Icons.restaurant_rounded, 'label': 'Nấu ăn', 'isNew': true},
     ];
 
     return Container(
@@ -658,9 +683,7 @@ class _HomeContentState extends State<HomeContent> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: actions.map((action) {
               return InkWell(
-                onTap: () {
-                  // Handle action tap
-                },
+                onTap: () {},
                 child: Column(
                   children: [
                     Container(
@@ -772,7 +795,12 @@ class _HomeContentState extends State<HomeContent> {
             ),
             TextButton(
               onPressed: () {
-                // Navigate to rewards page
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AllRewardsPage(),
+                  ),
+                );
               },
               child: Text(
                 'Xem tất cả',
@@ -805,17 +833,24 @@ class _HomeContentState extends State<HomeContent> {
 
   List<Widget> _buildRewardCards() {
     final rewards = [
+      {'title': 'Giảm 50K khi đặt dịch vụ vệ sinh', 'points': '1,000'},
+      {'title': 'Voucher 100K cho khách hàng VIP', 'points': '2,000'},
+      {'title': 'Freeship cho đơn hàng trên 500K', 'points': '500'},
+      {'title': 'Giảm 20% dịch vụ sửa chữa', 'points': '3,000'},
+      {'title': 'Tặng 30K khi đặt dịch vụ trong 3 ngày tới', 'points': '800'},
       {
-        'title': 'Giảm 50K ahshdadashdbahsbshsdajsadhahsdashs',
-        'points': '1,000'
+        'title': 'Hoàn 50% số điểm khi đặt lịch vào cuối tuần',
+        'points': '1,500'
       },
       {
-        'title': 'Voucher 100K oaskmwanssdadasjskasdnanswaejaesd',
-        'points': '2,000'
+        'title': 'Nhận ngay 100K cho lần đặt dịch vụ đầu tiên',
+        'points': '2,500'
       },
+      {'title': 'Giảm giá 70K cho đơn hàng trên 1 triệu', 'points': '1,200'},
+      {'title': 'Tích lũy gấp đôi điểm thưởng tuần này', 'points': '900'},
       {
-        'title': 'Freeship asjdjawasdanasda aweada awandssaswiandsns',
-        'points': '500'
+        'title': 'Ưu đãi đặc biệt: Giảm 150K cho dịch vụ dài hạn',
+        'points': '4,000'
       },
     ];
 
@@ -897,6 +932,44 @@ class _HomeContentState extends State<HomeContent> {
     }).toList();
   }
 
+  List<Map<String, dynamic>> fakePromotions = [
+    {
+      'title': 'Giảm 50K',
+      'subtitle': 'Áp dụng cho đơn hàng từ 300K',
+      'imageAsset': 'lib/images/banner_1.png',
+    },
+    {
+      'title': 'Freeship toàn quốc',
+      'subtitle': 'Cho mọi đơn hàng từ 200K trở lên',
+      'imageAsset': 'lib/images/banner_2.png',
+    },
+    {
+      'title': 'Tặng 20K',
+      'subtitle': 'Dành cho khách hàng mới đăng ký',
+      'imageAsset': 'lib/images/banner_3.png',
+    },
+    {
+      'title': 'Hoàn 30% điểm thưởng',
+      'subtitle': 'Khi thanh toán bằng ví điện tử',
+      'imageAsset': 'lib/images/banner_1.png',
+    },
+    {
+      'title': 'Giảm 100K',
+      'subtitle': 'Dành cho khách VIP nạp lần đầu',
+      'imageAsset': 'lib/images/banner_2.png',
+    },
+    {
+      'title': 'Giảm 10%',
+      'subtitle': 'Cho tất cả dịch vụ vào cuối tuần',
+      'imageAsset': 'lib/images/banner_3.png',
+    },
+    {
+      'title': 'Tặng 1 lần vệ sinh miễn phí',
+      'subtitle': 'Khi đặt lịch dài hạn từ 3 tháng',
+      'imageAsset': 'lib/images/banner_1.png',
+    },
+  ];
+
   Widget _buildPromotionSection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -929,18 +1002,18 @@ class _HomeContentState extends State<HomeContent> {
         ),
         const SizedBox(height: 16),
         Wrap(
-          spacing: 12, // Khoảng cách ngang giữa các item
-          runSpacing: 12, // Khoảng cách dọc giữa các item
-          children: List.generate(4, (index) {
+          spacing: 12,
+          runSpacing: 12,
+          children: fakePromotions.map((promo) {
             return SizedBox(
               width: (MediaQuery.of(context).size.width - 48) / 2, // Chia 2 cột
               child: _buildPromotionCard(
-                title: 'Giảm ${(index + 1) * 10}K',
-                subtitle: 'Áp dụng cho dịch vụ mới ahdajshdajshdhwahaskda',
-                imageAsset: 'lib/images/banner_2.png',
+                title: promo['title']!,
+                subtitle: promo['subtitle']!,
+                imageAsset: promo['imageAsset']!,
               ),
             );
-          }),
+          }).toList(),
         )
       ],
     );

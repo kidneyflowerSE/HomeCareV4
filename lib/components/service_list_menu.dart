@@ -65,9 +65,9 @@ class _ServiceListMenuState extends State<ServiceListMenu> {
           const SizedBox(height: 12),
 
           Wrap(
-            spacing: 16, // Khoảng cách ngang giữa các item
-            runSpacing: 20, // Khoảng cách dọc giữa các dòng
-            alignment: WrapAlignment.start, // Canh lề theo chiều ngang
+            spacing: 16,
+            runSpacing: 20,
+            alignment: WrapAlignment.start,
             children: List.generate(
               servicesInfo.length,
               (index) => _buildServiceItem(index),
