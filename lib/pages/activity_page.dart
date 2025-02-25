@@ -178,9 +178,17 @@ class _OnDemandState extends State<OnDemand> {
   void initState() {
     super.initState();
     groupedRequests = {};
-    for (var request in widget.requests) {
-      String date =
-          DateFormat('dd-MM-yyyy').format(DateTime.parse(request.oderDate));
+
+    List<Requests> shortTermRequests = widget.requests
+        .where((request) => request.requestType == 'Ngắn hạn')
+        .toList();
+
+    // Sắp xếp danh sách theo orderDate giảm dần
+    shortTermRequests.sort((a, b) =>
+        DateTime.parse(b.oderDate).compareTo(DateTime.parse(a.oderDate)));
+
+    for (var request in shortTermRequests) {
+      String date = DateFormat('dd-MM-yyyy').format(DateTime.parse(request.oderDate));
       if (groupedRequests.containsKey(date)) {
         groupedRequests[date]!.add(request);
       } else {
@@ -188,6 +196,7 @@ class _OnDemandState extends State<OnDemand> {
       }
     }
   }
+
 
   String formatCurrency(double amount) {
     final NumberFormat formatter = NumberFormat("#,###", "vi_VN");
@@ -654,7 +663,14 @@ class _LongTermState extends State<LongTerm> {
   void initState() {
     super.initState();
     groupedRequests = {};
-    for (var request in widget.requests) {
+    List<Requests> longTermRequests = widget.requests
+        .where((request) => request.requestType == 'Dài hạn')
+        .toList();
+
+    longTermRequests.sort((a, b) =>
+        DateTime.parse(b.oderDate).compareTo(DateTime.parse(a.oderDate)));
+
+    for (var request in longTermRequests) {
       String startDate =
           DateFormat('dd-MM-yyyy').format(DateTime.parse(request.oderDate));
       if (groupedRequests.containsKey(startDate)) {

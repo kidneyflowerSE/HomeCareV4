@@ -3,6 +3,7 @@ import 'package:foodapp/data/model/customer.dart';
 import 'package:foodapp/pages/F.A.QPage.dart';
 import 'package:foodapp/pages/choose_location_page.dart';
 import 'package:foodapp/pages/edit_information_page.dart';
+import 'package:foodapp/pages/policy.dart';
 
 class ProfilePage extends StatefulWidget {
   final Customer customer;
@@ -148,8 +149,12 @@ class _ProfilePageState extends State<ProfilePage> {
                           "Quyền lợi khách hàng đang được thử nghiệm.");
                     }),
                     MenuItem(Icons.gavel_rounded, "Pháp lý", () {
-                      _showStaticDialog(
-                          context, "Pháp lý đang được thử nghiệm.");
+                      // _showStaticDialog(
+                      //     context, "Pháp lý đang được thử nghiệm.");
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => TermsScreen()),
+                      );
                     }),
                     MenuItem(Icons.school, "Quy trình đào tạo người giúp việc",
                         () {

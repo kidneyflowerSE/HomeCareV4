@@ -37,8 +37,8 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
   String _formatTime(double time) {
     double roundedTime = double.parse(
         time.toStringAsFixed(2)); // Làm tròn đến 2 chữ số thập phân
-    int hours = roundedTime.floor(); // Lấy phần nguyên (giờ)
-    int minutes = ((roundedTime - hours) * 60)
+    num hours = roundedTime.floor(); // Lấy phần nguyên (giờ)
+    num minutes = ((roundedTime - hours) * 60)
         .round(); // Chuyển phần lẻ thành phút và làm tròn
 
     if (minutes == 0) {
@@ -50,7 +50,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
 
   String _formatCurrency(double amount) {
     final NumberFormat formatter = NumberFormat("#,###", "vi_VN");
-    int roundedAmount = amount.round(); // Làm tròn số
+    num roundedAmount = amount.round(); // Làm tròn số
     return "${formatter.format(roundedAmount)} đ";
   }
 
@@ -67,7 +67,6 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: SingleChildScrollView(
-              // Đảm bảo hiển thị hết nội dung nếu quá dài
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -93,36 +92,29 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                       children: [
                         _buildInfoRow(
                           'Số giờ làm',
-                          // '${costData['workingTime'].toInt()} giờ ${((costData['workingTime'] - costData['workingTime'].toInt()) * 60).toInt()} phút',
-                          _formatTime(costData['workingTime'].toDouble()),
+                          _formatTime((costData['workingTime'] ?? 0).toDouble()),
                         ),
                         _buildInfoRow(
                           'Giá cơ bản',
-                          // '${costData['basicPrice'] * costData['basicCoefficient']} đ',
-                          _formatCurrency(costData['basicPrice'] *
-                              costData['basicCoefficient']),
+                          _formatCurrency((costData['basicPrice'] ?? 0).toDouble() *
+                              (costData['basicCoefficient'] ?? 1).toDouble()),
                         ),
                         _buildInfoRow(
                           'Số giờ làm ngoài giờ',
-                          // '${costData['overTimeHours']} giờ',
-                          _formatTime(costData['overTimeHours'].toDouble()),
+                          _formatTime((costData['overTimeHours'] ?? 0).toDouble()),
                         ),
                         _buildInfoRow(
                           'Giá dịch vụ ngoài giờ',
-                          // '${costData['overTimeCost']} đ',
-                          _formatCurrency(costData['overTimeCost']),
+                          _formatCurrency((costData['overTimeCost'] ?? 0).toDouble()),
                         ),
                         Divider(height: 24, color: Colors.grey.shade200),
                         _buildInfoRow(
                           'Tổng chi phí',
-                          // '${costData['finalCost']} đ',
-                          _formatCurrency(costData['finalCost'].toDouble()),
+                          _formatCurrency((costData['finalCost'] ?? 0).toDouble()),
                         ),
                       ],
                     ),
                   ),
-
-                  // const SizedBox(height: 16),
 
                   // Nút đóng popup
                   Center(
@@ -484,8 +476,8 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
 
     String _formatTime(double workingTime) {
       double roundedTime = double.parse(workingTime.toStringAsFixed(2));
-      int hours = roundedTime.floor();
-      int minutes = ((roundedTime - hours) * 60).round();
+      num hours = roundedTime.floor();
+      num minutes = ((roundedTime - hours) * 60).round();
 
       if (minutes == 0) {
         return '$hours giờ';
@@ -813,6 +805,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
           height: 54,
           child: ElevatedButton(
             onPressed: () {
+              widget.request.totalCost = finalCost;
               if (isOnlinePayment) {
                 // Điều hướng tới PaymentPage
                 Navigator.push(

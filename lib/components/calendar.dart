@@ -4,14 +4,9 @@ import 'package:intl/intl.dart';
 class CalendarDropdown extends StatefulWidget {
   final Function(DateTime) onDateSelected;
   final DateTime? initialDate;
-  final bool isStartDate; // Thêm tham số để phân biệt ngày bắt đầu/kết thúc
 
-  const CalendarDropdown({
-    super.key,
-    required this.onDateSelected,
-    this.initialDate,
-    required this.isStartDate,
-  });
+  const CalendarDropdown(
+      {super.key, required this.onDateSelected, this.initialDate});
 
   @override
   _CalendarDropdownState createState() => _CalendarDropdownState();
@@ -20,31 +15,14 @@ class CalendarDropdown extends StatefulWidget {
 class _CalendarDropdownState extends State<CalendarDropdown> {
   DateTime? _selectedDate;
 
-  @override
-  void initState() {
-    super.initState();
-    _selectedDate = widget.initialDate ?? _getDefaultDate();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      widget.onDateSelected(_selectedDate!);
-    });
-  }
-
   DateTime _getDefaultDate() {
     final now = DateTime.now();
-
-    if (widget.isStartDate) { // Nếu là ngày bắt đầu
-      if (now.hour >= 15) {
-        return now.add(const Duration(days: 1)); // Ngày mai nếu sau 15h
-      } else {
-        return now;
-      }
-    } else { // Nếu là ngày kết thúc
-      if (now.hour >= 15) {
-        return now.add(const Duration(days: 2)); // Ngày kia nếu sau 15h
-      } else {
-        return now.add(const Duration(days: 1)); // Mặc định là ngày mai
-      }
-    }
+    // if (now.hour >= 20 || (now.hour < 6 && now.minute == 0)) {
+    //   return now.add(const Duration(days: 1)); // Next day
+    // } else {
+    //   return now; // Today
+    // }
+    return widget.initialDate != null ? now.add(const Duration(days: 1)) : now;
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -78,7 +56,9 @@ class _CalendarDropdownState extends State<CalendarDropdown> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              DateFormat('dd/MM/yyyy').format(_selectedDate!),
+              _selectedDate != null
+                  ? DateFormat('dd/MM/yyyy').format(_selectedDate!)
+                  : DateFormat('dd/MM/yyyy').format(_getDefaultDate()),
               style: const TextStyle(
                 fontSize: 15,
                 color: Colors.grey,
