@@ -32,7 +32,7 @@ class _TimeStartState extends State<TimeStart> {
     if (widget.initialTime != null) {
       _selectedTime = widget.initialTime;
     } else {
-      if (referenceDate.hour > 15 && referenceDate.day == now.day) {
+      if (referenceDate.hour >= 15 && referenceDate.day == now.day) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showPopUpWarning(context,
               'Thời gian hiện tại đã qua 15:00. Vui lòng chọn ngày khác');

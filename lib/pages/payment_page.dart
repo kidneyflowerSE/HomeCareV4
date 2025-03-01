@@ -10,7 +10,7 @@ import '../data/model/service.dart';
 import '../data/repository/repository.dart';
 
 class PaymentPage extends StatefulWidget {
-  final double amount;
+  final num amount;
   final Customer customer;
   final List<CostFactor> costFactors;
   final List<Services> services;
@@ -33,7 +33,7 @@ class _PaymentPageState extends State<PaymentPage> {
   String selectedPaymentMethod = "bank";
   bool isProcessing = false;
 
-  String formatCurrency(double amount) {
+  String formatCurrency(num amount) {
     final NumberFormat formatter = NumberFormat("#,###", "vi_VN");
     int roundedAmount = amount.round();
     return "${formatter.format(roundedAmount)} đ";
@@ -101,7 +101,7 @@ class _PaymentPageState extends State<PaymentPage> {
     );
   }
 
-  Widget _buildAmountCard(double amount) {
+  Widget _buildAmountCard(num amount) {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -121,7 +121,7 @@ class _PaymentPageState extends State<PaymentPage> {
             ),
             const SizedBox(height: 8),
             Text(
-              "${amount.toStringAsFixed(0)} VNĐ",
+              "${formatCurrency(amount)}",
               style: const TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,

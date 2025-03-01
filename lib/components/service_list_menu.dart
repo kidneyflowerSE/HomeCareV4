@@ -164,7 +164,7 @@ class _ServiceListMenuState extends State<ServiceListMenu> {
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) => ServicesOrder(
           customer: widget.customer,
-          service: widget.services[0],
+          service: widget.services[index],
           costFactors: widget.costFactors,
           services: widget.services,
         ),

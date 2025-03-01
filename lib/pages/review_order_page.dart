@@ -534,7 +534,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                           color: Color(0xFF2E7D32)),
                     ),
                     title: Text(
-                      widget.customer.addresses[0].detailedAddress,
+                      widget.request.customerInfo.address,
                       style: const TextStyle(
                         fontFamily: 'Quicksand',
                         fontSize: 16,
@@ -649,7 +649,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                           _formatTime(costData['workingTime'].toDouble()),
                         ),
                         _buildInfoRow('Giá cơ bản',
-                            '${costData['basicPrice'] * costData['basicCoefficient']}'),
+                            _formatCurrency(costData['basicPrice'] * costData['basicCoefficient'])),
                         // _buildInfoRow(
                         //   'Hệ số ngoài giờ',
                         //   '${widget.costFactors.firstWhere((costFactor) => costFactor.title == 'Hệ số khác').coefficientList.firstWhere((coefficient) => coefficient.title == 'Hệ số ngoài giờ').value}',
@@ -812,10 +812,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => PaymentPage(
-                      amount: widget.request.service.cost.toDouble() *
-                              costData['overTimeCoefficient'].toDouble() +
-                          widget.request.service.cost.toDouble() *
-                              costData['basicCoefficient'].toDouble(),
+                      amount: finalCost,
                       // Tổng chi phí
                       customer: widget.customer,
                       costFactors: widget.costFactors,

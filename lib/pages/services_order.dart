@@ -39,15 +39,11 @@ class _ServicesOrderState extends State<ServicesOrder>
   bool isLoading = true;
   String orderType = 'Ngắn hạn';
   DateTime? selectedDate;
-  DateTime? startDate = DateTime.now().hour > 15
-      ? DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)
-          .add(const Duration(days: 1))
-      : DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
-  DateTime? endDate = DateTime.now().hour > 15
-      ? DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)
-          .add(const Duration(days: 2))
-      : DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)
-          .add(const Duration(days: 1));
+  DateTime? startDate =
+  DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+  DateTime? endDate =
+  DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)
+      .add(const Duration(days: 1));
   TimeOfDay? _startTime;
   TimeOfDay? _endTime;
   Location? selectedProvince;
@@ -94,7 +90,7 @@ class _ServicesOrderState extends State<ServicesOrder>
         title: Container(
           padding: const EdgeInsets.symmetric(horizontal: 6),
           child: Text(
-            'Dịch vụ: ${widget.services[0].title}',
+            'Dịch vụ: ${widget.service.title}',
             style: TextStyle(
               fontFamily: 'Quicksand',
               fontWeight: FontWeight.w600,
@@ -136,6 +132,14 @@ class _ServicesOrderState extends State<ServicesOrder>
             locations: locations,
             customers: customers,
             customer: widget.customer,
+            onVisibilityChanged: (isVisible){
+              if (!isVisible) {
+                setState(() {
+                  endDate = null; // Reset endDate nếu visibility bị vô hiệu hóa
+                });
+                print(endDate);
+              }
+            },
             onTimeChanged: (startTime, endTime) {
               setState(() {
                 _startTime = startTime;
@@ -185,6 +189,15 @@ class _ServicesOrderState extends State<ServicesOrder>
             locations: locations,
             customers: customers,
             customer: widget.customer,
+            onVisibilityChanged: (isVisible){
+              if(isVisible){
+                setState(() {
+                  endDate = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)
+                      .add(const Duration(days: 1));
+                });
+                print(endDate);
+              }
+            },
             onTimeChanged: (startTime, endTime) {
               setState(() {
                 _startTime = startTime;
@@ -236,20 +249,38 @@ class _ServicesOrderState extends State<ServicesOrder>
         child: MyButton(
           text: "Tiếp theo",
           onTap: () {
-            var now = DateTime.now();
-            if (now.hour > 15) {
-              selectedDate ??= now.add(Duration(days: 1));
-            } else {
-              selectedDate ??= DateTime.now();
-            }
+            selectedDate ??= DateTime.now();
             DateTime? selectedEndDate = endDate ?? selectedDate;
+            print(endDate);
+            // Kiểm tra xem người dùng có chọn địa chỉ mới không
+            bool isNewAddressSelected = selectedProvince != null &&
+                selectedProvince!.name != widget.customer.addresses[0].province;
+
+            if (isNewAddressSelected) {
+              // Tạo địa chỉ mới và thêm vào danh sách địa chỉ của khách hàng
+              var newAddress = Addresses(
+                province: selectedProvince!.name,
+                district: selectedDistrict ?? '',
+                detailedAddress: selectedDetailedAddress ?? '',
+                ward: selectedWard ?? '',
+              );
+              widget.customer.addresses.add(newAddress);
+            }
+
+              // Xác định địa chỉ cuối cùng của khách hàng
+            String finalAddress = isNewAddressSelected
+                ? widget.customer.addresses.last
+                    .toString() // Địa chỉ mới nếu đã chọn
+                : widget.customer.addresses[0]
+                    .detailedAddress; // Địa chỉ cũ nếu không thay đổi
+
             if (_startTime != null && _endTime != null) {
               // Create a Request object
               var request = Requests(
                 customerInfo: CustomerInfo(
                     fullName: widget.customer.name,
                     phone: widget.customer.phone,
-                    address: widget.customer.addresses[0].detailedAddress,
+                    address: finalAddress,
                     usedPoint: widget.customer.points[0].point),
                 service: RequestService(
                     title: widget.service.title,
@@ -259,11 +290,13 @@ class _ServicesOrderState extends State<ServicesOrder>
                 location: selectedProvince != null
                     ? RequestLocation(
                         province: selectedProvince!.name,
-                        district: selectedDistrict ?? '', ward: selectedWard ?? '',
+                        district: selectedDistrict ?? '',
+                        ward: selectedWard ?? '',
                       )
                     : RequestLocation(
                         province: widget.customer.addresses[0].province,
-                        district: widget.customer.addresses[0].district, ward: widget.customer.addresses[0].ward),
+                        district: widget.customer.addresses[0].district,
+                        ward: widget.customer.addresses[0].ward),
                 id: '',
                 // Generate or provide an ID if required
                 oderDate: DateTime.now().toIso8601String(),
@@ -328,26 +361,30 @@ class _ServicesOrderState extends State<ServicesOrder>
                   ),
                 );
               } else {
-                print('ngày bắt đầu $startDate');
-                print('ngày kết thúc $endDate');
-                startDate = DateTime(startDate!.year, startDate!.month, startDate!.day);
+                startDate =
+                    DateTime(startDate!.year, startDate!.month, startDate!.day);
                 endDate = DateTime(endDate!.year, endDate!.month, endDate!.day);
                 print(List.generate(
                   endDate!.difference(startDate!).inDays + 1, // Số ngày cần tạo
-                      (index) => DateTime(startDate!.year, startDate!.month, startDate!.day + index), // Chỉ lấy ngày/tháng/năm
+                  (index) => DateTime(startDate!.year, startDate!.month,
+                      startDate!.day + index), // Chỉ lấy ngày/tháng/năm
                 ));
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => CustomCalendar(
                       initialSelectedDates: List.generate(
-                    endDate!.difference(startDate!).inDays + 1, // Số ngày cần tạo
-                        (index) => DateTime(startDate!.year, startDate!.month, startDate!.day + index), // Chỉ lấy ngày/tháng/năm
-                  ),
+                        endDate!.difference(startDate!).inDays + 1,
+                        // Số ngày cần tạo
+                        (index) => DateTime(startDate!.year, startDate!.month,
+                            startDate!.day + index), // Chỉ lấy ngày/tháng/năm
+                      ),
                       customer: widget.customer,
                       request: request,
-                      maxDate: DateTime(endDate!.year, endDate!.month, endDate!.day),
-                      minDate: DateTime(startDate!.year, startDate!.month, startDate!.day),
+                      maxDate:
+                          DateTime(endDate!.year, endDate!.month, endDate!.day),
+                      minDate: DateTime(
+                          startDate!.year, startDate!.month, startDate!.day),
                       costFactors: widget.costFactors,
                       services: widget.services,
                       // minDate: DateTime(2025, 2, 25),
@@ -374,6 +411,7 @@ class OnDemand extends StatefulWidget {
   final Function(String)? onWardSelected;
   final Function(DateTime?, String?)? onDateChanged;
   final Function(String)? onDetailedAddressChanged;
+  final Function(bool)? onVisibilityChanged;
 
   const OnDemand({
     super.key,
@@ -385,7 +423,7 @@ class OnDemand extends StatefulWidget {
     this.onDistrictSelected,
     this.onWardSelected,
     this.onDateChanged,
-    this.onDetailedAddressChanged,
+    this.onDetailedAddressChanged, this.onVisibilityChanged,
   });
 
   @override
@@ -411,6 +449,7 @@ class _OnDemandState extends State<OnDemand> {
             TimeSelection(
               onTimeChanged: widget.onTimeChanged,
               onDateChanged: widget.onDateChanged,
+              onVisibilityChanged: widget.onVisibilityChanged,
               isOnDemand: true,
             ),
             const SizedBox(height: 20),
@@ -534,6 +573,7 @@ class LongTerm extends StatefulWidget {
   final Function(String)? onWardSelected;
   final Function(DateTime?, String?)? onDateChanged;
   final Function(String)? onDetailedAddressChanged;
+  final Function(bool)? onVisibilityChanged;
 
   const LongTerm(
       {super.key,
@@ -545,7 +585,7 @@ class LongTerm extends StatefulWidget {
       this.onDateChanged,
       this.onWardSelected,
       this.onDetailedAddressChanged,
-      required this.customer});
+      required this.customer, this.onVisibilityChanged});
 
   @override
   State<LongTerm> createState() => _LongTermState();
@@ -588,6 +628,7 @@ class _LongTermState extends State<LongTerm> {
             TimeSelection(
               onTimeChanged: widget.onTimeChanged,
               onDateChanged: widget.onDateChanged,
+              onVisibilityChanged: widget.onVisibilityChanged,
               isOnDemand: false,
             ),
             const SizedBox(height: 20),

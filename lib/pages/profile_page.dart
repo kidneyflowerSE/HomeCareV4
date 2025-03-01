@@ -52,7 +52,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 },
                 child: Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
@@ -131,10 +131,10 @@ class _ProfilePageState extends State<ProfilePage> {
                       // );
                     }),
                     MenuItem(Icons.person_off_rounded, "Yêu cầu xóa tài khoản",
-                        () {
-                      _showStaticDialog(context,
-                          "Chức năng xóa tài khoản đang được thử nghiệm.");
-                    }),
+                            () {
+                          _showStaticDialog(context,
+                              "Chức năng xóa tài khoản đang được thử nghiệm.");
+                        }),
                   ],
                 ),
                 // Section Quy trình, điều khoản, chính sách
@@ -144,23 +144,23 @@ class _ProfilePageState extends State<ProfilePage> {
                   [
                     MenuItem(
                         Icons.person_pin_rounded, "Quyền lợi của khách hàng",
-                        () {
-                      _showStaticDialog(context,
-                          "Quyền lợi khách hàng đang được thử nghiệm.");
-                    }),
+                            () {
+                          _showStaticDialog(context,
+                              "Quyền lợi khách hàng đang được thử nghiệm.");
+                        }),
                     MenuItem(Icons.gavel_rounded, "Pháp lý", () {
                       // _showStaticDialog(
                       //     context, "Pháp lý đang được thử nghiệm.");
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => TermsScreen()),
+                        MaterialPageRoute(builder: (context) => PolicyScreen()),
                       );
                     }),
                     MenuItem(Icons.school, "Quy trình đào tạo người giúp việc",
-                        () {
-                      _showStaticDialog(
-                          context, "Quy trình đào tạo đang được thử nghiệm.");
-                    }),
+                            () {
+                          _showStaticDialog(
+                              context, "Quy trình đào tạo đang được thử nghiệm.");
+                        }),
                   ],
                 ),
                 // Section Trợ giúp & hỗ trợ
@@ -173,17 +173,17 @@ class _ProfilePageState extends State<ProfilePage> {
                           context, "Trung tâm hỗ trợ đang được thử nghiệm.");
                     }),
                     MenuItem(Icons.question_mark_rounded, "Câu hỏi thường gặp",
-                        () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => FAQScreen()),
-                      );
-                    }),
+                            () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => FAQScreen()),
+                          );
+                        }),
                     MenuItem(Icons.question_answer_rounded,
                         "Góp ý, khiếu nại qua App", () {
-                      _showStaticDialog(
-                          context, "Phản hồi đang được thử nghiệm.");
-                    }),
+                          _showStaticDialog(
+                              context, "Phản hồi đang được thử nghiệm.");
+                        }),
                   ],
                 ),
                 // Nút đăng xuất
@@ -266,7 +266,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
           child: Column(
             children:
-                items.map((item) => _buildMenuItem(context, item)).toList(),
+            items.map((item) => _buildMenuItem(context, item)).toList(),
           ),
         ),
       ],
@@ -292,7 +292,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
         trailing:
-            const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+        const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
         onTap: item.onTap,
       ),
     );
@@ -358,7 +358,7 @@ class _ProfilePageState extends State<ProfilePage> {
             TextButton(
               onPressed: () => Navigator.pop(context),
               child:
-                  const Text("OK", style: TextStyle(fontFamily: 'Quicksand')),
+              const Text("OK", style: TextStyle(fontFamily: 'Quicksand')),
             ),
           ],
         ),
