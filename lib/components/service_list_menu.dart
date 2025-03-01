@@ -140,7 +140,7 @@ class _ServiceListMenuState extends State<ServiceListMenu> {
           ),
           const SizedBox(height: 8),
           SizedBox(
-            width: 70, // Đảm bảo text không bị cắt quá nhỏ
+            width: 70,
             child: Text(
               servicesInfo[index]['label'],
               style: const TextStyle(
