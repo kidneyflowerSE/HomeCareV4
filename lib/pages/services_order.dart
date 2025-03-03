@@ -20,13 +20,16 @@ class ServicesOrder extends StatefulWidget {
   final Services service;
   final List<CostFactor> costFactors;
   final List<Services> services;
+  final int selectedTab; // Thêm tham số
 
-  const ServicesOrder(
-      {super.key,
-      required this.customer,
-      required this.service,
-      required this.costFactors,
-      required this.services});
+  const ServicesOrder({
+    super.key,
+    required this.customer,
+    required this.service,
+    required this.costFactors,
+    required this.services,
+    this.selectedTab = 0, // Mặc định là tab 0 (Theo ngày)
+  });
 
   @override
   State<ServicesOrder> createState() => _ServicesOrderState();
@@ -55,7 +58,11 @@ class _ServicesOrderState extends State<ServicesOrder>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(
+      length: 2,
+      vsync: this,
+      initialIndex: widget.selectedTab, // Chọn tab theo giá trị truyền vào
+    );
     loadData();
   }
 

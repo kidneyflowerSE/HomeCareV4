@@ -217,7 +217,7 @@ class _HelperListState extends State<HelperList> {
   }
 
   void _navigateToReviewOrder(Helper helper) {
-    widget.request.helperId = helper.helperId;
+    widget.request.helperId = helper.id;
     widget.request.startDate = widget.listDate
         .map((date) => DateFormat('yyyy-MM-dd').format(date))
         .join(',');

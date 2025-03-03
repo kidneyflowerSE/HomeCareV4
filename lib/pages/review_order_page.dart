@@ -170,7 +170,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
     DateTime time = DateTime.parse(date);
     DateTime now = DateTime(time.year, time.month, time.day);
     DateTime eightAM = DateTime(now.year, now.month, now.day, 8, 0, 0);
-    DateTime sixPM = DateTime(now.year, now.month, now.day, 16, 0, 0);
+    DateTime sixPM = DateTime(now.year, now.month, now.day, 18, 0, 0);
 
     // Chuyển đổi thời gian bắt đầu cho ngày trong tương lai
     DateTime startTimeNow = DateTime.parse(start);
@@ -278,11 +278,11 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
     print('tổng số giờ tăng ca: ${hours}');
     print('hệ số tăng ca: ${overTime}');
     print('thời gian bắt đầu: ${newStartTime}');
-    print('thời gian bắt đầu: ${newEndTime}');
+    print('thời gian kết thúc: ${newEndTime}');
     print(
         'tổng số giờ làm trong hành chính: ${(newEndTime.difference(newStartTime).inMinutes / 60)}');
 
-    print('thời gian bắt đầu: ${otherCoefficent}');
+    print('thời gian hệ số khác: ${otherCoefficent}');
 
     // Nhân overtime với hệ số lớn hơn giữa ngày lễ và cuối tuần
     otherCoefficent *= maxCoefficient;
@@ -488,6 +488,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
 
     print(totalCost);
     print(widget.request.startDate);
+    print('thông tin request: ${widget.request}');
 
     // final basePrice = costData['basePrice'] ?? 0.0;
     // final basicCoefficient = costData['basicCoefficient'] ?? 0.0;

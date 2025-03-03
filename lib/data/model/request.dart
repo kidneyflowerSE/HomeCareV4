@@ -125,7 +125,7 @@ class Requests {
 
   @override
   String toString() {
-    return 'Request{customerInfo: $customerInfo, service: $service, location: $location, id: $id, oderDate: $oderDate, scheduleIds: $scheduleIds, startTime: $startTime, endTime: $endTime, requestType: $requestType, totalCost: $totalCost, status: $status, deleted: $deleted, comment: $comment, profit: $profit}';
+    return 'Requests{customerInfo: $customerInfo, service: $service, location: $location, id: $id, oderDate: $oderDate, scheduleIds: $scheduleIds, startTime: $startTime, endTime: $endTime, requestType: $requestType, totalCost: $totalCost, status: $status, deleted: $deleted, comment: $comment, profit: $profit, helperId: $helperId, startDate: $startDate}';
   }
 }
 

@@ -56,6 +56,8 @@ class _HomePageState extends State<HomePage> {
       ),
       ActivityPage(
         customer: widget.customer,
+        costFactors: widget.costFactor,
+        services: widget.services,
       ),
       NotificationPage(),
       ProfilePage(customer: widget.customer),
