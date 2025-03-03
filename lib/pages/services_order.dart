@@ -11,6 +11,7 @@ import '../../data/model/location.dart';
 import '../../data/repository/repository.dart';
 import '../components/city_selected.dart';
 import '../components/my_button.dart';
+import '../components/warning_dialog.dart';
 import '../data/model/service.dart';
 import 'helper_list_page.dart';
 
@@ -251,7 +252,23 @@ class _ServicesOrderState extends State<ServicesOrder>
           onTap: () {
             selectedDate ??= DateTime.now();
             DateTime? selectedEndDate = endDate ?? selectedDate;
-            print(endDate);
+
+            // Kiểm tra nếu startTime là thời điểm trong quá khứ
+            DateTime selectedStartDateTime = DateTime(
+              selectedDate!.year,
+              selectedDate!.month,
+              selectedDate!.day,
+              _startTime?.hour ?? 0,
+              _startTime?.minute ?? 0,
+            );
+
+            DateTime now = DateTime.now();
+
+            if (selectedStartDateTime.isBefore(now)) {
+              showPopUpWarning(context, "Thời gian bắt đầu không thể ở quá khứ. Vui lòng chọn ngày khác!");
+              return; // Dừng xử lý nếu thời gian không hợp lệ
+            }
+
             // Kiểm tra xem người dùng có chọn địa chỉ mới không
             bool isNewAddressSelected = selectedProvince != null &&
                 selectedProvince!.name != widget.customer.addresses[0].province;

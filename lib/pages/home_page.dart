@@ -651,8 +651,16 @@ class _HomeContentState extends State<HomeContent> {
         'label': 'Giặt ủi',
         'isNew': true
       },
-      {'icon': Icons.build_rounded, 'label': 'Sửa chữa', 'isNew': false},
-      {'icon': Icons.restaurant_rounded, 'label': 'Nấu ăn', 'isNew': true},
+      {
+        'icon': Icons.build_rounded,
+        'label': 'Sửa chữa',
+        'isNew': false,
+      },
+      {
+        'icon': Icons.restaurant_rounded,
+        'label': 'Nấu ăn',
+        'isNew': true,
+      },
     ];
 
     return Container(
@@ -671,32 +679,62 @@ class _HomeContentState extends State<HomeContent> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(
+          const Text(
             'Dịch vụ nhanh',
-            style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-                fontFamily: 'Quicksand'),
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+              fontFamily: 'Quicksand',
+            ),
           ),
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: actions.map((action) {
+              bool isNew = (action['isNew'] as bool?) ?? false;
+
               return InkWell(
                 onTap: () {},
                 child: Column(
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.green.shade50,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(
-                        action['icon'] as IconData,
-                        color: Colors.green.shade700,
-                        size: 24,
-                      ),
+                    Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.green.shade50,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(
+                            action['icon'] as IconData,
+                            color: Colors.green.shade700,
+                            size: 24,
+                          ),
+                        ),
+                        if (isNew)
+                          Positioned(
+                            top: -5,
+                            right: -10,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Text(
+                                'Mới',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  fontFamily: 'Quicksand',
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                     const SizedBox(height: 8),
                     Text(
