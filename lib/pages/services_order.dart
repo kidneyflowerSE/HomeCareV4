@@ -278,15 +278,18 @@ class _ServicesOrderState extends State<ServicesOrder>
 
             // Kiểm tra xem người dùng có chọn địa chỉ mới không
             bool isNewAddressSelected = selectedProvince != null &&
+                selectedDistrict != null &&
+                selectedWard != null &&
+                selectedDetailedAddress != null &&
                 selectedProvince!.name != widget.customer.addresses[0].province;
 
             if (isNewAddressSelected) {
               // Tạo địa chỉ mới và thêm vào danh sách địa chỉ của khách hàng
               var newAddress = Addresses(
                 province: selectedProvince!.name,
-                district: selectedDistrict ?? '',
-                detailedAddress: selectedDetailedAddress ?? '',
-                ward: selectedWard ?? '',
+                district: selectedDistrict!,
+                detailedAddress: selectedDetailedAddress!,
+                ward: selectedWard!,
               );
               widget.customer.addresses.add(newAddress);
             }
@@ -311,7 +314,7 @@ class _ServicesOrderState extends State<ServicesOrder>
                     coefficientService: 0.0,
                     coefficientOther: 0.0,
                     cost: widget.service.basicPrice),
-                location: selectedProvince != null
+                location: (selectedProvince != null && selectedDistrict != null && selectedWard != null && selectedDetailedAddress != null)
                     ? RequestLocation(
                         province: selectedProvince!.name,
                         district: selectedDistrict ?? '',
