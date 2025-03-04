@@ -50,7 +50,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
 
   String _formatCurrency(double amount) {
     final NumberFormat formatter = NumberFormat("#,###", "vi_VN");
-    num roundedAmount = amount.round(); // Làm tròn số
+    int roundedAmount = (amount / 1000).ceil() * 1000;
     return "${formatter.format(roundedAmount)} đ";
   }
 
@@ -92,25 +92,31 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                       children: [
                         _buildInfoRow(
                           'Số giờ làm',
-                          _formatTime((costData['workingTime'] ?? 0).toDouble()),
+                          // _formatTime(
+                          //     (costData['workingTime'] ?? 0).toDouble()),
+                          costData['workingTime'] ?? 0,
                         ),
                         _buildInfoRow(
                           'Giá cơ bản',
-                          _formatCurrency((costData['basicPrice'] ?? 0).toDouble() *
+                          _formatCurrency((costData['basicPrice'] ?? 0)
+                                  .toDouble() *
                               (costData['basicCoefficient'] ?? 1).toDouble()),
                         ),
                         _buildInfoRow(
                           'Số giờ làm ngoài giờ',
-                          _formatTime((costData['overTimeHours'] ?? 0).toDouble()),
+                          _formatTime(
+                              (costData['overTimeHours'] ?? 0).toDouble()),
                         ),
                         _buildInfoRow(
                           'Giá dịch vụ ngoài giờ',
-                          _formatCurrency((costData['overTimeCost'] ?? 0).toDouble()),
+                          _formatCurrency(
+                              (costData['overTimeCost'] ?? 0).toDouble()),
                         ),
                         Divider(height: 24, color: Colors.grey.shade200),
                         _buildInfoRow(
                           'Tổng chi phí',
-                          _formatCurrency((costData['finalCost'] ?? 0).toDouble()),
+                          _formatCurrency(
+                              (costData['finalCost'] ?? 0).toDouble()),
                         ),
                       ],
                     ),
@@ -153,8 +159,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
   }
 
   Map<String, dynamic> totalCostCalculation(
-      String date, String start, String end)
-  {
+      String date, String start, String end) {
     List<DateTime> holidays = [
       DateTime(2025, 4, 30), // Ngày Giải phóng miền Nam
       DateTime(2025, 5, 1), // Quốc tế Lao động
@@ -382,8 +387,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
   //   );
   // }
   Widget _buildInfoRow(String label, String value,
-      {String? buttonText, VoidCallback? onPressed})
-  {
+      {String? buttonText, VoidCallback? onPressed}) {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Padding(
@@ -649,8 +653,10 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                           'Số giờ làm',
                           _formatTime(costData['workingTime'].toDouble()),
                         ),
-                        _buildInfoRow('Giá cơ bản',
-                            _formatCurrency(costData['basicPrice'] * costData['basicCoefficient'])),
+                        _buildInfoRow(
+                            'Giá cơ bản',
+                            _formatCurrency(costData['basicPrice'].toDouble() *
+                                costData['basicCoefficient'].toDouble())),
                         // _buildInfoRow(
                         //   'Hệ số ngoài giờ',
                         //   '${widget.costFactors.firstWhere((costFactor) => costFactor.title == 'Hệ số khác').coefficientList.firstWhere((coefficient) => coefficient.title == 'Hệ số ngoài giờ').value}',
@@ -736,7 +742,10 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                                 buttonText: 'Xem chi tiết',
                                 onPressed: () {
                                   showCostDetailsPopup(
-                                      context, singleDayCostData[index],widget.request.startDate!.split(',')[index]);
+                                      context,
+                                      singleDayCostData[index],
+                                      widget.request.startDate!
+                                          .split(',')[index]);
                                 },
                                 _formatCurrency(double.parse('$singleDayCost')),
                               );

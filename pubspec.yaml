@@ -58,6 +58,7 @@ dependencies:
   flutter_staggered_animations: ^1.1.1
   path_provider: ^2.1.5
   shimmer: ^3.0.0
+  dropdown_search: ^6.0.2
 
 
 flutter_launcher_icons:

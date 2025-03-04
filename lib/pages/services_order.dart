@@ -37,17 +37,17 @@ class ServicesOrder extends StatefulWidget {
 
 class _ServicesOrderState extends State<ServicesOrder>
     with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+  // late TabController _tabController;
   List<Location> locations = [];
   List<Customer> customers = [];
   bool isLoading = true;
   String orderType = 'Ngắn hạn';
   DateTime? selectedDate;
   DateTime? startDate =
-  DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
   DateTime? endDate =
-  DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)
-      .add(const Duration(days: 1));
+      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)
+          .add(const Duration(days: 1));
   TimeOfDay? _startTime;
   TimeOfDay? _endTime;
   Location? selectedProvince;
@@ -55,33 +55,52 @@ class _ServicesOrderState extends State<ServicesOrder>
   String? selectedWard;
   String? selectedDetailedAddress;
 
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(
-      length: 2,
-      vsync: this,
-      initialIndex: widget.selectedTab, // Chọn tab theo giá trị truyền vào
-    );
-    loadData();
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _tabController = TabController(
+  //     length: 2,
+  //     vsync: this,
+  //     initialIndex: widget.selectedTab, // Chọn tab theo giá trị truyền vào
+  //   );
+  //   loadData();
+  // }
 
   Future<void> loadData() async {
     var repository = DefaultRepository();
     var dataLocation = await repository.loadLocation();
     var dataCustomer = await repository.loadCustomer();
+    if (mounted) {
+      setState(() {
+        locations = dataLocation ?? [];
+        customers = dataCustomer ?? [];
+        isLoading = false;
+      });
+    }
+  }
+
+  int selectedIndex = 0;
+
+  void _onTabSelected(int index) {
+    if (selectedIndex == index) return;
+
     setState(() {
-      locations = dataLocation ?? [];
-      customers = dataCustomer ?? [];
-      isLoading = false;
+      isLoading = true;
+    });
+    loadData();
+    Future.delayed(const Duration(milliseconds: 300), () {
+      setState(() {
+        selectedIndex = index;
+        isLoading = false;
+      });
     });
   }
 
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   _tabController.dispose();
+  //   super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -107,151 +126,206 @@ class _ServicesOrderState extends State<ServicesOrder>
           ),
         ),
         automaticallyImplyLeading: false,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(48.0),
-          child: Container(
+        actions: [
+          IconButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: Text(
+                    'Chi tiết dịch vụ',
+                    style: TextStyle(
+                      fontFamily: 'Quicksand',
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green,
+                      fontSize: 19,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  content: Container(
+                    height: 60,
+                    child: Column(
+                      children: [
+                        Text(
+                          'Thông tin về dịch vụ ${widget.service.title}',
+                          style: TextStyle(
+                            fontFamily: 'Quicksand',
+                            fontSize: 16,
+                          ),
+                        ),
+                        Text(
+                          '${widget.service.description}',
+                          style: TextStyle(
+                            fontFamily: 'Quicksand',
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text(
+                        'Đóng',
+                        style: TextStyle(
+                          fontFamily: 'Quicksand',
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+            icon: const Icon(
+              Icons.info_outline_rounded,
+              size: 28,
+            ),
             color: Colors.white,
-            child: TabBar(
-              controller: _tabController,
-              labelColor: Colors.green,
-              unselectedLabelColor: Colors.black,
-              // indicatorColor: const Color.fromARGB(255, 0, 248, 62),
-              // indicatorWeight: 2.0,
-              indicatorSize: TabBarIndicatorSize.tab,
-              indicator: const UnderlineTabIndicator(
-                borderSide: BorderSide(color: Colors.green, width: 2),
-              ),
-              tabs: const [
-                Tab(
-                  text: 'Theo ngày',
-                ),
-                Tab(
-                  text: 'Dài hạn',
-                ),
+          ),
+        ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(50),
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(30),
+            ),
+            padding: const EdgeInsets.all(4),
+            child: Row(
+              children: [
+                _buildTabButton(0, "Theo ngày"),
+                _buildTabButton(1, "Dài hạn"),
               ],
             ),
           ),
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          OnDemand(
-            locations: locations,
-            customers: customers,
-            customer: widget.customer,
-            onVisibilityChanged: (isVisible){
-              if (!isVisible) {
-                setState(() {
-                  endDate = null; // Reset endDate nếu visibility bị vô hiệu hóa
-                });
-                print(endDate);
-              }
-            },
-            onTimeChanged: (startTime, endTime) {
-              setState(() {
-                _startTime = startTime;
-                if (endTime == null && startTime != null) {
-                  _endTime = TimeOfDay(
-                      hour: _startTime!.hour + 2, minute: _startTime!.minute);
-                } else {
-                  _endTime = endTime;
-                }
-              });
-            },
-            onDateChanged: (date, isStartDate) {
-              // Handle date changes
-              setState(() {
-                if (isStartDate == 'start') {
-                  selectedDate = date;
-                  startDate = date;
-                  endDate = null;
-                }
-              });
-            },
-            onProvinceSelected: (Location province) {
-              setState(() {
-                selectedProvince = province;
-              });
-              print(province);
-            },
-            onDistrictSelected: (String district) {
-              setState(() {
-                selectedDistrict = district;
-              });
-              print(district);
-            },
-            onWardSelected: (String ward) {
-              setState(() {
-                selectedWard = ward;
-              });
-            },
-            onDetailedAddressChanged: (String detailedAddress) {
-              setState(() {
-                selectedDetailedAddress = detailedAddress;
-              });
-              print(detailedAddress);
-            },
-          ),
-          LongTerm(
-            locations: locations,
-            customers: customers,
-            customer: widget.customer,
-            onVisibilityChanged: (isVisible){
-              if(isVisible){
-                setState(() {
-                  endDate = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)
-                      .add(const Duration(days: 1));
-                });
-                print(endDate);
-              }
-            },
-            onTimeChanged: (startTime, endTime) {
-              setState(() {
-                _startTime = startTime;
-                if (endTime == null && startTime != null) {
-                  _endTime = TimeOfDay(
-                      hour: _startTime!.hour + 2, minute: _startTime!.minute);
-                } else {
-                  _endTime = endTime;
-                }
-              });
-            },
-            onDateChanged: (date, isStartDate) {
-              // Handle date changes
-              setState(() {
-                if (isStartDate == 'start') {
-                  selectedDate = date;
-                  startDate = date;
-                } else {
-                  endDate = date;
-                  orderType = 'Dài hạn';
-                }
-              });
-            },
-            onProvinceSelected: (Location province) {
-              setState(() {
-                selectedProvince = province;
-              });
-            },
-            onDistrictSelected: (String district) {
-              setState(() {
-                selectedDistrict = district;
-              });
-            },
-            onWardSelected: (String ward) {
-              setState(() {
-                selectedWard = ward;
-              });
-            },
-            onDetailedAddressChanged: (String detailedAddress) {
-              setState(() {
-                selectedDetailedAddress = detailedAddress;
-              });
-              print(selectedDetailedAddress);
-            },
-          ),
-        ],
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        child: selectedIndex == 0
+            ? OnDemand(
+                locations: locations,
+                customers: customers,
+                customer: widget.customer,
+                onVisibilityChanged: (isVisible) {
+                  if (!isVisible) {
+                    setState(() {
+                      endDate =
+                          null; // Reset endDate nếu visibility bị vô hiệu hóa
+                    });
+                    print(endDate);
+                  }
+                },
+                onTimeChanged: (startTime, endTime) {
+                  setState(() {
+                    _startTime = startTime;
+                    if (endTime == null && startTime != null) {
+                      _endTime = TimeOfDay(
+                          hour: _startTime!.hour + 2,
+                          minute: _startTime!.minute);
+                    } else {
+                      _endTime = endTime;
+                    }
+                  });
+                },
+                onDateChanged: (date, isStartDate) {
+                  // Handle date changes
+                  setState(() {
+                    if (isStartDate == 'start') {
+                      selectedDate = date;
+                      startDate = date;
+                      endDate = null;
+                    }
+                  });
+                },
+                onProvinceSelected: (Location province) {
+                  setState(() {
+                    selectedProvince = province;
+                  });
+                  print(province);
+                },
+                onDistrictSelected: (String district) {
+                  setState(() {
+                    selectedDistrict = district;
+                  });
+                  print(district);
+                },
+                onWardSelected: (String ward) {
+                  setState(() {
+                    selectedWard = ward;
+                  });
+                },
+                onDetailedAddressChanged: (String detailedAddress) {
+                  setState(() {
+                    selectedDetailedAddress = detailedAddress;
+                  });
+                  print(detailedAddress);
+                },
+              )
+            : LongTerm(
+                locations: locations,
+                customers: customers,
+                customer: widget.customer,
+                onVisibilityChanged: (isVisible) {
+                  if (isVisible) {
+                    setState(() {
+                      endDate = DateTime(DateTime.now().year,
+                              DateTime.now().month, DateTime.now().day)
+                          .add(const Duration(days: 1));
+                    });
+                    print(endDate);
+                  }
+                },
+                onTimeChanged: (startTime, endTime) {
+                  setState(() {
+                    _startTime = startTime;
+                    if (endTime == null && startTime != null) {
+                      _endTime = TimeOfDay(
+                          hour: _startTime!.hour + 2,
+                          minute: _startTime!.minute);
+                    } else {
+                      _endTime = endTime;
+                    }
+                  });
+                },
+                onDateChanged: (date, isStartDate) {
+                  // Handle date changes
+                  setState(() {
+                    if (isStartDate == 'start') {
+                      selectedDate = date;
+                      startDate = date;
+                    } else {
+                      endDate = date;
+                      orderType = 'Dài hạn';
+                    }
+                  });
+                },
+                onProvinceSelected: (Location province) {
+                  setState(() {
+                    selectedProvince = province;
+                  });
+                },
+                onDistrictSelected: (String district) {
+                  setState(() {
+                    selectedDistrict = district;
+                  });
+                },
+                onWardSelected: (String ward) {
+                  setState(() {
+                    selectedWard = ward;
+                  });
+                },
+                onDetailedAddressChanged: (String detailedAddress) {
+                  setState(() {
+                    selectedDetailedAddress = detailedAddress;
+                  });
+                  print(selectedDetailedAddress);
+                },
+              ),
       ),
       bottomNavigationBar: BottomAppBar(
         child: MyButton(
@@ -272,7 +346,8 @@ class _ServicesOrderState extends State<ServicesOrder>
             DateTime now = DateTime.now();
 
             if (selectedStartDateTime.isBefore(now)) {
-              showPopUpWarning(context, "Thời gian bắt đầu không thể ở quá khứ. Vui lòng chọn ngày khác!");
+              showPopUpWarning(context,
+                  "Thời gian bắt đầu không thể ở quá khứ. Vui lòng chọn ngày khác!");
               return; // Dừng xử lý nếu thời gian không hợp lệ
             }
 
@@ -294,7 +369,7 @@ class _ServicesOrderState extends State<ServicesOrder>
               widget.customer.addresses.add(newAddress);
             }
 
-              // Xác định địa chỉ cuối cùng của khách hàng
+            // Xác định địa chỉ cuối cùng của khách hàng
             String finalAddress = isNewAddressSelected
                 ? widget.customer.addresses.last
                     .toString() // Địa chỉ mới nếu đã chọn
@@ -314,7 +389,10 @@ class _ServicesOrderState extends State<ServicesOrder>
                     coefficientService: 0.0,
                     coefficientOther: 0.0,
                     cost: widget.service.basicPrice),
-                location: (selectedProvince != null && selectedDistrict != null && selectedWard != null && selectedDetailedAddress != null)
+                location: (selectedProvince != null &&
+                        selectedDistrict != null &&
+                        selectedWard != null &&
+                        selectedDetailedAddress != null)
                     ? RequestLocation(
                         province: selectedProvince!.name,
                         district: selectedDistrict ?? '',
@@ -365,7 +443,7 @@ class _ServicesOrderState extends State<ServicesOrder>
               print('Total Cost: ${request.totalCost}');
               print('Status: ${request.status}');
 
-              if (_tabController.index == 0) {
+              if (selectedIndex == 0) {
                 request.endTime = DateTime(
                         selectedDate!.year,
                         selectedDate!.month,
@@ -426,6 +504,36 @@ class _ServicesOrderState extends State<ServicesOrder>
       ),
     );
   }
+
+  Widget _buildTabButton(int index, String text) {
+    bool isSelected = selectedIndex == index;
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => _onTabSelected(index),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: isSelected ? Colors.green : Colors.transparent,
+            borderRadius: BorderRadius.circular(30),
+          ),
+          alignment: Alignment.center,
+          child: AnimatedDefaultTextStyle(
+            duration: const Duration(milliseconds: 300),
+            style: TextStyle(
+              color: isSelected ? Colors.white : Colors.green,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Quicksand',
+              fontSize: isSelected ? 16 : 14,
+            ),
+            child: Text(text),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class OnDemand extends StatefulWidget {
@@ -450,7 +558,8 @@ class OnDemand extends StatefulWidget {
     this.onDistrictSelected,
     this.onWardSelected,
     this.onDateChanged,
-    this.onDetailedAddressChanged, this.onVisibilityChanged,
+    this.onDetailedAddressChanged,
+    this.onVisibilityChanged,
   });
 
   @override
@@ -612,7 +721,8 @@ class LongTerm extends StatefulWidget {
       this.onDateChanged,
       this.onWardSelected,
       this.onDetailedAddressChanged,
-      required this.customer, this.onVisibilityChanged});
+      required this.customer,
+      this.onVisibilityChanged});
 
   @override
   State<LongTerm> createState() => _LongTermState();

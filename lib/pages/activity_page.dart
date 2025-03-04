@@ -110,6 +110,7 @@ class _ActivityPageState extends State<ActivityPage>
           ),
         ),
         centerTitle: true,
+        automaticallyImplyLeading: false,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(50),
           child: Container(
@@ -145,10 +146,18 @@ class _ActivityPageState extends State<ActivityPage>
             : selectedIndex == 0
                 ? OnDemand(
                     requests: requestCustomer ?? [],
-                    key: const ValueKey('on_demand'), customer: widget.customer, costFactors: widget.costFactors, services: widget.services,)
+                    key: const ValueKey('on_demand'),
+                    customer: widget.customer,
+                    costFactors: widget.costFactors,
+                    services: widget.services,
+                  )
                 : LongTerm(
                     requests: requestCustomer ?? [],
-                    key: const ValueKey('long_term'), customer: widget.customer, costFactors: widget.costFactors, services: widget.services,),
+                    key: const ValueKey('long_term'),
+                    customer: widget.customer,
+                    costFactors: widget.costFactors,
+                    services: widget.services,
+                  ),
       ),
     );
   }
@@ -164,14 +173,14 @@ class _ActivityPageState extends State<ActivityPage>
           curve: Curves.easeOut,
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: isSelected ? Colors.green.shade700 : Colors.transparent,
+            color: isSelected ? Colors.green : Colors.transparent,
             borderRadius: BorderRadius.circular(30),
           ),
           alignment: Alignment.center,
           child: AnimatedDefaultTextStyle(
             duration: const Duration(milliseconds: 300),
             style: TextStyle(
-              color: isSelected ? Colors.white : Colors.green.shade900,
+              color: isSelected ? Colors.white : Colors.green,
               fontWeight: FontWeight.bold,
               fontFamily: 'Quicksand',
               fontSize: isSelected ? 16 : 14,
@@ -617,11 +626,17 @@ class _OnDemandState extends State<OnDemand> {
                                         )
                                       : ElevatedButton(
                                           onPressed: () {
-                                            var matchingServices = widget.services
-                                                .where((service) => request.service.title == service.title)
+                                            var matchingServices = widget
+                                                .services
+                                                .where((service) =>
+                                                    request.service.title ==
+                                                    service.title)
                                                 .toList();
 
-                                            Services reorderService = matchingServices.isNotEmpty ? matchingServices.first : widget.services[0];
+                                            Services reorderService =
+                                                matchingServices.isNotEmpty
+                                                    ? matchingServices.first
+                                                    : widget.services[0];
                                             Navigator.push(
                                               context,
                                               MaterialPageRoute(
@@ -702,7 +717,12 @@ class LongTerm extends StatefulWidget {
   final List<CostFactor> costFactors;
   final List<Services> services;
 
-  const LongTerm({super.key, required this.requests, required this.customer, required this.costFactors, required this.services});
+  const LongTerm(
+      {super.key,
+      required this.requests,
+      required this.customer,
+      required this.costFactors,
+      required this.services});
 
   @override
   State<LongTerm> createState() => _LongTermState();
@@ -1145,22 +1165,25 @@ class _LongTermState extends State<LongTerm> {
                                     ElevatedButton(
                                       onPressed: () {
                                         var matchingServices = widget.services
-                                            .where((service) => request.service.title == service.title)
+                                            .where((service) =>
+                                                request.service.title ==
+                                                service.title)
                                             .toList();
 
-                                        Services reorderService = matchingServices.isNotEmpty ? matchingServices.first : widget.services[0];
+                                        Services reorderService =
+                                            matchingServices.isNotEmpty
+                                                ? matchingServices.first
+                                                : widget.services[0];
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (context) =>
-                                                ServicesOrder(
-                                                  customer: widget.customer,
-                                                  service: reorderService,
-                                                  costFactors:
-                                                  widget.costFactors,
-                                                  services: widget.services,
-                                                  selectedTab: 1,
-                                                ),
+                                            builder: (context) => ServicesOrder(
+                                              customer: widget.customer,
+                                              service: reorderService,
+                                              costFactors: widget.costFactors,
+                                              services: widget.services,
+                                              selectedTab: 1,
+                                            ),
                                           ),
                                         );
                                       },
