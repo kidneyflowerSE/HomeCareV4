@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:foodapp/data/model/CostFactor.dart';
 import 'package:foodapp/data/model/request.dart';
@@ -19,7 +21,8 @@ class ActivityPage extends StatefulWidget {
       {super.key,
       required this.customer,
       required this.costFactors,
-      required this.services});
+      required this.services,
+      });
 
   @override
   State<ActivityPage> createState() => _ActivityPageState();
@@ -30,6 +33,7 @@ class _ActivityPageState extends State<ActivityPage>
   late TabController _tabController;
   List<Requests> requests = [];
   List<Requests>? requestCustomer = [];
+  Timer? _pollingTimer;
   bool isLoading = true; // Thêm biến để theo dõi trạng thái tải dữ liệu
 
   @override
@@ -37,6 +41,20 @@ class _ActivityPageState extends State<ActivityPage>
     super.initState();
     loadRequestData();
     _tabController = TabController(length: 2, vsync: this);
+    startPolling(); // Bắt đầu polling
+  }
+
+  void startPolling() {
+    _pollingTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
+      loadRequestData();
+    });
+  }
+
+  @override
+  void dispose() {
+    _pollingTimer?.cancel(); // Dừng polling khi thoát màn hình
+    _tabController.dispose();
+    super.dispose();
   }
 
   Future<void> loadRequestData() async {
@@ -50,12 +68,6 @@ class _ActivityPageState extends State<ActivityPage>
           .toList();
       isLoading = false;
     });
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
   }
 
   String formatCurrency(double amount) {
