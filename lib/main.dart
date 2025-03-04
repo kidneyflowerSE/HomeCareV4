@@ -4,12 +4,16 @@ import 'package:foodapp/auth/login_or_register.dart';
 import 'package:foodapp/components/spashscreen.dart';
 import 'package:foodapp/themes/theme_provider.dart';
 
+import 'components/request_provider.dart';
 import 'data/repository/repository.dart';
 
 void main() {
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => ThemeProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => ThemeProvider()),
+        ChangeNotifierProvider(create: (context) => RequestProvider()), // Thêm provider mới
+      ],
       child: const MyApp(),
     ),
   );

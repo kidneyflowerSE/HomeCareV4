@@ -19,6 +19,8 @@ class _AuthenticationPageState extends State<AuthenticationPage>
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
 
+  String verificationCode = ""; // Biến lưu mã xác nhận
+
   @override
   void initState() {
     super.initState();
@@ -54,16 +56,25 @@ class _AuthenticationPageState extends State<AuthenticationPage>
   }
 
   void login() {
-    Navigator.push(
-      context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => SplashScreen(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(opacity: animation, child: child);
-        },
-        transitionDuration: const Duration(milliseconds: 500),
-      ),
-    );
+    print("Mã xác nhận: $verificationCode"); // Debug: In mã xác nhận
+    if (verificationCode.length == 6 && verificationCode.compareTo('111111') == 0) {
+      // Thực hiện xác thực ở đây (gửi mã lên server để kiểm tra)
+      Navigator.push(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => SplashScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          transitionDuration: const Duration(milliseconds: 500),
+        ),
+      );
+    } else {
+      // Hiển thị cảnh báo nếu chưa nhập đủ mã
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Vui lòng nhập đầy đủ mã xác nhận")),
+      );
+    }
   }
 
   @override
@@ -87,14 +98,6 @@ class _AuthenticationPageState extends State<AuthenticationPage>
             ),
           ),
 
-          // Decorative circles
-          CustomPaint(
-            size: Size(MediaQuery.of(context).size.width,
-                MediaQuery.of(context).size.height),
-            painter: CirclesPainter(),
-          ),
-
-          // Main content
           SafeArea(
             child: FadeTransition(
               opacity: _fadeAnimation,
@@ -105,7 +108,6 @@ class _AuthenticationPageState extends State<AuthenticationPage>
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Logo with shadow
                       Container(
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(20),
@@ -119,7 +121,6 @@ class _AuthenticationPageState extends State<AuthenticationPage>
 
                       const SizedBox(height: 10),
 
-                      // Verification message
                       Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
@@ -147,43 +148,32 @@ class _AuthenticationPageState extends State<AuthenticationPage>
 
                       const SizedBox(height: 10),
 
-                      // Verification code input
-                      const MyConfirmText(),
+                      // Nhận giá trị mã xác nhận
+                      MyConfirmText(
+                        onCodeChanged: (code) {
+                          setState(() {
+                            verificationCode = code;
+                          });
+                        },
+                      ),
 
                       const SizedBox(height: 10),
 
-                      // Custom button with gradient
+                      // Nút xác nhận
                       Container(
                         width: double.infinity,
                         height: 55,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15),
-                          gradient: LinearGradient(
-                            colors: [
-                              Colors.green.shade600,
-                              Colors.green.shade800,
-                            ],
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.green.withOpacity(0.3),
-                              blurRadius: 10,
-                              offset: const Offset(0, 5),
-                            ),
-                          ],
-                        ),
-                        child: MaterialButton(
+                        child: ElevatedButton(
                           onPressed: login,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green.shade700,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
                           ),
                           child: const Text(
                             "Xác nhận",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                            ),
+                            style: TextStyle(fontSize: 18, color: Colors.white),
                           ),
                         ),
                       ),

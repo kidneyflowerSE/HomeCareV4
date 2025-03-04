@@ -35,6 +35,8 @@ abstract interface class Repository {
 
   Future<void> sendRequest(Requests requests);
 
+  Future<void> canceledRequest(String id);
+
   Future<void> sendMessage(String phone);
 
   Future<List<Message>?> loadMessage(Message message);
@@ -113,5 +115,10 @@ class DefaultRepository implements Repository {
   @override
   Future<List<FAQ>?>loadFAQ() async{
     return await remoteDataSource.loadFAQ();
+  }
+
+  @override
+  Future<void> canceledRequest(String id) async{
+    return await remoteDataSource.cancelRequest(id);
   }
 }

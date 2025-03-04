@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 
 class MyConfirmText extends StatefulWidget {
-  const MyConfirmText({super.key});
+  final Function(String) onCodeChanged; // Thêm callback để truyền giá trị ra ngoài
+
+  const MyConfirmText({super.key, required this.onCodeChanged});
 
   @override
   State<MyConfirmText> createState() => _MyConfirmTextState();
 }
 
 class _MyConfirmTextState extends State<MyConfirmText> {
-  // Tạo danh sách các FocusNode để kiểm soát các TextField
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
   final List<TextEditingController> _controllers =
-      List.generate(6, (_) => TextEditingController());
+  List.generate(6, (_) => TextEditingController());
 
   @override
   void initState() {
     super.initState();
-    // Tự động focus vào ô đầu tiên khi khởi động
     WidgetsBinding.instance.addPostFrameCallback((_) {
       FocusScope.of(context).requestFocus(_focusNodes[0]);
     });
@@ -24,7 +24,6 @@ class _MyConfirmTextState extends State<MyConfirmText> {
 
   @override
   void dispose() {
-    // Hủy các FocusNode khi không còn sử dụng
     for (var focusNode in _focusNodes) {
       focusNode.dispose();
     }
@@ -34,13 +33,19 @@ class _MyConfirmTextState extends State<MyConfirmText> {
     super.dispose();
   }
 
+  void _updateCode() {
+    // Gộp tất cả giá trị từ 6 ô thành 1 chuỗi
+    String code = _controllers.map((c) => c.text).join();
+    widget.onCodeChanged(code); // Gửi mã code ra ngoài
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: List.generate(4, (index) {
+        children: List.generate(6, (index) {
           return Expanded(
             child: Container(
               margin: const EdgeInsets.all(8),
@@ -51,32 +56,32 @@ class _MyConfirmTextState extends State<MyConfirmText> {
                     fontWeight: FontWeight.w800),
                 controller: _controllers[index],
                 focusNode: _focusNodes[index],
-                textAlign: TextAlign.center, // Căn giữa text
-                keyboardType: TextInputType.number, // Chỉ cho phép nhập số
-                maxLength: 1, // Chỉ cho phép nhập 1 ký tự
+                textAlign: TextAlign.center,
+                keyboardType: TextInputType.number,
+                maxLength: 1,
                 decoration: InputDecoration(
-                  counterText: "", // Ẩn bộ đếm số ký tự
+                  counterText: "",
                   filled: true,
-                  fillColor: Colors.green[100], // Màu nền của ô
-                  // Viền khi không focus
+                  fillColor: Colors.green[100],
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
                     borderSide: const BorderSide(
-                      color: Colors.green, // Màu viền không focus
-                      width: 2, // Độ dày viền không focus
+                      color: Colors.green,
+                      width: 2,
                     ),
                   ),
-                  // Viền khi focus
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
                     borderSide: const BorderSide(
-                      color: Color.fromARGB(255, 0, 0, 0), // Màu viền khi focus
-                      width: 3, // Độ dày viền khi focus
+                      color: Colors.black,
+                      width: 3,
                     ),
                   ),
                 ),
                 onChanged: (value) {
-                  // Khi người dùng nhập một ký tự
+                  _updateCode(); // Gọi khi có thay đổi
+
+                  // Tự động focus sang ô tiếp theo
                   if (value.isNotEmpty && index < 5) {
                     FocusScope.of(context).requestFocus(_focusNodes[index + 1]);
                   }

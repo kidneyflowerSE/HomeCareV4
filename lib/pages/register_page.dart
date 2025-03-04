@@ -23,10 +23,14 @@ class _RegisterPageState extends State<RegisterPage>
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmController = TextEditingController();
+  final TextEditingController fullNameController = TextEditingController();
+  final TextEditingController locationController = TextEditingController();
 
   final FocusNode phoneFocusNode = FocusNode();
   final FocusNode passwordFocusNode = FocusNode();
   final FocusNode confirmFocusNode = FocusNode();
+  final FocusNode fullNameFocusNode = FocusNode();
+  final FocusNode locationFocusNode = FocusNode();
 
   late final AnimationController _animationController = AnimationController(
     vsync: this,
@@ -49,6 +53,8 @@ class _RegisterPageState extends State<RegisterPage>
   String? phoneError;
   String? passwordError;
   String? confirmError;
+  String? fullNameError;
+  String? locationError;
   bool isLoading = false;
   bool isRegisterSuccess = false;
 
@@ -64,9 +70,13 @@ class _RegisterPageState extends State<RegisterPage>
     phoneController.dispose();
     passwordController.dispose();
     confirmController.dispose();
+    fullNameController.dispose();
+    locationController.dispose();
     phoneFocusNode.dispose();
     passwordFocusNode.dispose();
     confirmFocusNode.dispose();
+    fullNameFocusNode.dispose();
+    locationFocusNode.dispose();
     super.dispose();
   }
 
@@ -75,6 +85,8 @@ class _RegisterPageState extends State<RegisterPage>
       phoneError = null;
       passwordError = null;
       confirmError = null;
+      fullNameError = null;
+      locationError = null;
       isLoading = true;
     });
 
@@ -83,6 +95,8 @@ class _RegisterPageState extends State<RegisterPage>
     String phone = phoneController.text.trim();
     String password = passwordController.text.trim();
     String confirmPassword = confirmController.text.trim();
+    String fullName = fullNameController.text.trim();
+    String location = locationController.text.trim();
 
     bool hasError = false;
 
@@ -108,6 +122,16 @@ class _RegisterPageState extends State<RegisterPage>
       hasError = true;
     } else if (password != confirmPassword) {
       setState(() => confirmError = "Mật khẩu xác nhận không khớp.");
+      hasError = true;
+    }
+
+    if (fullName.isEmpty) {
+      setState(() => fullNameError = "Tên không được để trống");
+      hasError = true;
+    }
+
+    if (location.isEmpty) {
+      setState(() => locationError = "Địa chỉ không được để trống");
       hasError = true;
     }
 
@@ -213,6 +237,20 @@ class _RegisterPageState extends State<RegisterPage>
                         ),
                         const SizedBox(height: 30),
                         MyTextField(
+                          controller: fullNameController,
+                          hintText: "Nhập tên của bạn",
+                          obscureText: true,
+                          keyboardType: TextInputType.text,
+                          errorText: fullNameError,
+                          focusNode: fullNameFocusNode,
+                          onChanged: (value) {
+                            if (fullNameError != null) {
+                              setState(() => fullNameError = null);
+                            }
+                          },
+                        ),
+                        const SizedBox(height: 15),
+                        MyTextField(
                           controller: phoneController,
                           hintText: "Nhập số điện thoại",
                           obscureText: false,
@@ -222,6 +260,20 @@ class _RegisterPageState extends State<RegisterPage>
                           onChanged: (value) {
                             if (phoneError != null) {
                               setState(() => phoneError = null);
+                            }
+                          },
+                        ),
+                        const SizedBox(height: 15),
+                        MyTextField(
+                          controller: locationController,
+                          hintText: "Nhập địa chỉ",
+                          obscureText: true,
+                          keyboardType: TextInputType.text,
+                          errorText: locationError,
+                          focusNode: locationFocusNode,
+                          onChanged: (value) {
+                            if (locationError != null) {
+                              setState(() => locationError = null);
                             }
                           },
                         ),
