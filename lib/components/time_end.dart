@@ -91,9 +91,9 @@ class _TimeEndState extends State<TimeEnd> {
       } else {
         _isEndTimeValid(startTime, picked)
             ? showPopUpWarning(
-            'Thời gian kết thúc phải trong khoảng từ 6h sáng đến 8h tối')
+                'Thời gian kết thúc phải trong khoảng từ 6h sáng đến 8h tối')
             : showPopUpWarning(
-            'Thời gian kết thúc phải sau thời gian bắt đầu ít nhất 2 tiếng');
+                'Thời gian kết thúc phải sau thời gian bắt đầu ít nhất 2 tiếng');
       }
     }
   }
@@ -101,11 +101,11 @@ class _TimeEndState extends State<TimeEnd> {
   bool _isTimeInValidRange(TimeOfDay time) {
     final now = DateTime.now();
     final selectedTime =
-    DateTime(now.year, now.month, now.day, time.hour, time.minute);
+        DateTime(now.year, now.month, now.day, time.hour, time.minute);
     final startOfValidRange =
-    DateTime(now.year, now.month, now.day, 6, 0); // 6h sáng
+        DateTime(now.year, now.month, now.day, 6, 0); // 6h sáng
     final endOfValidRange =
-    DateTime(now.year, now.month, now.day, 20, 1); // 8h tối
+        DateTime(now.year, now.month, now.day, 20, 1); // 8h tối
 
     return selectedTime.isAfter(startOfValidRange) &&
         selectedTime.isBefore(endOfValidRange);
@@ -142,7 +142,18 @@ class _TimeEndState extends State<TimeEnd> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12.0),
             decoration: BoxDecoration(
-              border: Border.all(color: Colors.green),
+              color: Colors.white,
+              border: Border.all(
+                color: Colors.grey.shade200,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  offset: Offset(0.0, 1.0),
+                  color: Colors.grey.withOpacity(0.2),
+                  blurRadius: 4.0,
+                  spreadRadius: 0.0,
+                )
+              ],
               borderRadius: BorderRadius.circular(8.0),
             ),
             child: Row(
@@ -151,23 +162,26 @@ class _TimeEndState extends State<TimeEnd> {
                 Text(
                   _selectedTime != null
                       ? formatTimeOfDay(_selectedTime!)
-                      : widget.startTime != null
-                      ? formatTimeOfDay(
-                    TimeOfDay(
-                      hour: widget.startTime!.hour + 2,
-                      minute: widget.startTime!.minute,
-                    ),
-                  )
-                      : 'Chọn thời gian kết thúc',
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontFamily: 'Quicksand',
-                    fontWeight: FontWeight.w600,
-                  ),
+                      : 'Chọn thời gian bắt đầu',
+                  style: _selectedTime != null
+                      ? TextStyle(
+                          fontSize: 16,
+                          fontStyle: FontStyle.normal,
+                          fontFamily: 'Quicksand',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
+                        )
+                      : TextStyle(
+                          fontSize: 15,
+                          fontStyle: FontStyle.italic,
+                          fontFamily: 'Quicksand',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey.shade400,
+                        ),
                 ),
-                const Icon(
+                Icon(
                   Icons.timelapse_rounded,
-                  color: Colors.green,
+                  color: Colors.green.shade400,
                 ),
               ],
             ),

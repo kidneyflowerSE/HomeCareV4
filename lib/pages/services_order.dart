@@ -105,6 +105,7 @@ class _ServicesOrderState extends State<ServicesOrder>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
         backgroundColor: Colors.green,
         leading: IconButton(
@@ -590,107 +591,151 @@ class _OnDemandState extends State<OnDemand> {
             ),
             const SizedBox(height: 20),
 
-            // Hiển thị tiêu đề "Địa điểm"
-            const Text("Địa điểm",
-                style: TextStyle(
-                    fontFamily: 'Quicksand',
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16)),
-            const SizedBox(height: 5),
+            // // Hiển thị tiêu đề "Địa điểm"
+            // const Text("Địa điểm",
+            //     style: TextStyle(
+            //         fontFamily: 'Quicksand',
+            //         fontWeight: FontWeight.w600,
+            //         fontSize: 16)),
+            // const SizedBox(height: 5),
 
             // Hiển thị địa chỉ hiện tại + Button Edit
-            Column(
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(15),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.1),
-                        spreadRadius: 1,
-                        blurRadius: 5,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.shade200,
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
                   ),
-                  child: ListTile(
-                    leading: const Icon(Icons.location_on_outlined,
-                        color: Colors.green),
-                    title: Text(
-                      selectedProvince != null &&
-                              selectedDistrict != null &&
-                              selectedWard != null &&
-                              selectedDetailedAddress != null
-                          ? "$selectedDetailedAddress, $selectedWard, $selectedDistrict, ${selectedProvince!.name}"
-                          : (widget.customer.addresses.isNotEmpty
-                              ? widget.customer.addresses[0].toString()
-                              : "Chưa có địa chỉ"),
-                      style: const TextStyle(fontSize: 14),
-                    ),
-                    trailing: IconButton(
-                      icon: Icon(
-                        isEditingLocation ? Icons.expand_less : Icons.edit,
-                        color: Colors.green,
-                      ),
-                      onPressed: () {
-                        if (mounted) {
-                          setState(() {
-                            isEditingLocation = !isEditingLocation;
-                          });
-                        }
-                      },
-                    ),
-                  ),
-                ),
-
-                // Khi nhấn edit thì hiện SelectLocation + Nhập địa chỉ chi tiết
-                if (isEditingLocation)
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: Column(
-                      children: [
-                        SelectLocation(
-                          locations: widget.locations,
-                          onProvinceSelected: (province) {
-                            setState(() {
-                              selectedProvince = province;
-                            });
-                            if (widget.onProvinceSelected != null) {
-                              widget.onProvinceSelected!(province);
-                            }
-                          },
-                          onDistrictSelected: (district) {
-                            setState(() {
-                              selectedDistrict = district;
-                            });
-                            if (widget.onDistrictSelected != null) {
-                              widget.onDistrictSelected!(district);
-                            }
-                          },
-                          onWardSelected: (ward) {
-                            setState(() {
-                              selectedWard = ward;
-                            });
-                            if (widget.onWardSelected != null) {
-                              widget.onWardSelected!(ward);
-                            }
-                          },
-                        ),
-                        AddressType(
-                          onAddressChanged: (detailedAddress) {
-                            setState(() {
-                              selectedDetailedAddress = detailedAddress;
-                            });
-                            if (widget.onDetailedAddressChanged != null) {
-                              widget.onDetailedAddressChanged!(detailedAddress);
-                            }
-                          },
-                        ),
+                    padding: const EdgeInsets.only(left: 8),
+                    child: Text(
+                      'Địa điểm',
+                      style: TextStyle(
+                        fontFamily: 'Quicksand',
+                        fontWeight: FontWeight.w800,
+                        fontSize: 16,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(15),
+                      boxShadow: [
+                        BoxShadow(
+                          offset: Offset(0.0, 1.0),
+                          color: Colors.grey.withOpacity(0.2),
+                          blurRadius: 4.0,
+                          spreadRadius: 0.0,
+                        )
                       ],
                     ),
+                    child: ListTile(
+                      // leading: const Icon(Icons.location_on_outlined,
+                      //     color: Colors.green),
+                      title: Text(
+                        selectedProvince != null &&
+                                selectedDistrict != null &&
+                                selectedWard != null &&
+                                selectedDetailedAddress != null
+                            ? "$selectedDetailedAddress, $selectedWard, $selectedDistrict, ${selectedProvince!.name}"
+                            : (widget.customer.addresses.isNotEmpty
+                                ? widget.customer.addresses[0].toString()
+                                : "Chưa có địa chỉ"),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontFamily: 'Quicksand',
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      trailing: IconButton(
+                        icon: Icon(
+                          isEditingLocation ? Icons.expand_less : Icons.edit,
+                          color: Colors.green,
+                        ),
+                        onPressed: () {
+                          if (mounted) {
+                            setState(() {
+                              isEditingLocation = !isEditingLocation;
+                            });
+                          }
+                        },
+                      ),
+                    ),
                   ),
-              ],
+                  const SizedBox(height: 10),
+
+                  // Khi nhấn edit thì hiện SelectLocation + Nhập địa chỉ chi tiết
+                  if (isEditingLocation)
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.shade200,
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          SelectLocation(
+                            locations: widget.locations,
+                            onProvinceSelected: (province) {
+                              setState(() {
+                                selectedProvince = province;
+                              });
+                              if (widget.onProvinceSelected != null) {
+                                widget.onProvinceSelected!(province);
+                              }
+                            },
+                            onDistrictSelected: (district) {
+                              setState(() {
+                                selectedDistrict = district;
+                              });
+                              if (widget.onDistrictSelected != null) {
+                                widget.onDistrictSelected!(district);
+                              }
+                            },
+                            onWardSelected: (ward) {
+                              setState(() {
+                                selectedWard = ward;
+                              });
+                              if (widget.onWardSelected != null) {
+                                widget.onWardSelected!(ward);
+                              }
+                            },
+                          ),
+                          AddressType(
+                            onAddressChanged: (detailedAddress) {
+                              setState(() {
+                                selectedDetailedAddress = detailedAddress;
+                              });
+                              if (widget.onDetailedAddressChanged != null) {
+                                widget
+                                    .onDetailedAddressChanged!(detailedAddress);
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
             ),
           ],
         ),
@@ -769,108 +814,152 @@ class _LongTermState extends State<LongTerm> {
               isOnDemand: false,
             ),
             const SizedBox(height: 20),
-            const Text(
-              "Địa điểm",
-              style: TextStyle(
-                fontFamily: 'Quicksand',
-                fontWeight: FontWeight.w600,
-                // color: Colors.green,
-                fontSize: 16,
+            // const Text(
+            //   "Địa điểm",
+            //   style: TextStyle(
+            //     fontFamily: 'Quicksand',
+            //     fontWeight: FontWeight.w600,
+            //     // color: Colors.green,
+            //     fontSize: 16,
+            //   ),
+            // ),
+            // const SizedBox(height: 5),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.shade200,
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 5),
-            Column(
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(15),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.1),
-                        spreadRadius: 1,
-                        blurRadius: 5,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: ListTile(
-                    leading: const Icon(Icons.location_on_outlined,
-                        color: Colors.green),
-                    title: Text(
-                      selectedProvince != null &&
-                              selectedDistrict != null &&
-                              selectedWard != null &&
-                              selectedDetailedAddress != null
-                          ? "$selectedDetailedAddress, $selectedWard, $selectedDistrict, ${selectedProvince!.name}"
-                          : (widget.customer.addresses.isNotEmpty
-                              ? widget.customer.addresses[0].toString()
-                              : "Chưa có địa chỉ"),
-                      style: const TextStyle(fontSize: 14),
-                    ),
-                    trailing: IconButton(
-                      icon: Icon(
-                        isEditingLocation ? Icons.expand_less : Icons.edit,
-                        color: Colors.green,
-                      ),
-                      onPressed: () {
-                        if (mounted) {
-                          setState(() {
-                            isEditingLocation = !isEditingLocation;
-                          });
-                        }
-                      },
-                    ),
-                  ),
-                ),
-
-                // Khi nhấn edit thì hiện SelectLocation + Nhập địa chỉ chi tiết
-                if (isEditingLocation)
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: Column(
-                      children: [
-                        SelectLocation(
-                          locations: widget.locations,
-                          onProvinceSelected: (province) {
-                            setState(() {
-                              selectedProvince = province;
-                            });
-                            if (widget.onProvinceSelected != null) {
-                              widget.onProvinceSelected!(province);
-                            }
-                          },
-                          onDistrictSelected: (district) {
-                            setState(() {
-                              selectedDistrict = district;
-                            });
-                            if (widget.onDistrictSelected != null) {
-                              widget.onDistrictSelected!(district);
-                            }
-                          },
-                          onWardSelected: (ward) {
-                            setState(() {
-                              selectedWard = ward;
-                            });
-                            if (widget.onWardSelected != null) {
-                              widget.onWardSelected!(ward);
-                            }
-                          },
-                        ),
-                        AddressType(
-                          onAddressChanged: (detailedAddress) {
-                            setState(() {
-                              selectedDetailedAddress = detailedAddress;
-                            });
-                            if (widget.onDetailedAddressChanged != null) {
-                              widget.onDetailedAddressChanged!(detailedAddress);
-                            }
-                          },
-                        ),
+                    padding: const EdgeInsets.only(left: 8),
+                    child: Text(
+                      'Địa điểm',
+                      style: TextStyle(
+                        fontFamily: 'Quicksand',
+                        fontWeight: FontWeight.w800,
+                        fontSize: 16,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(15),
+                      boxShadow: [
+                        BoxShadow(
+                          offset: Offset(0.0, 1.0),
+                          color: Colors.grey.withOpacity(0.2),
+                          blurRadius: 4.0,
+                          spreadRadius: 0.0,
+                        )
                       ],
                     ),
+                    child: ListTile(
+                      // leading: const Icon(Icons.location_on_outlined,
+                      //     color: Colors.green),
+                      title: Text(
+                        selectedProvince != null &&
+                                selectedDistrict != null &&
+                                selectedWard != null &&
+                                selectedDetailedAddress != null
+                            ? "$selectedDetailedAddress, $selectedWard, $selectedDistrict, ${selectedProvince!.name}"
+                            : (widget.customer.addresses.isNotEmpty
+                                ? widget.customer.addresses[0].toString()
+                                : "Chưa có địa chỉ"),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontFamily: 'Quicksand',
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      trailing: IconButton(
+                        icon: Icon(
+                          isEditingLocation ? Icons.expand_less : Icons.edit,
+                          color: Colors.green,
+                        ),
+                        onPressed: () {
+                          if (mounted) {
+                            setState(() {
+                              isEditingLocation = !isEditingLocation;
+                            });
+                          }
+                        },
+                      ),
+                    ),
                   ),
-              ],
+                  const SizedBox(height: 10),
+
+                  // Khi nhấn edit thì hiện SelectLocation + Nhập địa chỉ chi tiết
+                  if (isEditingLocation)
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.shade200,
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          SelectLocation(
+                            locations: widget.locations,
+                            onProvinceSelected: (province) {
+                              setState(() {
+                                selectedProvince = province;
+                              });
+                              if (widget.onProvinceSelected != null) {
+                                widget.onProvinceSelected!(province);
+                              }
+                            },
+                            onDistrictSelected: (district) {
+                              setState(() {
+                                selectedDistrict = district;
+                              });
+                              if (widget.onDistrictSelected != null) {
+                                widget.onDistrictSelected!(district);
+                              }
+                            },
+                            onWardSelected: (ward) {
+                              setState(() {
+                                selectedWard = ward;
+                              });
+                              if (widget.onWardSelected != null) {
+                                widget.onWardSelected!(ward);
+                              }
+                            },
+                          ),
+                          AddressType(
+                            onAddressChanged: (detailedAddress) {
+                              setState(() {
+                                selectedDetailedAddress = detailedAddress;
+                              });
+                              if (widget.onDetailedAddressChanged != null) {
+                                widget
+                                    .onDetailedAddressChanged!(detailedAddress);
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
             ),
           ],
         ),

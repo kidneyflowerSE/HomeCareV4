@@ -41,8 +41,13 @@ class _HelperListState extends State<HelperList> {
   late List<Helper> helpers = [];
   late List<TimeOff> timeOffList = [];
   bool _isLoading = true;
-  String _selectedFilter = 'All';
-  final List<String> _filters = ['All', 'Experience', 'Rating', 'Distance'];
+  String _selectedFilter = 'Tất cả';
+  final List<String> _filters = [
+    'Tất cả',
+    'Kinh nghiệm',
+    'Đánh giá',
+    'Khoảng cách'
+  ];
 
   @override
   void initState() {
@@ -75,25 +80,59 @@ class _HelperListState extends State<HelperList> {
     final filteredHelpers = _filterHelpers();
 
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
-      body: CustomScrollView(
-        slivers: [
-          _buildSliverAppBar(),
-          if (_isLoading)
-            const SliverFillRemaining(child: LoadingView())
-          else if (filteredHelpers.isEmpty)
-            const SliverFillRemaining(child: EmptyStateView())
-          else
-            SliverToBoxAdapter(
-              child: Column(
-                children: [
-                  _buildFilterSection(),
-                  _buildHelperGrid(filteredHelpers),
-                ],
-              ),
+      appBar: AppBar(
+          title: Text(
+            'Chọn người giúp việc',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontFamily: 'Quicksand',
             ),
-        ],
-      ),
+          ),
+          backgroundColor: Colors.green,
+          iconTheme: IconThemeData(
+            color: Colors.white,
+          ),
+          actions: [
+            GestureDetector(
+              onTap: () => {},
+              child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  margin: const EdgeInsets.only(right: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      Text(
+                        'Bỏ qua',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.red,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'Quicksand',
+                        ),
+                      )
+                    ],
+                  )),
+            )
+          ]),
+      backgroundColor: Colors.grey.shade50,
+      body: _isLoading
+          ? const LoadingView()
+          : filteredHelpers.isEmpty
+              ? const EmptyStateView()
+              : Column(
+                  children: [
+                    _buildFilterSection(),
+                    Expanded(
+                      child: _buildHelperGrid(filteredHelpers),
+                    ),
+                  ],
+                ),
     );
   }
 
@@ -113,14 +152,14 @@ class _HelperListState extends State<HelperList> {
     }).toList();
 
     switch (_selectedFilter) {
-      case 'Experience':
+      case 'Kinh nghiệm':
         availableHelpers
             .sort((a, b) => b.yearOfExperience.compareTo(a.yearOfExperience));
         break;
-      case 'Rating':
+      case 'Đánh giá':
         // Implement rating sort when available
         break;
-      case 'Distance':
+      case 'Khoảng cách':
         // Implement distance sort when available
         break;
     }
@@ -128,49 +167,12 @@ class _HelperListState extends State<HelperList> {
     return availableHelpers;
   }
 
-  Widget _buildSliverAppBar() {
-    return SliverAppBar(
-      expandedHeight: 60,
-      floating: true,
-      // pinned: true,
-      backgroundColor: Colors.green,
-      elevation: 0,
-      leading: IconButton(
-        icon: Container(
-          alignment: Alignment.center,
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.grey[100],
-            shape: BoxShape.circle,
-          ),
-          child: const Icon(Icons.arrow_back_ios_new_outlined,
-              color: Colors.black),
-        ),
-        onPressed: () => Navigator.pop(context),
-      ),
-      flexibleSpace: FlexibleSpaceBar(
-        background: Container(
-          color: Colors.green,
-          padding: const EdgeInsets.fromLTRB(20, 60, 20, 20),
-          child: const Text(
-            'Chọn người giúp việc',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-              fontFamily: 'Quicksand',
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildFilterSection() {
     return Container(
+      width: double.infinity,
       height: 50,
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      margin: const EdgeInsets.only(top: 10),
+      padding: const EdgeInsets.only(left: 20),
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: _filters.length,
@@ -179,15 +181,27 @@ class _HelperListState extends State<HelperList> {
           final filter = _filters[index];
           final isSelected = _selectedFilter == filter;
           return FilterChip(
-            label: Text(filter),
+            label: Text(
+              filter,
+              style: TextStyle(
+                fontFamily: 'Quicksand',
+                fontSize: 15,
+              ),
+            ),
             selected: isSelected,
             onSelected: (selected) {
               setState(() => _selectedFilter = filter);
             },
-            backgroundColor: isSelected ? Colors.blue : Colors.grey[100],
+            selectedColor: isSelected ? Colors.green : Colors.white,
             labelStyle: TextStyle(
-              color: isSelected ? Colors.white : Colors.black,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              color: isSelected ? Colors.white : Colors.green,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+              fontFamily: 'Quicksand',
+            ),
+            shape: StadiumBorder(
+              side: BorderSide(
+                color: isSelected ? Colors.transparent : Colors.green,
+              ),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           );
@@ -200,7 +214,10 @@ class _HelperListState extends State<HelperList> {
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 20,
+        vertical: 10,
+      ),
       itemCount: helpers.length,
       itemBuilder: (context, index) {
         return Padding(
@@ -295,11 +312,13 @@ class HelperCard extends StatelessWidget {
                 _buildJobTags(),
               ],
             ),
-            Row(
-              children: [
-                _buildActionButton(context),
-              ],
-            ),
+            // Row(
+            //   children: [
+            //     _buildActionButton(context),
+            //   ],
+            // ),
+            const SizedBox(height: 8),
+            _buildActionButton(context),
           ],
         ),
       ),
@@ -423,40 +442,43 @@ class HelperCard extends StatelessWidget {
 
   /// Nút hành động (Chi tiết)
   Widget _buildActionButton(BuildContext context) {
-    return Container(
-      alignment: Alignment.center,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          TextButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => HelperDetailPage(helper: helper),
-                ),
-              );
-            },
-            child: const Text(
-              'Chi tiết',
-              style: TextStyle(
-                color: Colors.blue,
-                fontFamily: 'Quicksand',
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        ElevatedButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => HelperDetailPage(helper: helper),
               ),
+            );
+          },
+          style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+          child: Text(
+            'Thông tin',
+            style: TextStyle(
+              color: Colors.white,
+              fontFamily: 'Quicksand',
+              fontSize: 14,
+              fontWeight: FontWeight.w800,
             ),
           ),
-          TextButton(
-            onPressed: onTap,
-            child: const Text(
-              'Chọn người giúp việc',
-              style: TextStyle(
-                color: Colors.blue,
-                fontFamily: 'Quicksand',
-              ),
+        ),
+        ElevatedButton(
+          onPressed: onTap,
+          style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+          child: Text(
+            'Chọn người này',
+            style: TextStyle(
+              color: Colors.white,
+              fontFamily: 'Quicksand',
+              fontSize: 14,
+              fontWeight: FontWeight.w800,
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

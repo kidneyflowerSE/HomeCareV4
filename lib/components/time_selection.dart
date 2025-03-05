@@ -6,14 +6,14 @@ import 'calendar.dart';
 class TimeSelection extends StatefulWidget {
   final Function(TimeOfDay?, TimeOfDay?)? onTimeChanged;
   final Function(DateTime?, String?)? onDateChanged;
-  final Function(bool)? onVisibilityChanged; // Callback theo dõi visibility
+  final Function(bool)? onVisibilityChanged;
   final bool isOnDemand;
 
   const TimeSelection({
     super.key,
     this.onTimeChanged,
     this.onDateChanged,
-    this.onVisibilityChanged, // Nhận callback
+    this.onVisibilityChanged,
     required this.isOnDemand,
   });
 
@@ -25,13 +25,11 @@ class _TimeSelectionState extends State<TimeSelection> {
   TimeOfDay? _startTime;
   TimeOfDay? _endTime;
   DateTime? _selectedDate;
-  bool isVisibilityActive = false; // Trạng thái của Visibility
+  bool isVisibilityActive = false;
 
   @override
   void initState() {
     super.initState();
-
-    // Đảm bảo setState() chỉ chạy sau khi build hoàn tất
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         setState(() {
@@ -71,80 +69,94 @@ class _TimeSelectionState extends State<TimeSelection> {
   bool _isEndTimeValid(TimeOfDay start, TimeOfDay end) {
     final startMinutes = start.hour * 60 + start.minute;
     final endMinutes = end.hour * 60 + end.minute;
-    return endMinutes - startMinutes >= 120; // Tối thiểu 2 tiếng
+    return endMinutes - startMinutes >= 120;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          widget.isOnDemand ? "Thời gian" : "Ngày bắt đầu",
-          style: const TextStyle(
-            fontFamily: 'Quicksand',
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.shade200,
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
-        ),
-        const SizedBox(height: 5),
-        CalendarDropdown(
-          onDateSelected: (date) => _updateSelectedDate(date, "start"),
-          initialDate: null,
-        ),
-        Visibility(
-          visible: !widget.isOnDemand,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 20),
-              const Text(
-                "Ngày kết thúc",
-                style: TextStyle(
-                  fontFamily: 'Quicksand',
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
-                ),
-              ),
-              const SizedBox(height: 5),
-              CalendarDropdown(
-                onDateSelected: (date) => _updateSelectedDate(date, "end"),
-                initialDate: DateTime.now(),
-              ),
-            ],
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionTitle(
+            widget.isOnDemand ? "Thời gian" : "Ngày bắt đầu",
           ),
-        ),
-        const SizedBox(height: 20),
-        const Text(
-          "Giờ bắt đầu",
-          style: TextStyle(
-            fontFamily: 'Quicksand',
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
+          const SizedBox(height: 10),
+          _buildCalendarSection(),
+          if (!widget.isOnDemand) ...[
+            const SizedBox(height: 20),
+            _buildSectionTitle("Ngày kết thúc"),
+            const SizedBox(height: 10),
+            _buildEndDateCalendarSection(),
+          ],
+          const SizedBox(height: 20),
+          _buildSectionTitle("Giờ bắt đầu"),
+          const SizedBox(height: 10),
+          TimeStart(
+            initialTime: _startTime,
+            onTimeChanged: _updateStartTime,
+            date: _selectedDate,
           ),
-        ),
-        const SizedBox(height: 5),
-        TimeStart(
-          initialTime: _startTime,
-          onTimeChanged: _updateStartTime,
-          date: _selectedDate,
-        ),
-        const SizedBox(height: 20),
-        const Text(
-          "Giờ kết thúc",
-          style: TextStyle(
-            fontFamily: 'Quicksand',
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
+          const SizedBox(height: 20),
+          _buildSectionTitle("Giờ kết thúc"),
+          const SizedBox(height: 10),
+          TimeEnd(
+            startTime: _startTime,
+            initialTime: _endTime,
+            onTimeChanged: _updateEndTime,
           ),
-        ),
-        const SizedBox(height: 5),
-        TimeEnd(
-          startTime: _startTime,
-          initialTime: _endTime,
-          onTimeChanged: _updateEndTime,
-        ),
-      ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title,
+      style: TextStyle(
+        fontFamily: 'Quicksand',
+        fontWeight: FontWeight.w800,
+        fontSize: 16,
+        color: Colors.grey,
+      ),
+    );
+  }
+
+  Widget _buildCalendarSection() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: CalendarDropdown(
+        onDateSelected: (date) => _updateSelectedDate(date, "start"),
+        initialDate: null,
+      ),
+    );
+  }
+
+  Widget _buildEndDateCalendarSection() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: CalendarDropdown(
+        onDateSelected: (date) => _updateSelectedDate(date, "end"),
+        initialDate: DateTime.now(),
+      ),
     );
   }
 }

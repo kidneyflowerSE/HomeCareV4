@@ -4,6 +4,7 @@ import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:foodapp/data/model/CostFactor.dart';
 import 'package:foodapp/data/model/helper.dart';
+import 'package:foodapp/pages/helper_detail_page.dart';
 import 'package:foodapp/pages/order_success_page.dart';
 import 'package:foodapp/pages/payment_page.dart';
 import 'package:intl/intl.dart';
@@ -560,13 +561,30 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                     color: Colors.grey.shade200,
                   ),
                   ListTile(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              HelperDetailPage(helper: widget.helper),
+                        ),
+                      );
+                    },
                     contentPadding: EdgeInsets.zero,
-                    leading: const CircleAvatar(
-                      backgroundColor: Color(0xFFE8F5E9),
-                      child: Icon(Icons.person, color: Color(0xFF2E7D32)),
+                    leading: CircleAvatar(
+                      backgroundColor: const Color(0xFFE8F5E9),
+                      child: ClipRRect(
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(10)),
+                        child: Image.network(
+                          widget.helper.avatar ?? "",
+                          fit: BoxFit.cover,
+                        ),
+                      ),
                     ),
                     title: Text(
-                      widget.customer.name,
+                      // widget.customer.name,
+                      widget.helper.fullName ?? 'Hệ thống chọn',
                       style: const TextStyle(
                         fontFamily: 'Quicksand',
                         fontSize: 16,
@@ -574,7 +592,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                       ),
                     ),
                     subtitle: Text(
-                      widget.customer.phone,
+                      widget.helper.phone ?? "",
                       style: const TextStyle(
                         fontFamily: 'Quicksand',
                         fontSize: 14,

@@ -6,6 +6,7 @@ class SelectLocation extends StatefulWidget {
   final Function(Location)? onProvinceSelected;
   final Function(String)? onDistrictSelected;
   final Function(String)? onWardSelected;
+  // final Function(String) onAddressChanged;
 
   const SelectLocation({
     super.key,
@@ -13,6 +14,7 @@ class SelectLocation extends StatefulWidget {
     this.onProvinceSelected,
     this.onDistrictSelected,
     this.onWardSelected,
+    // required this.onAddressChanged,
   });
 
   @override
@@ -26,6 +28,7 @@ class _SelectLocationState extends State<SelectLocation> {
 
   List<District> districts = [];
   List<Ward> wards = [];
+  String address = '';
 
   @override
   Widget build(BuildContext context) {
@@ -53,6 +56,8 @@ class _SelectLocationState extends State<SelectLocation> {
           const SizedBox(height: 16),
           _buildSectionTitle('Phường/Xã'),
           _buildWardDropdown(),
+          const SizedBox(height: 16),
+          _buildLocationType(),
         ],
       ),
     );
@@ -197,6 +202,31 @@ class _SelectLocationState extends State<SelectLocation> {
               ),
             );
           }).toList(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLocationType() {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: TextField(
+        onChanged: null, // Gửi dữ liệu ra ngoài
+        decoration: InputDecoration(
+          hintText: 'Nhap dia chi',
+          hintStyle: const TextStyle(
+            fontFamily: 'Quicksand',
+            fontStyle: FontStyle.italic,
+            fontSize: 15,
+            color: Colors.grey,
+            fontWeight: FontWeight.w500,
+          ),
+          border: InputBorder.none,
+          // contentPadding: const EdgeInsets.symmetric(horizontal: 20),
         ),
       ),
     );

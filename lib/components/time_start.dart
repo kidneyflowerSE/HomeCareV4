@@ -171,7 +171,18 @@ class _TimeStartState extends State<TimeStart> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12.0),
             decoration: BoxDecoration(
-              border: Border.all(color: Colors.green),
+              color: Colors.white,
+              border: Border.all(
+                color: Colors.grey.shade200,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  offset: Offset(0.0, 1.0),
+                  color: Colors.grey.withOpacity(0.2),
+                  blurRadius: 4.0,
+                  spreadRadius: 0.0,
+                )
+              ],
               borderRadius: BorderRadius.circular(8.0),
             ),
             child: Row(
@@ -181,11 +192,21 @@ class _TimeStartState extends State<TimeStart> {
                   _selectedTime != null
                       ? formatTimeOfDay(_selectedTime!)
                       : 'Chọn thời gian bắt đầu',
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontFamily: 'Quicksand',
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: _selectedTime != null
+                      ? TextStyle(
+                          fontSize: 16,
+                          fontStyle: FontStyle.normal,
+                          fontFamily: 'Quicksand',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
+                        )
+                      : TextStyle(
+                          fontSize: 15,
+                          fontStyle: FontStyle.italic,
+                          fontFamily: 'Quicksand',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey.shade400,
+                        ),
                 ),
                 const Icon(
                   Icons.timelapse_rounded,

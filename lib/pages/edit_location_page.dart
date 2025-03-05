@@ -19,7 +19,8 @@ class EditLocationPage extends StatefulWidget {
     this.onProvinceSelected,
     this.onDistrictSelected,
     this.onDetailedAddressChanged,
-    required this.onAddressUpdated, this.onWardSelected,
+    required this.onAddressUpdated,
+    this.onWardSelected,
   });
 
   @override
@@ -84,11 +85,11 @@ class _EditLocationPageState extends State<EditLocationPage> {
                       widget.onDistrictSelected!(district);
                     }
                   },
-                  onWardSelected: (String ward){
+                  onWardSelected: (String ward) {
                     setState(() {
                       selectedWard = ward;
                     });
-                    if(widget.onWardSelected!(ward));
+                    if (widget.onWardSelected!(ward)) ;
                   },
                 ),
                 const Divider(height: 16, color: Colors.grey),

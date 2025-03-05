@@ -13,30 +13,12 @@ class HelperDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          _buildAppBar(context),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildBasicInfo(),
-                  const SizedBox(height: 24),
-                  _buildWorkExperience(),
-                  const SizedBox(height: 24),
-                  _buildPersonalInfo(),
-                  const SizedBox(height: 24),
-                  _buildWorkingArea(),
-                  const SizedBox(height: 24),
-                  _buildHealthInfo(),
-                  const SizedBox(height: 24),
-                  _buildEducationInfo(),
-                  const SizedBox(height: 32),
-                ],
-              ),
-            ),
+      appBar: _buildAppBar(context),
+      body: Column(
+        children: [
+          _buildProfileHeader(context),
+          Expanded(
+            child: _buildTabbedContent(context),
           ),
         ],
       ),
@@ -44,359 +26,85 @@ class HelperDetailPage extends StatelessWidget {
     );
   }
 
-  Widget _buildAppBar(BuildContext context) {
-    return SliverAppBar(
-      expandedHeight: 300,
-      backgroundColor: Colors.green,
-      pinned: true,
+  AppBar _buildAppBar(BuildContext context) {
+    return AppBar(
       title: Text(
         helper.fullName ?? 'No Name',
         style: const TextStyle(
-          color: Colors.white,
-          fontSize: 18,
+          fontFamily: 'Quicksand',
           fontWeight: FontWeight.bold,
+          fontSize: 18,
         ),
       ),
-      flexibleSpace: FlexibleSpaceBar(
-        background: Stack(
-          fit: StackFit.expand,
-          children: [
-            Hero(
-              tag: 'helper_avatar_${helper.id}',
-              child: helper.avatar != null && helper.avatar!.isNotEmpty
-                  ? Image.network(
-                      helper.avatar!,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) =>
-                          _buildAvatarPlaceholder(),
-                    )
-                  : _buildAvatarPlaceholder(),
-            ),
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.transparent,
-                    Colors.black.withOpacity(0.7),
-                  ],
-                ),
-              ),
-            ),
-            Positioned(
-              bottom: 16,
-              left: 16,
-              right: 16,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    helper.fullName ?? 'No Name',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Icon(Icons.star, color: Colors.amber, size: 20),
-                      const SizedBox(width: 4),
-                      Text(
-                        '4.8',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
+      backgroundColor: Colors.green.shade600,
+      foregroundColor: Colors.white,
+      elevation: 0,
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.share),
+          onPressed: () {},
         ),
-      ),
-      leading: IconButton(
-        icon: const CircleAvatar(
-          backgroundColor: Colors.white,
-          child: Icon(Icons.arrow_back_ios_new_outlined, color: Colors.black),
-        ),
-        onPressed: () => Navigator.pop(context),
-      ),
-    );
-  }
-
-  Widget _buildAvatarPlaceholder() {
-    return Container(
-      color: Colors.grey[200],
-      child: Icon(
-        Icons.person,
-        size: 80,
-        color: Colors.grey[400],
-      ),
-    );
-  }
-
-  Widget _buildBasicInfo() {
-    return _buildSection(
-      title: 'Thông tin cơ bản',
-      child: Column(
-        children: [
-          _buildInfoRow(
-            icon: Icons.phone,
-            title: 'Số điện thoại',
-            value: helper.phone ?? 'Chưa cập nhật',
-          ),
-          _buildInfoRow(
-            icon: Icons.calendar_today,
-            title: 'Ngày bắt đầu làm việc',
-            value: helper.startDate != null
-                ? DateFormat('dd/MM/yyyy')
-                    .format(DateTime.parse(helper.startDate!))
-                : 'Chưa cập nhật',
-          ),
-          _buildInfoRow(
-            icon: Icons.work,
-            title: 'Mã nhân viên',
-            value: helper.helperId ?? 'Chưa cập nhật',
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildWorkExperience() {
-    return _buildSection(
-      title: 'Kinh nghiệm làm việc',
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildInfoRow(
-            icon: Icons.timer,
-            title: 'Số năm kinh nghiệm',
-            value: '${helper.yearOfExperience} năm',
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'Các công việc có thể làm:',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: helper.jobs.map((job) => _buildJobChip(job)).toList(),
-          ),
-          if (helper.experienceDescription != null) ...[
-            const SizedBox(height: 12),
-            Text(
-              'Mô tả kinh nghiệm:',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              helper.experienceDescription!,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[700],
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPersonalInfo() {
-    return _buildSection(
-      title: 'Thông tin cá nhân',
-      child: Column(
-        children: [
-          _buildInfoRow(
-            icon: Icons.cake,
-            title: 'Ngày sinh',
-            value: helper.birthDay != null
-                ? DateFormat('dd/MM/yyyy')
-                    .format(DateTime.parse(helper.birthDay!))
-                : 'Chưa cập nhật',
-          ),
-          _buildInfoRow(
-            icon: Icons.location_city,
-            title: 'Nơi sinh',
-            value: helper.birthPlace ?? 'Chưa cập nhật',
-          ),
-          _buildInfoRow(
-            icon: Icons.home,
-            title: 'Địa chỉ',
-            value: helper.address ?? 'Chưa cập nhật',
-          ),
-          _buildInfoRow(
-            icon: Icons.person,
-            title: 'Giới tính',
-            value: helper.gender ?? 'Chưa cập nhật',
-          ),
-          _buildInfoRow(
-            icon: Icons.flag,
-            title: 'Quốc tịch',
-            value: helper.nationality ?? 'Chưa cập nhật',
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildWorkingArea() {
-    return _buildSection(
-      title: 'Khu vực làm việc',
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildInfoRow(
-            icon: Icons.location_on,
-            title: 'Tỉnh/Thành phố',
-            value: helper.workingArea.province,
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'Quận/Huyện:',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: helper.workingArea.districts
-                .map((district) => _buildDistrictChip(district))
-                .toList(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHealthInfo() {
-    return _buildSection(
-      title: 'Thông tin sức khỏe',
-      child: Column(
-        children: [
-          _buildInfoRow(
-            icon: Icons.height,
-            title: 'Chiều cao',
-            value: '${helper.height} cm',
-          ),
-          _buildInfoRow(
-            icon: Icons.monitor_weight,
-            title: 'Cân nặng',
-            value: '${helper.weight} kg',
-          ),
-          const SizedBox(height: 12),
-          if (helper.healthCertificates.isNotEmpty) ...[
-            Text(
-              'Giấy khám sức khỏe:',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const SizedBox(height: 8),
-            GridView.builder(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                crossAxisSpacing: 8,
-                mainAxisSpacing: 8,
-              ),
-              itemCount: helper.healthCertificates.length,
-              itemBuilder: (context, index) {
-                return ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.network(
-                    helper.healthCertificates[index],
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      color: Colors.grey[200],
-                      child: Icon(Icons.image_not_supported),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEducationInfo() {
-    return _buildSection(
-      title: 'Trình độ học vấn',
-      child: _buildInfoRow(
-        icon: Icons.school,
-        title: 'Trình độ',
-        value: helper.educationLevel ?? 'Chưa cập nhật',
-      ),
-    );
-  }
-
-  Widget _buildSection({required String title, required Widget child}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 16),
-        child,
       ],
     );
   }
 
-  Widget _buildInfoRow({
-    required IconData icon,
-    required String title,
-    required String value,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+  Widget _buildProfileHeader(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.green.shade100.withOpacity(0.5),
+            spreadRadius: 2,
+            blurRadius: 5,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 20, color: Colors.blue),
-          const SizedBox(width: 12),
+          Hero(
+            tag: 'helper_avatar_${helper.id}',
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.green.shade200, width: 3),
+              ),
+              child: CircleAvatar(
+                radius: 50,
+                backgroundColor: Colors.grey[200],
+                backgroundImage: helper.avatar?.isNotEmpty == true
+                    ? NetworkImage(helper.avatar!)
+                    : null,
+                child: helper.avatar?.isNotEmpty != true
+                    ? Icon(Icons.person, size: 50, color: Colors.grey[400])
+                    : null,
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  title,
+                  helper.helperId ?? 'No ID',
                   style: TextStyle(
+                    color: Colors.green.shade700,
                     fontSize: 14,
-                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 8),
                 Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
+                  helper.phone ?? 'Chưa cập nhật',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey[800],
                   ),
                 ),
               ],
@@ -407,25 +115,322 @@ class HelperDetailPage extends StatelessWidget {
     );
   }
 
-  Widget _buildJobChip(String job) {
-    return Chip(
-      label: Text(
-        job,
-        style: const TextStyle(fontSize: 12),
+  Widget _buildTabbedContent(BuildContext context) {
+    return DefaultTabController(
+      length: 3,
+      child: Column(
+        children: [
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: Colors.green.shade50,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: TabBar(
+              indicator: BoxDecoration(
+                color: Colors.green.shade600,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              labelColor: Colors.white,
+              unselectedLabelColor: Colors.green.shade800,
+              tabs: const [
+                Tab(text: 'Cơ bản'),
+                Tab(text: 'Kinh nghiệm'),
+                Tab(text: 'Chi tiết'),
+              ],
+            ),
+          ),
+          SizedBox(
+            height: 500, // Adjust as needed
+            child: TabBarView(
+              children: [
+                _buildBasicTab(),
+                _buildExperienceTab(),
+                _buildDetailsTab(),
+              ],
+            ),
+          ),
+        ],
       ),
-      backgroundColor: Colors.blue.shade50,
-      side: BorderSide(color: Colors.blue.shade100),
     );
   }
 
-  Widget _buildDistrictChip(String district) {
-    return Chip(
-      label: Text(
-        district,
-        style: const TextStyle(fontSize: 12),
+  Widget _buildBasicTab() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildInfoSection('Thông tin cơ bản', [
+            _buildInfoTile(
+              'Ngày bắt đầu',
+              helper.startDate != null
+                  ? DateFormat('dd/MM/yyyy')
+                      .format(DateTime.parse(helper.startDate!))
+                  : 'Chưa cập nhật',
+            ),
+            _buildInfoTile('Mã nhân viên', helper.helperId ?? 'Chưa cập nhật'),
+            _buildInfoTile('Tỉnh/TP', helper.workingArea.province),
+          ]),
+          if (helper.workingArea.districts.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            _buildChipSection(
+                'Quận/Huyện',
+                helper.workingArea.districts
+                    .map((district) => _buildChip(district))
+                    .toList()),
+          ],
+        ],
       ),
+    );
+  }
+
+  Widget _buildExperienceTab() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildInfoSection('Kinh nghiệm', [
+            _buildInfoTile(
+                'Tổng kinh nghiệm', '${helper.yearOfExperience} năm'),
+          ]),
+          if (helper.jobs.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            _buildChipSection(
+                'Kỹ năng', helper.jobs.map((job) => _buildChip(job)).toList()),
+          ],
+          if (helper.experienceDescription != null) ...[
+            const SizedBox(height: 16),
+            _buildInfoSection('Mô tả chi tiết', [
+              Text(
+                helper.experienceDescription!,
+                style: TextStyle(
+                  color: Colors.grey[700],
+                  fontSize: 16,
+                  height: 1.5,
+                ),
+              ),
+            ]),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailsTab() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildInfoSection('Thông tin cá nhân', [
+            _buildInfoTile(
+              'Ngày sinh',
+              helper.birthDay != null
+                  ? DateFormat('dd/MM/yyyy')
+                      .format(DateTime.parse(helper.birthDay!))
+                  : 'Chưa cập nhật',
+            ),
+            _buildInfoTile('Nơi sinh', helper.birthPlace ?? 'Chưa cập nhật'),
+            _buildInfoTile('Địa chỉ', helper.address ?? 'Chưa cập nhật'),
+            _buildInfoTile('Giới tính', helper.gender ?? 'Chưa cập nhật'),
+            _buildInfoTile('Quốc tịch', helper.nationality ?? 'Chưa cập nhật'),
+          ]),
+          const SizedBox(height: 16),
+          _buildInfoSection('Sức khỏe', [
+            _buildInfoTile('Chiều cao', '${helper.height} cm'),
+            _buildInfoTile('Cân nặng', '${helper.weight} kg'),
+          ]),
+          if (helper.healthCertificates.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            _buildCertificateSection(),
+          ],
+          const SizedBox(height: 16),
+          _buildInfoSection('Học vấn', [
+            _buildInfoTile(
+                'Trình độ', helper.educationLevel ?? 'Chưa cập nhật'),
+          ]),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoSection(String title, List<Widget> children) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.green.shade100.withOpacity(0.3),
+            spreadRadius: 1,
+            blurRadius: 3,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.green.shade800,
+            ),
+          ),
+          const SizedBox(height: 12),
+          ...children,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildChipSection(String title, List<Widget> chips) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.green.shade100.withOpacity(0.3),
+            spreadRadius: 1,
+            blurRadius: 3,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.green.shade800,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: chips,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCertificateSection() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.green.shade100.withOpacity(0.3),
+            spreadRadius: 1,
+            blurRadius: 3,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Chứng nhận sức khỏe',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.green.shade800,
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 120,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: helper.healthCertificates.length,
+              itemBuilder: (context, index) => Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.shade300,
+                        spreadRadius: 1,
+                        blurRadius: 3,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.network(
+                      helper.healthCertificates[index],
+                      width: 120,
+                      height: 120,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoTile(String title, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 120,
+            child: Text(
+              title,
+              style: TextStyle(
+                color: Colors.green.shade700,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey[800],
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildChip(String label) {
+    return Chip(
+      label: Text(label),
       backgroundColor: Colors.green.shade50,
-      side: BorderSide(color: Colors.green.shade100),
+      labelStyle: TextStyle(
+        color: Colors.green.shade800,
+        fontWeight: FontWeight.w500,
+      ),
+      side: BorderSide(color: Colors.green.shade200),
     );
   }
 
@@ -436,36 +441,49 @@ class HelperDetailPage extends StatelessWidget {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
+            color: Colors.grey.shade300,
+            spreadRadius: 1,
+            blurRadius: 5,
+            offset: const Offset(0, -2),
           ),
         ],
       ),
       child: Row(
         children: [
           Expanded(
-            child: OutlinedButton.icon(
-              onPressed: () {
-                // Handle message action
-              },
-              icon: const Icon(Icons.message),
-              label: const Text('Nhắn tin'),
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 12),
+            child: ElevatedButton.icon(
+              onPressed: () {},
+              icon: Icon(
+                Icons.message,
+                color: Colors.green.shade600,
+              ),
+              label: Text(
+                'Chat',
+                style: TextStyle(color: Colors.green.shade600),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green.shade50,
+                elevation: 0,
+                side: BorderSide(color: Colors.green.shade200),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
             ),
           ),
           const SizedBox(width: 16),
           Expanded(
-            child: ElevatedButton(
-              onPressed: () {
-                // Handle hire action
-              },
+            child: ElevatedButton.icon(
+              onPressed: () {},
+              icon: const Icon(Icons.person_add, color: Colors.white),
+              label: const Text('Thuê'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                backgroundColor: Colors.green.shade600,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
-              child: const Text('Thuê ngay'),
             ),
           ),
         ],
