@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../components/city_selected.dart';
 import '../data/model/customer.dart';
 import '../data/model/location.dart';
@@ -18,9 +17,9 @@ class EditLocationPage extends StatefulWidget {
     required this.customer,
     this.onProvinceSelected,
     this.onDistrictSelected,
+    this.onWardSelected,
     this.onDetailedAddressChanged,
     required this.onAddressUpdated,
-    this.onWardSelected,
   });
 
   @override
@@ -59,63 +58,53 @@ class _EditLocationPageState extends State<EditLocationPage> {
     return isLoading
         ? Center(child: CircularProgressIndicator())
         : Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SelectLocation(
-                  locations: locations,
-                  onProvinceSelected: (Location province) {
-                    setState(() {
-                      selectedProvince = province;
-                    });
-                    if (widget.onProvinceSelected != null) {
-                      widget.onProvinceSelected!(province);
-                    }
-                  },
-                  onDistrictSelected: (String district) {
-                    setState(() {
-                      selectedDistrict = district;
-                    });
-                    if (widget.onDistrictSelected != null) {
-                      widget.onDistrictSelected!(district);
-                    }
-                  },
-                  onWardSelected: (String ward) {
-                    setState(() {
-                      selectedWard = ward;
-                    });
-                    if (widget.onWardSelected!(ward)) ;
-                  },
-                ),
-                const Divider(height: 16, color: Colors.grey),
-                TextField(
-                  decoration: InputDecoration(
-                    hintText: "Địa chỉ cụ thể",
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-                  ),
-                  onChanged: (value) {
-                    detailedAddress = value;
-                  },
-                ),
-                const SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: () {
-                    widget.onDetailedAddressChanged?.call(detailedAddress!);
-                    widget.onAddressUpdated();
-                  },
-                  style:
-                      ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                  child:
-                      const Text("Oke", style: TextStyle(color: Colors.white)),
-                ),
-              ],
-            ),
-          );
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SelectLocation(
+            locations: locations,
+            onProvinceSelected: (Location province) {
+              setState(() {
+                selectedProvince = province;
+              });
+              widget.onProvinceSelected?.call(province);
+            },
+            onDistrictSelected: (String district) {
+              setState(() {
+                selectedDistrict = district;
+              });
+              widget.onDistrictSelected?.call(district);
+            },
+            onWardSelected: (String ward) {
+              setState(() {
+                selectedWard = ward;
+              });
+              widget.onWardSelected?.call(ward);
+            },
+            onAddressChanged: (String address) {
+              setState(() {
+                detailedAddress = address;
+              });
+              widget.onDetailedAddressChanged?.call(address);
+            },
+          ),
+          const Divider(height: 16, color: Colors.grey),
+          ElevatedButton(
+            onPressed: () {
+              widget.onAddressUpdated();
+            },
+            style:
+            ElevatedButton.styleFrom(backgroundColor: Colors.green),
+            child:
+            const Text("Oke", style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
   }
 }

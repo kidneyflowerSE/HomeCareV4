@@ -100,7 +100,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      '${widget.customer.name}',
+                      widget.customer.name,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 20,

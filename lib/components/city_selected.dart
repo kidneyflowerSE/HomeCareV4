@@ -6,7 +6,7 @@ class SelectLocation extends StatefulWidget {
   final Function(Location)? onProvinceSelected;
   final Function(String)? onDistrictSelected;
   final Function(String)? onWardSelected;
-  // final Function(String) onAddressChanged;
+  final Function(String) onAddressChanged;
 
   const SelectLocation({
     super.key,
@@ -14,7 +14,7 @@ class SelectLocation extends StatefulWidget {
     this.onProvinceSelected,
     this.onDistrictSelected,
     this.onWardSelected,
-    // required this.onAddressChanged,
+    required this.onAddressChanged,
   });
 
   @override
@@ -25,6 +25,7 @@ class _SelectLocationState extends State<SelectLocation> {
   Location? selectedLocation;
   District? selectedDistrict;
   String? selectedWardName;
+  String? detailedAddress;
 
   List<District> districts = [];
   List<Ward> wards = [];
@@ -57,7 +58,7 @@ class _SelectLocationState extends State<SelectLocation> {
           _buildSectionTitle('Phường/Xã'),
           _buildWardDropdown(),
           const SizedBox(height: 16),
-          _buildLocationType(),
+          _buildDetailedAddress(),
         ],
       ),
     );
@@ -207,7 +208,7 @@ class _SelectLocationState extends State<SelectLocation> {
     );
   }
 
-  Widget _buildLocationType() {
+  Widget _buildDetailedAddress() {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
@@ -215,9 +216,14 @@ class _SelectLocationState extends State<SelectLocation> {
       ),
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: TextField(
-        onChanged: null, // Gửi dữ liệu ra ngoài
+        onChanged: (value) {
+          setState(() {
+            detailedAddress = value;
+          });
+          widget.onAddressChanged(value);
+        },
         decoration: InputDecoration(
-          hintText: 'Nhap dia chi',
+          hintText: 'Nhập địa chỉ',
           hintStyle: const TextStyle(
             fontFamily: 'Quicksand',
             fontStyle: FontStyle.italic,
@@ -226,7 +232,6 @@ class _SelectLocationState extends State<SelectLocation> {
             fontWeight: FontWeight.w500,
           ),
           border: InputBorder.none,
-          // contentPadding: const EdgeInsets.symmetric(horizontal: 20),
         ),
       ),
     );

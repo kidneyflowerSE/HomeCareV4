@@ -692,63 +692,82 @@ class _HomeContentState extends State<HomeContent> {
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: actions.map((action) {
+            children: actions.asMap().entries.map((entry) {
+              int index = entry.key;
+              var action = entry.value;
               bool isNew = (action['isNew'] as bool?) ?? false;
 
-              return InkWell(
-                onTap: () {},
-                child: Column(
-                  children: [
-                    Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.green.shade50,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Icon(
-                            action['icon'] as IconData,
-                            color: Colors.green.shade700,
-                            size: 24,
+              return Column(
+                children: [
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ServicesOrder(
+                                customer: widget.customer,
+                                service: widget.services[index],
+                                costFactors: widget.costFactors,
+                                services: widget.services,
+                              ),
+                            ),
+                          );
+                        },
+                        icon: Icon(
+                          action['icon'] as IconData,
+                          color: Colors.green.shade700,
+                          size: 24,
+                        ),
+                        style: ButtonStyle(
+                          backgroundColor:
+                              MaterialStateProperty.all(Colors.green.shade50),
+                          padding: MaterialStateProperty.all(
+                              const EdgeInsets.all(12)),
+                          shape: MaterialStateProperty.all(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
                         ),
-                        if (isNew)
-                          Positioned(
-                            top: -5,
-                            right: -10,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: Colors.red,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: const Text(
-                                'Mới',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                  fontFamily: 'Quicksand',
-                                ),
+                      ),
+                      if (isNew)
+                        Positioned(
+                          top: -5,
+                          right: -10,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Text(
+                              'Mới',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                fontFamily: 'Quicksand',
                               ),
                             ),
                           ),
-                      ],
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    action['label'] as String,
+                    // Thêm index vào label nếu cần
+                    style: const TextStyle(
+                      fontFamily: 'Quicksand',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      action['label'] as String,
-                      style: const TextStyle(
-                        fontFamily: 'Quicksand',
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               );
             }).toList(),
           ),

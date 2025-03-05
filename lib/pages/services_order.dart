@@ -155,7 +155,7 @@ class _ServicesOrderState extends State<ServicesOrder>
                           ),
                         ),
                         Text(
-                          '${widget.service.description}',
+                          widget.service.description,
                           style: TextStyle(
                             fontFamily: 'Quicksand',
                             fontSize: 16,
@@ -719,8 +719,6 @@ class _OnDemandState extends State<OnDemand> {
                                 widget.onWardSelected!(ward);
                               }
                             },
-                          ),
-                          AddressType(
                             onAddressChanged: (detailedAddress) {
                               setState(() {
                                 selectedDetailedAddress = detailedAddress;
@@ -731,6 +729,17 @@ class _OnDemandState extends State<OnDemand> {
                               }
                             },
                           ),
+                          // AddressType(
+                          //   onAddressChanged: (detailedAddress) {
+                          //     setState(() {
+                          //       selectedDetailedAddress = detailedAddress;
+                          //     });
+                          //     if (widget.onDetailedAddressChanged != null) {
+                          //       widget
+                          //           .onDetailedAddressChanged!(detailedAddress);
+                          //     }
+                          //   },
+                          // ),
                         ],
                       ),
                     ),
@@ -943,8 +952,6 @@ class _LongTermState extends State<LongTerm> {
                                 widget.onWardSelected!(ward);
                               }
                             },
-                          ),
-                          AddressType(
                             onAddressChanged: (detailedAddress) {
                               setState(() {
                                 selectedDetailedAddress = detailedAddress;
@@ -955,6 +962,17 @@ class _LongTermState extends State<LongTerm> {
                               }
                             },
                           ),
+                          // AddressType(
+                          //   onAddressChanged: (detailedAddress) {
+                          //     setState(() {
+                          //       selectedDetailedAddress = detailedAddress;
+                          //     });
+                          //     if (widget.onDetailedAddressChanged != null) {
+                          //       widget
+                          //           .onDetailedAddressChanged!(detailedAddress);
+                          //     }
+                          //   },
+                          // ),
                         ],
                       ),
                     ),
