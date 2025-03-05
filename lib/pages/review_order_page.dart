@@ -15,7 +15,7 @@ import '../data/repository/repository.dart';
 
 class ReviewOrderPage extends StatefulWidget {
   final Customer customer;
-  final Helper helper;
+  final Helper? helper;
   final Requests request;
   final List<CostFactor> costFactors;
   final List<Services> services;
@@ -23,7 +23,7 @@ class ReviewOrderPage extends StatefulWidget {
   const ReviewOrderPage({
     super.key,
     required this.customer,
-    required this.helper,
+    this.helper,
     required this.request,
     required this.costFactors,
     required this.services,
@@ -562,29 +562,30 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                   ),
                   ListTile(
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              HelperDetailPage(helper: widget.helper),
-                        ),
-                      );
+                      if (widget.helper != null) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => HelperDetailPage(helper: widget.helper!),
+                          ),
+                        );
+                      }
                     },
                     contentPadding: EdgeInsets.zero,
                     leading: CircleAvatar(
                       backgroundColor: const Color(0xFFE8F5E9),
-                      child: ClipRRect(
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(10)),
+                      child: widget.helper?.avatar != null && widget.helper!.avatar!.isNotEmpty
+                          ? ClipRRect(
+                        borderRadius: const BorderRadius.all(Radius.circular(10)),
                         child: Image.network(
-                          widget.helper.avatar ?? "",
+                          widget.helper!.avatar!,
                           fit: BoxFit.cover,
                         ),
-                      ),
+                      )
+                          : Icon(Icons.person, color: Colors.green), // Hiển thị icon nếu avatar null
                     ),
                     title: Text(
-                      // widget.customer.name,
-                      widget.helper.fullName ?? 'Hệ thống chọn',
+                      widget.helper?.fullName ?? 'Hệ thống chọn', // Tránh lỗi null
                       style: const TextStyle(
                         fontFamily: 'Quicksand',
                         fontSize: 16,
@@ -592,7 +593,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                       ),
                     ),
                     subtitle: Text(
-                      widget.helper.phone ?? "",
+                      widget.helper?.phone ?? "Không có số điện thoại", // Tránh lỗi null
                       style: const TextStyle(
                         fontFamily: 'Quicksand',
                         fontSize: 14,

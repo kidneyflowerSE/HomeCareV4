@@ -65,7 +65,8 @@ class _EditInformationPageState extends State<EditInformationPage> {
       final newAddress = Addresses(
         province: selectedProvince!.name,
         district: selectedDistrict!,
-        detailedAddress: detailedAddress!, ward: selectedWard!,
+        detailedAddress: detailedAddress!,
+        ward: selectedWard!,
       );
 
       if (selectedAddressIndex < widget.customer.addresses.length) {
@@ -213,6 +214,7 @@ class _EditInformationPageState extends State<EditInformationPage> {
                   hint: "Nhập số điện thoại",
                   icon: Icons.phone_outlined,
                   keyboardType: TextInputType.phone,
+                  readOnly: true,
                 ),
                 const SizedBox(height: 16),
 
@@ -263,10 +265,11 @@ class _EditInformationPageState extends State<EditInformationPage> {
     required String hint,
     required IconData icon,
     TextInputType keyboardType = TextInputType.text,
+    bool readOnly = false, // Thêm tham số readOnly
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: readOnly ? Colors.grey[300] : Colors.white,
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
@@ -280,6 +283,7 @@ class _EditInformationPageState extends State<EditInformationPage> {
       child: TextField(
         controller: controller,
         keyboardType: keyboardType,
+        readOnly: readOnly, // Chặn chỉnh sửa nếu readOnly = true
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: TextStyle(
@@ -318,7 +322,8 @@ class _EditInformationPageState extends State<EditInformationPage> {
                 const Icon(Icons.location_on_outlined, color: Colors.green),
             title: Text(
               selectedProvince != null &&
-                      selectedDistrict != null && selectedWard != null &&
+                      selectedDistrict != null &&
+                      selectedWard != null &&
                       detailedAddress != null
                   ? "$detailedAddress, $selectedWard, $selectedDistrict, ${selectedProvince!.name}"
                   : (widget.customer.addresses.isNotEmpty
@@ -401,8 +406,8 @@ class _EditInformationPageState extends State<EditInformationPage> {
                   });
                 }
               },
-              onWardSelected: (ward){
-                if(mounted){
+              onWardSelected: (ward) {
+                if (mounted) {
                   setState(() {
                     selectedWard = ward;
                     print(ward);
@@ -494,15 +499,15 @@ class _EditInformationPageState extends State<EditInformationPage> {
               onPressed: () {
                 // Update customer information
                 widget.customer.name = nameController.text;
-                widget.customer.phone = phoneController.text;
                 List<Addresses> newList = [
                   Addresses(
                     province: selectedProvince!.name,
                     district: selectedDistrict!,
-                    detailedAddress: detailedAddress!, ward: selectedWard!,
+                    detailedAddress: detailedAddress!,
+                    ward: selectedWard!,
                   )
                 ];
-                newList.addAll(widget.customer.addresses); 
+                newList.addAll(widget.customer.addresses);
 
                 print(widget.customer.addresses);
 

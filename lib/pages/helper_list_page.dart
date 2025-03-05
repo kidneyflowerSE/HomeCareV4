@@ -96,7 +96,23 @@ class _HelperListState extends State<HelperList> {
           ),
           actions: [
             GestureDetector(
-              onTap: () => {},
+              onTap: () => {
+                widget.request.helperId = 'notAvailable',
+                widget.request.startDate = widget.listDate
+                    .map((date) => DateFormat('yyyy-MM-dd').format(date))
+                    .join(','),
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ReviewOrderPage(
+                      customer: widget.customer,
+                      request: widget.request,
+                      costFactors: widget.costFactors,
+                      services: widget.services,
+                    ),
+                  ),
+                ),
+              },
               child: Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 8),

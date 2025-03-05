@@ -37,17 +37,17 @@ class ServicesOrder extends StatefulWidget {
 
 class _ServicesOrderState extends State<ServicesOrder>
     with SingleTickerProviderStateMixin {
-  // late TabController _tabController;
+  late TabController _tabController;
   List<Location> locations = [];
   List<Customer> customers = [];
   bool isLoading = true;
   String orderType = 'Ngắn hạn';
   DateTime? selectedDate;
   DateTime? startDate =
-      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+  DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
   DateTime? endDate =
-      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)
-          .add(const Duration(days: 1));
+  DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)
+      .add(const Duration(days: 1));
   TimeOfDay? _startTime;
   TimeOfDay? _endTime;
   Location? selectedProvince;
@@ -55,57 +55,37 @@ class _ServicesOrderState extends State<ServicesOrder>
   String? selectedWard;
   String? selectedDetailedAddress;
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _tabController = TabController(
-  //     length: 2,
-  //     vsync: this,
-  //     initialIndex: widget.selectedTab, // Chọn tab theo giá trị truyền vào
-  //   );
-  //   loadData();
-  // }
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(
+      length: 2,
+      vsync: this,
+      initialIndex: widget.selectedTab, // Chọn tab theo giá trị truyền vào
+    );
+    loadData();
+  }
 
   Future<void> loadData() async {
     var repository = DefaultRepository();
     var dataLocation = await repository.loadLocation();
     var dataCustomer = await repository.loadCustomer();
-    if (mounted) {
-      setState(() {
-        locations = dataLocation ?? [];
-        customers = dataCustomer ?? [];
-        isLoading = false;
-      });
-    }
-  }
-
-  int selectedIndex = 0;
-
-  void _onTabSelected(int index) {
-    if (selectedIndex == index) return;
-
     setState(() {
-      isLoading = true;
-    });
-    loadData();
-    Future.delayed(const Duration(milliseconds: 300), () {
-      setState(() {
-        selectedIndex = index;
-        isLoading = false;
-      });
+      locations = dataLocation ?? [];
+      customers = dataCustomer ?? [];
+      isLoading = false;
     });
   }
 
-  // @override
-  // void dispose() {
-  //   _tabController.dispose();
-  //   super.dispose();
-  // }
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
         backgroundColor: Colors.green,
         leading: IconButton(
@@ -127,206 +107,151 @@ class _ServicesOrderState extends State<ServicesOrder>
           ),
         ),
         automaticallyImplyLeading: false,
-        actions: [
-          IconButton(
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: Text(
-                    'Chi tiết dịch vụ',
-                    style: TextStyle(
-                      fontFamily: 'Quicksand',
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green,
-                      fontSize: 19,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  content: Container(
-                    height: 60,
-                    child: Column(
-                      children: [
-                        Text(
-                          'Thông tin về dịch vụ ${widget.service.title}',
-                          style: TextStyle(
-                            fontFamily: 'Quicksand',
-                            fontSize: 16,
-                          ),
-                        ),
-                        Text(
-                          widget.service.description,
-                          style: TextStyle(
-                            fontFamily: 'Quicksand',
-                            fontSize: 16,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: Text(
-                        'Đóng',
-                        style: TextStyle(
-                          fontFamily: 'Quicksand',
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-            icon: const Icon(
-              Icons.info_outline_rounded,
-              size: 28,
-            ),
-            color: Colors.white,
-          ),
-        ],
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(50),
+          preferredSize: const Size.fromHeight(48.0),
           child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(30),
-            ),
-            padding: const EdgeInsets.all(4),
-            child: Row(
-              children: [
-                _buildTabButton(0, "Theo ngày"),
-                _buildTabButton(1, "Dài hạn"),
+            color: Colors.white,
+            child: TabBar(
+              controller: _tabController,
+              labelColor: Colors.green,
+              unselectedLabelColor: Colors.black,
+              // indicatorColor: const Color.fromARGB(255, 0, 248, 62),
+              // indicatorWeight: 2.0,
+              indicatorSize: TabBarIndicatorSize.tab,
+              indicator: const UnderlineTabIndicator(
+                borderSide: BorderSide(color: Colors.green, width: 2),
+              ),
+              tabs: const [
+                Tab(
+                  text: 'Theo ngày',
+                ),
+                Tab(
+                  text: 'Dài hạn',
+                ),
               ],
             ),
           ),
         ),
       ),
-      body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 300),
-        child: selectedIndex == 0
-            ? OnDemand(
-                locations: locations,
-                customers: customers,
-                customer: widget.customer,
-                onVisibilityChanged: (isVisible) {
-                  if (!isVisible) {
-                    setState(() {
-                      endDate =
-                          null; // Reset endDate nếu visibility bị vô hiệu hóa
-                    });
-                    print(endDate);
-                  }
-                },
-                onTimeChanged: (startTime, endTime) {
-                  setState(() {
-                    _startTime = startTime;
-                    if (endTime == null && startTime != null) {
-                      _endTime = TimeOfDay(
-                          hour: _startTime!.hour + 2,
-                          minute: _startTime!.minute);
-                    } else {
-                      _endTime = endTime;
-                    }
-                  });
-                },
-                onDateChanged: (date, isStartDate) {
-                  // Handle date changes
-                  setState(() {
-                    if (isStartDate == 'start') {
-                      selectedDate = date;
-                      startDate = date;
-                      endDate = null;
-                    }
-                  });
-                },
-                onProvinceSelected: (Location province) {
-                  setState(() {
-                    selectedProvince = province;
-                  });
-                  print(province);
-                },
-                onDistrictSelected: (String district) {
-                  setState(() {
-                    selectedDistrict = district;
-                  });
-                  print(district);
-                },
-                onWardSelected: (String ward) {
-                  setState(() {
-                    selectedWard = ward;
-                  });
-                },
-                onDetailedAddressChanged: (String detailedAddress) {
-                  setState(() {
-                    selectedDetailedAddress = detailedAddress;
-                  });
-                  print(detailedAddress);
-                },
-              )
-            : LongTerm(
-                locations: locations,
-                customers: customers,
-                customer: widget.customer,
-                onVisibilityChanged: (isVisible) {
-                  if (isVisible) {
-                    setState(() {
-                      endDate = DateTime(DateTime.now().year,
-                              DateTime.now().month, DateTime.now().day)
-                          .add(const Duration(days: 1));
-                    });
-                    print(endDate);
-                  }
-                },
-                onTimeChanged: (startTime, endTime) {
-                  setState(() {
-                    _startTime = startTime;
-                    if (endTime == null && startTime != null) {
-                      _endTime = TimeOfDay(
-                          hour: _startTime!.hour + 2,
-                          minute: _startTime!.minute);
-                    } else {
-                      _endTime = endTime;
-                    }
-                  });
-                },
-                onDateChanged: (date, isStartDate) {
-                  // Handle date changes
-                  setState(() {
-                    if (isStartDate == 'start') {
-                      selectedDate = date;
-                      startDate = date;
-                    } else {
-                      endDate = date;
-                      orderType = 'Dài hạn';
-                    }
-                  });
-                },
-                onProvinceSelected: (Location province) {
-                  setState(() {
-                    selectedProvince = province;
-                  });
-                },
-                onDistrictSelected: (String district) {
-                  setState(() {
-                    selectedDistrict = district;
-                  });
-                },
-                onWardSelected: (String ward) {
-                  setState(() {
-                    selectedWard = ward;
-                  });
-                },
-                onDetailedAddressChanged: (String detailedAddress) {
-                  setState(() {
-                    selectedDetailedAddress = detailedAddress;
-                  });
-                  print(selectedDetailedAddress);
-                },
-              ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          OnDemand(
+            locations: locations,
+            customers: customers,
+            customer: widget.customer,
+            onVisibilityChanged: (isVisible){
+              if (!isVisible) {
+                setState(() {
+                  endDate = null; // Reset endDate nếu visibility bị vô hiệu hóa
+                });
+                print(endDate);
+              }
+            },
+            onTimeChanged: (startTime, endTime) {
+              setState(() {
+                _startTime = startTime;
+                if (endTime == null && startTime != null) {
+                  _endTime = TimeOfDay(
+                      hour: _startTime!.hour + 2, minute: _startTime!.minute);
+                } else {
+                  _endTime = endTime;
+                }
+              });
+            },
+            onDateChanged: (date, isStartDate) {
+              // Handle date changes
+              setState(() {
+                if (isStartDate == 'start') {
+                  selectedDate = date;
+                  startDate = date;
+                  endDate = null;
+                }
+              });
+            },
+            onProvinceSelected: (Location province) {
+              setState(() {
+                selectedProvince = province;
+              });
+              print(province);
+            },
+            onDistrictSelected: (String district) {
+              setState(() {
+                selectedDistrict = district;
+              });
+              print(district);
+            },
+            onWardSelected: (String ward) {
+              setState(() {
+                selectedWard = ward;
+              });
+            },
+            onDetailedAddressChanged: (String detailedAddress) {
+              setState(() {
+                selectedDetailedAddress = detailedAddress;
+              });
+              print(detailedAddress);
+            },
+          ),
+          LongTerm(
+            locations: locations,
+            customers: customers,
+            customer: widget.customer,
+            onVisibilityChanged: (isVisible){
+              if(isVisible){
+                setState(() {
+                  endDate = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)
+                      .add(const Duration(days: 1));
+                });
+                print(endDate);
+              }
+            },
+            onTimeChanged: (startTime, endTime) {
+              setState(() {
+                _startTime = startTime;
+                if (endTime == null && startTime != null) {
+                  _endTime = TimeOfDay(
+                      hour: _startTime!.hour + 2, minute: _startTime!.minute);
+                } else {
+                  _endTime = endTime;
+                }
+              });
+            },
+            onDateChanged: (date, isStartDate) {
+              // Handle date changes
+              setState(() {
+                if (isStartDate == 'start') {
+                  selectedDate = date;
+                  startDate = date;
+                } else {
+                  endDate = date;
+                  orderType = 'Dài hạn';
+                }
+              });
+            },
+            onProvinceSelected: (Location province) {
+              setState(() {
+                selectedProvince = province;
+              });
+            },
+            onDistrictSelected: (String district) {
+              setState(() {
+                selectedDistrict = district;
+              });
+            },
+            onWardSelected: (String ward) {
+              setState(() {
+                selectedWard = ward;
+              });
+            },
+            onDetailedAddressChanged: (String detailedAddress) {
+              setState(() {
+                selectedDetailedAddress = detailedAddress;
+              });
+              print(selectedDetailedAddress);
+            },
+          ),
+        ],
       ),
       bottomNavigationBar: BottomAppBar(
         child: MyButton(
@@ -347,9 +272,18 @@ class _ServicesOrderState extends State<ServicesOrder>
             DateTime now = DateTime.now();
 
             if (selectedStartDateTime.isBefore(now)) {
-              showPopUpWarning(context,
-                  "Thời gian bắt đầu không thể ở quá khứ. Vui lòng chọn ngày khác!");
+              showPopUpWarning(context, "Thời gian bắt đầu không thể ở quá khứ. Vui lòng chọn ngày khác!");
               return; // Dừng xử lý nếu thời gian không hợp lệ
+            }
+
+            if(endDate != null && endDate?.day == selectedStartDateTime.day && endDate?.month == selectedStartDateTime.month && endDate?.year == selectedStartDateTime.year){
+              showPopUpWarning(context, "Ngày bắt đầu và kết thúc không được trùng nhau");
+              return;
+            }
+
+            if(endDate !=null && startDate!.isAfter(endDate!)){
+              showPopUpWarning(context, 'Ngày bắt đầu phải trước ngày kết thúc');
+              return;
             }
 
             // Kiểm tra xem người dùng có chọn địa chỉ mới không
@@ -373,11 +307,14 @@ class _ServicesOrderState extends State<ServicesOrder>
             // Xác định địa chỉ cuối cùng của khách hàng
             String finalAddress = isNewAddressSelected
                 ? widget.customer.addresses.last
-                    .toString() // Địa chỉ mới nếu đã chọn
+                .toString() // Địa chỉ mới nếu đã chọn
                 : widget.customer.addresses[0]
-                    .detailedAddress; // Địa chỉ cũ nếu không thay đổi
+                .detailedAddress; // Địa chỉ cũ nếu không thay đổi
 
-            if (_startTime != null && _endTime != null) {
+            if (_startTime == null || _endTime == null) {
+              showPopUpWarning(context, 'Vui lòng chọn thời gian bắt đầu và kết thúc');
+              return;
+            }
               // Create a Request object
               var request = Requests(
                 customerInfo: CustomerInfo(
@@ -387,22 +324,19 @@ class _ServicesOrderState extends State<ServicesOrder>
                     usedPoint: widget.customer.points[0].point),
                 service: RequestService(
                     title: widget.service.title,
-                    coefficientService: 0.0,
-                    coefficientOther: 0.0,
+                    coefficientService: 1.0,
+                    coefficientOther: 1.0,
                     cost: widget.service.basicPrice),
-                location: (selectedProvince != null &&
-                        selectedDistrict != null &&
-                        selectedWard != null &&
-                        selectedDetailedAddress != null)
+                location: (selectedProvince != null && selectedDistrict != null && selectedWard != null && selectedDetailedAddress != null)
                     ? RequestLocation(
-                        province: selectedProvince!.name,
-                        district: selectedDistrict ?? '',
-                        ward: selectedWard ?? '',
-                      )
+                  province: selectedProvince!.name,
+                  district: selectedDistrict ?? '',
+                  ward: selectedWard ?? '',
+                )
                     : RequestLocation(
-                        province: widget.customer.addresses[0].province,
-                        district: widget.customer.addresses[0].district,
-                        ward: widget.customer.addresses[0].ward),
+                    province: widget.customer.addresses[0].province,
+                    district: widget.customer.addresses[0].district,
+                    ward: widget.customer.addresses[0].ward),
                 id: '',
                 // Generate or provide an ID if required
                 oderDate: DateTime.now().toIso8601String(),
@@ -413,12 +347,12 @@ class _ServicesOrderState extends State<ServicesOrder>
                     selectedDate!.month,
                     selectedDate!.day)),
                 startTime: DateTime(selectedDate!.year, selectedDate!.month,
-                        selectedDate!.day, _startTime!.hour, _startTime!.minute)
+                    selectedDate!.day, _startTime!.hour, _startTime!.minute)
                     .toIso8601String(),
                 endTime: DateTime(selectedEndDate!.year, selectedEndDate.month,
-                        selectedEndDate.day, _endTime!.hour, _endTime!.minute)
+                    selectedEndDate.day, _endTime!.hour, _endTime!.minute)
                     .toIso8601String(),
-                requestType: orderType,
+                requestType: endDate != null ? 'Dài hạn' : 'Ngắn hạn',
                 // Set based on your application's logic
                 totalCost: 0,
                 // Calculate or set the total cost
@@ -426,7 +360,7 @@ class _ServicesOrderState extends State<ServicesOrder>
                 // Set the initial status
                 deleted: false,
                 comment:
-                    Comment(review: '', loseThings: false, breakThings: false),
+                Comment(review: '', loseThings: false, breakThings: false),
                 profit: 0, // Calculate or set profit if applicable
               );
               print('Request Information:');
@@ -444,13 +378,13 @@ class _ServicesOrderState extends State<ServicesOrder>
               print('Total Cost: ${request.totalCost}');
               print('Status: ${request.status}');
 
-              if (selectedIndex == 0) {
+              if (_tabController.index == 0) {
                 request.endTime = DateTime(
-                        selectedDate!.year,
-                        selectedDate!.month,
-                        selectedDate!.day,
-                        _endTime!.hour,
-                        _endTime!.minute)
+                    selectedDate!.year,
+                    selectedDate!.month,
+                    selectedDate!.day,
+                    _endTime!.hour,
+                    _endTime!.minute)
                     .toIso8601String();
                 print('End Time: ${request.endTime}');
                 Navigator.push(
@@ -472,7 +406,7 @@ class _ServicesOrderState extends State<ServicesOrder>
                 endDate = DateTime(endDate!.year, endDate!.month, endDate!.day);
                 print(List.generate(
                   endDate!.difference(startDate!).inDays + 1, // Số ngày cần tạo
-                  (index) => DateTime(startDate!.year, startDate!.month,
+                      (index) => DateTime(startDate!.year, startDate!.month,
                       startDate!.day + index), // Chỉ lấy ngày/tháng/năm
                 ));
                 Navigator.push(
@@ -482,13 +416,13 @@ class _ServicesOrderState extends State<ServicesOrder>
                       initialSelectedDates: List.generate(
                         endDate!.difference(startDate!).inDays + 1,
                         // Số ngày cần tạo
-                        (index) => DateTime(startDate!.year, startDate!.month,
+                            (index) => DateTime(startDate!.year, startDate!.month,
                             startDate!.day + index), // Chỉ lấy ngày/tháng/năm
                       ),
                       customer: widget.customer,
                       request: request,
                       maxDate:
-                          DateTime(endDate!.year, endDate!.month, endDate!.day),
+                      DateTime(endDate!.year, endDate!.month, endDate!.day),
                       minDate: DateTime(
                           startDate!.year, startDate!.month, startDate!.day),
                       costFactors: widget.costFactors,
@@ -499,38 +433,7 @@ class _ServicesOrderState extends State<ServicesOrder>
                   ),
                 );
               }
-            }
           },
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTabButton(int index, String text) {
-    bool isSelected = selectedIndex == index;
-
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => _onTabSelected(index),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          decoration: BoxDecoration(
-            color: isSelected ? Colors.green : Colors.transparent,
-            borderRadius: BorderRadius.circular(30),
-          ),
-          alignment: Alignment.center,
-          child: AnimatedDefaultTextStyle(
-            duration: const Duration(milliseconds: 300),
-            style: TextStyle(
-              color: isSelected ? Colors.white : Colors.green,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Quicksand',
-              fontSize: isSelected ? 16 : 14,
-            ),
-            child: Text(text),
-          ),
         ),
       ),
     );

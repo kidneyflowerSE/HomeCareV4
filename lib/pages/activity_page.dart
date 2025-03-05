@@ -409,7 +409,7 @@ class _OnDemandState extends State<OnDemand> {
     var repository = DefaultRepository();
     repository.canceledRequest(request.id);
     setState(() {
-      request.status = "Đã huỷ";
+      request.status = "cancelled";
     });
   }
 
@@ -925,7 +925,7 @@ class _LongTermState extends State<LongTerm> {
 
   void _cancelRequest(Requests request) {
     setState(() {
-      request.status = "Đã huỷ";
+      request.status = "cancelled";
     });
   }
 
@@ -1163,7 +1163,7 @@ class _LongTermState extends State<LongTerm> {
                                 ),
                               )
                             else if (request.status ==
-                                "done") // Nếu hoàn thành, hiển thị Đặt lại
+                                "done" || request.status == 'cancelled') // Nếu hoàn thành, hiển thị Đặt lại
                               ElevatedButton(
                                 onPressed: () {
                                   var matchingServices = widget.services

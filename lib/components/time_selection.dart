@@ -64,6 +64,7 @@ class _TimeSelectionState extends State<TimeSelection> {
       _endTime = null;
     });
     widget.onDateChanged?.call(date, type);
+    widget.onTimeChanged?.call(_startTime,_endTime);
   }
 
   bool _isEndTimeValid(TimeOfDay start, TimeOfDay end) {
