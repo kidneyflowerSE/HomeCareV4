@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:foodapp/data/model/CostFactor.dart';
 import 'package:foodapp/data/model/helper.dart';
@@ -566,7 +565,8 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => HelperDetailPage(helper: widget.helper!),
+                            builder: (context) =>
+                                HelperDetailPage(helper: widget.helper!),
                           ),
                         );
                       }
@@ -574,18 +574,23 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                     contentPadding: EdgeInsets.zero,
                     leading: CircleAvatar(
                       backgroundColor: const Color(0xFFE8F5E9),
-                      child: widget.helper?.avatar != null && widget.helper!.avatar!.isNotEmpty
+                      child: widget.helper?.avatar != null &&
+                              widget.helper!.avatar!.isNotEmpty
                           ? ClipRRect(
-                        borderRadius: const BorderRadius.all(Radius.circular(10)),
-                        child: Image.network(
-                          widget.helper!.avatar!,
-                          fit: BoxFit.cover,
-                        ),
-                      )
-                          : Icon(Icons.person, color: Colors.green), // Hiển thị icon nếu avatar null
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(10)),
+                              child: Image.network(
+                                widget.helper!.avatar!,
+                                fit: BoxFit.cover,
+                              ),
+                            )
+                          : Icon(Icons.person,
+                              color: Colors
+                                  .green), // Hiển thị icon nếu avatar null
                     ),
                     title: Text(
-                      widget.helper?.fullName ?? 'Hệ thống chọn', // Tránh lỗi null
+                      widget.helper?.fullName ??
+                          'Hệ thống chọn', // Tránh lỗi null
                       style: const TextStyle(
                         fontFamily: 'Quicksand',
                         fontSize: 16,
@@ -593,7 +598,8 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                       ),
                     ),
                     subtitle: Text(
-                      widget.helper?.phone ?? "Không có số điện thoại", // Tránh lỗi null
+                      widget.helper?.phone ??
+                          "Không có số điện thoại", // Tránh lỗi null
                       style: const TextStyle(
                         fontFamily: 'Quicksand',
                         fontSize: 14,

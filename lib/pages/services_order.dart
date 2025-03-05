@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:foodapp/components/address_type.dart';
 import 'package:foodapp/components/time_selection.dart';
 import 'package:foodapp/data/model/CostFactor.dart';
 import 'package:foodapp/data/model/request.dart';
@@ -37,17 +36,17 @@ class ServicesOrder extends StatefulWidget {
 
 class _ServicesOrderState extends State<ServicesOrder>
     with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+  // late TabController _tabController;
   List<Location> locations = [];
   List<Customer> customers = [];
   bool isLoading = true;
   String orderType = 'Ngắn hạn';
   DateTime? selectedDate;
   DateTime? startDate =
-  DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
   DateTime? endDate =
-  DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)
-      .add(const Duration(days: 1));
+      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)
+          .add(const Duration(days: 1));
   TimeOfDay? _startTime;
   TimeOfDay? _endTime;
   Location? selectedProvince;
@@ -55,14 +54,26 @@ class _ServicesOrderState extends State<ServicesOrder>
   String? selectedWard;
   String? selectedDetailedAddress;
 
+  int selectedIndex = 0;
+  void _onTabSelected(int index) {
+    if (selectedIndex == index) return;
+
+    setState(() {
+      isLoading = true;
+    });
+
+    Future.delayed(const Duration(milliseconds: 500), () {
+      setState(() {
+        selectedIndex = index;
+        isLoading = false;
+      });
+    });
+  }
+
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(
-      length: 2,
-      vsync: this,
-      initialIndex: widget.selectedTab, // Chọn tab theo giá trị truyền vào
-    );
+    selectedIndex = widget.selectedTab;
     loadData();
   }
 
@@ -70,188 +81,291 @@ class _ServicesOrderState extends State<ServicesOrder>
     var repository = DefaultRepository();
     var dataLocation = await repository.loadLocation();
     var dataCustomer = await repository.loadCustomer();
-    setState(() {
-      locations = dataLocation ?? [];
-      customers = dataCustomer ?? [];
-      isLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        locations = dataLocation ?? [];
+        customers = dataCustomer ?? [];
+        isLoading = false;
+      });
+    }
   }
 
   @override
   void dispose() {
-    _tabController.dispose();
     super.dispose();
+  }
+
+  String formatCurrency(double amount) {
+    final NumberFormat formatter = NumberFormat("#,###", "vi_VN");
+    int roundedAmount = amount.round();
+    return "${formatter.format(roundedAmount)} đ";
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
+        elevation: 2,
         backgroundColor: Colors.green,
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          color: Colors.white,
-        ),
-        title: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 6),
-          child: Text(
-            'Dịch vụ: ${widget.service.title}',
-            style: TextStyle(
-              fontFamily: 'Quicksand',
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
-            ),
+        title: Text(
+          widget.service.title,
+          style: TextStyle(
+            fontFamily: 'Quicksand',
+            fontSize: 20,
+            color: Colors.white,
+            fontWeight: FontWeight.w800,
           ),
         ),
-        automaticallyImplyLeading: false,
+        centerTitle: true,
+        iconTheme: IconThemeData(color: Colors.white),
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.info_outline_rounded,
+              size: 28,
+            ),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  title: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Text(
+                      'Thông tin dịch vụ ${widget.service.title}',
+                      style: TextStyle(
+                        fontFamily: 'Quicksand',
+                        fontSize: 18,
+                        color: Colors.green,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  content: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Mô tả dịch vụ
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 4),
+                          child: Text(
+                            'Mô tả dịch vụ:',
+                            style: TextStyle(
+                              fontFamily: 'Quicksand',
+                              fontSize: 16,
+                              color: Colors.black87,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Text(
+                            widget.service.description,
+                            style: TextStyle(
+                              fontFamily: 'Quicksand',
+                              fontSize: 16,
+                              color: Colors.black54,
+                            ),
+                          ),
+                        ),
+
+                        // Phí dịch vụ
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 4),
+                          child: Text(
+                            'Phí dịch vụ:',
+                            style: TextStyle(
+                              fontFamily: 'Quicksand',
+                              fontSize: 18,
+                              color: Colors.black87,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(width: 8),
+                        Text(
+                          formatCurrency(widget.service.basicPrice.toDouble()),
+                          style: TextStyle(
+                            fontFamily: 'Quicksand',
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.red,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text(
+                        'Đóng',
+                        style: TextStyle(
+                          fontFamily: 'Quicksand',
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
+
+        // automaticallyImplyLeading: false,
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(48.0),
+          preferredSize: const Size.fromHeight(50),
           child: Container(
-            color: Colors.white,
-            child: TabBar(
-              controller: _tabController,
-              labelColor: Colors.green,
-              unselectedLabelColor: Colors.black,
-              // indicatorColor: const Color.fromARGB(255, 0, 248, 62),
-              // indicatorWeight: 2.0,
-              indicatorSize: TabBarIndicatorSize.tab,
-              indicator: const UnderlineTabIndicator(
-                borderSide: BorderSide(color: Colors.green, width: 2),
-              ),
-              tabs: const [
-                Tab(
-                  text: 'Theo ngày',
-                ),
-                Tab(
-                  text: 'Dài hạn',
-                ),
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(30),
+            ),
+            padding:
+                const EdgeInsets.all(4), // Padding giúp có hiệu ứng tròn hơn
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildTabButton(0, "Theo ngày"),
+                _buildTabButton(1, "Dài hạn"),
               ],
             ),
           ),
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          OnDemand(
-            locations: locations,
-            customers: customers,
-            customer: widget.customer,
-            onVisibilityChanged: (isVisible){
-              if (!isVisible) {
-                setState(() {
-                  endDate = null; // Reset endDate nếu visibility bị vô hiệu hóa
-                });
-                print(endDate);
-              }
-            },
-            onTimeChanged: (startTime, endTime) {
-              setState(() {
-                _startTime = startTime;
-                if (endTime == null && startTime != null) {
-                  _endTime = TimeOfDay(
-                      hour: _startTime!.hour + 2, minute: _startTime!.minute);
-                } else {
-                  _endTime = endTime;
-                }
-              });
-            },
-            onDateChanged: (date, isStartDate) {
-              // Handle date changes
-              setState(() {
-                if (isStartDate == 'start') {
-                  selectedDate = date;
-                  startDate = date;
-                  endDate = null;
-                }
-              });
-            },
-            onProvinceSelected: (Location province) {
-              setState(() {
-                selectedProvince = province;
-              });
-              print(province);
-            },
-            onDistrictSelected: (String district) {
-              setState(() {
-                selectedDistrict = district;
-              });
-              print(district);
-            },
-            onWardSelected: (String ward) {
-              setState(() {
-                selectedWard = ward;
-              });
-            },
-            onDetailedAddressChanged: (String detailedAddress) {
-              setState(() {
-                selectedDetailedAddress = detailedAddress;
-              });
-              print(detailedAddress);
-            },
-          ),
-          LongTerm(
-            locations: locations,
-            customers: customers,
-            customer: widget.customer,
-            onVisibilityChanged: (isVisible){
-              if(isVisible){
-                setState(() {
-                  endDate = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)
-                      .add(const Duration(days: 1));
-                });
-                print(endDate);
-              }
-            },
-            onTimeChanged: (startTime, endTime) {
-              setState(() {
-                _startTime = startTime;
-                if (endTime == null && startTime != null) {
-                  _endTime = TimeOfDay(
-                      hour: _startTime!.hour + 2, minute: _startTime!.minute);
-                } else {
-                  _endTime = endTime;
-                }
-              });
-            },
-            onDateChanged: (date, isStartDate) {
-              // Handle date changes
-              setState(() {
-                if (isStartDate == 'start') {
-                  selectedDate = date;
-                  startDate = date;
-                } else {
-                  endDate = date;
-                  orderType = 'Dài hạn';
-                }
-              });
-            },
-            onProvinceSelected: (Location province) {
-              setState(() {
-                selectedProvince = province;
-              });
-            },
-            onDistrictSelected: (String district) {
-              setState(() {
-                selectedDistrict = district;
-              });
-            },
-            onWardSelected: (String ward) {
-              setState(() {
-                selectedWard = ward;
-              });
-            },
-            onDetailedAddressChanged: (String detailedAddress) {
-              setState(() {
-                selectedDetailedAddress = detailedAddress;
-              });
-              print(selectedDetailedAddress);
-            },
-          ),
-        ],
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 1000),
+        child: selectedIndex == 0
+            ? OnDemand(
+                locations: locations,
+                customers: customers,
+                customer: widget.customer,
+                onVisibilityChanged: (isVisible) {
+                  if (!isVisible) {
+                    setState(() {
+                      endDate =
+                          null; // Reset endDate nếu visibility bị vô hiệu hóa
+                    });
+                    print(endDate);
+                  }
+                },
+                onTimeChanged: (startTime, endTime) {
+                  setState(() {
+                    _startTime = startTime;
+                    if (endTime == null && startTime != null) {
+                      _endTime = TimeOfDay(
+                          hour: _startTime!.hour + 2,
+                          minute: _startTime!.minute);
+                    } else {
+                      _endTime = endTime;
+                    }
+                  });
+                },
+                onDateChanged: (date, isStartDate) {
+                  // Handle date changes
+                  setState(() {
+                    if (isStartDate == 'start') {
+                      selectedDate = date;
+                      startDate = date;
+                      endDate = null;
+                    }
+                  });
+                },
+                onProvinceSelected: (Location province) {
+                  setState(() {
+                    selectedProvince = province;
+                  });
+                  print(province);
+                },
+                onDistrictSelected: (String district) {
+                  setState(() {
+                    selectedDistrict = district;
+                  });
+                  print(district);
+                },
+                onWardSelected: (String ward) {
+                  setState(() {
+                    selectedWard = ward;
+                  });
+                },
+                onDetailedAddressChanged: (String detailedAddress) {
+                  setState(() {
+                    selectedDetailedAddress = detailedAddress;
+                  });
+                  print(detailedAddress);
+                },
+              )
+            : LongTerm(
+                locations: locations,
+                customers: customers,
+                customer: widget.customer,
+                onVisibilityChanged: (isVisible) {
+                  if (isVisible) {
+                    setState(() {
+                      endDate = DateTime(DateTime.now().year,
+                              DateTime.now().month, DateTime.now().day)
+                          .add(const Duration(days: 1));
+                    });
+                    print(endDate);
+                  }
+                },
+                onTimeChanged: (startTime, endTime) {
+                  setState(() {
+                    _startTime = startTime;
+                    if (endTime == null && startTime != null) {
+                      _endTime = TimeOfDay(
+                          hour: _startTime!.hour + 2,
+                          minute: _startTime!.minute);
+                    } else {
+                      _endTime = endTime;
+                    }
+                  });
+                },
+                onDateChanged: (date, isStartDate) {
+                  // Handle date changes
+                  setState(() {
+                    if (isStartDate == 'start') {
+                      selectedDate = date;
+                      startDate = date;
+                    } else {
+                      endDate = date;
+                      orderType = 'Dài hạn';
+                    }
+                  });
+                },
+                onProvinceSelected: (Location province) {
+                  setState(() {
+                    selectedProvince = province;
+                  });
+                },
+                onDistrictSelected: (String district) {
+                  setState(() {
+                    selectedDistrict = district;
+                  });
+                },
+                onWardSelected: (String ward) {
+                  setState(() {
+                    selectedWard = ward;
+                  });
+                },
+                onDetailedAddressChanged: (String detailedAddress) {
+                  setState(() {
+                    selectedDetailedAddress = detailedAddress;
+                  });
+                  print(selectedDetailedAddress);
+                },
+              ),
       ),
       bottomNavigationBar: BottomAppBar(
         child: MyButton(
@@ -272,17 +386,23 @@ class _ServicesOrderState extends State<ServicesOrder>
             DateTime now = DateTime.now();
 
             if (selectedStartDateTime.isBefore(now)) {
-              showPopUpWarning(context, "Thời gian bắt đầu không thể ở quá khứ. Vui lòng chọn ngày khác!");
+              showPopUpWarning(context,
+                  "Thời gian bắt đầu không thể ở quá khứ. Vui lòng chọn ngày khác!");
               return; // Dừng xử lý nếu thời gian không hợp lệ
             }
 
-            if(endDate != null && endDate?.day == selectedStartDateTime.day && endDate?.month == selectedStartDateTime.month && endDate?.year == selectedStartDateTime.year){
-              showPopUpWarning(context, "Ngày bắt đầu và kết thúc không được trùng nhau");
+            if (endDate != null &&
+                endDate?.day == selectedStartDateTime.day &&
+                endDate?.month == selectedStartDateTime.month &&
+                endDate?.year == selectedStartDateTime.year) {
+              showPopUpWarning(
+                  context, "Ngày bắt đầu và kết thúc không được trùng nhau");
               return;
             }
 
-            if(endDate !=null && startDate!.isAfter(endDate!)){
-              showPopUpWarning(context, 'Ngày bắt đầu phải trước ngày kết thúc');
+            if (endDate != null && startDate!.isAfter(endDate!)) {
+              showPopUpWarning(
+                  context, 'Ngày bắt đầu phải trước ngày kết thúc');
               return;
             }
 
@@ -307,133 +427,165 @@ class _ServicesOrderState extends State<ServicesOrder>
             // Xác định địa chỉ cuối cùng của khách hàng
             String finalAddress = isNewAddressSelected
                 ? widget.customer.addresses.last
-                .toString() // Địa chỉ mới nếu đã chọn
+                    .toString() // Địa chỉ mới nếu đã chọn
                 : widget.customer.addresses[0]
-                .detailedAddress; // Địa chỉ cũ nếu không thay đổi
+                    .detailedAddress; // Địa chỉ cũ nếu không thay đổi
 
             if (_startTime == null || _endTime == null) {
-              showPopUpWarning(context, 'Vui lòng chọn thời gian bắt đầu và kết thúc');
+              showPopUpWarning(
+                  context, 'Vui lòng chọn thời gian bắt đầu và kết thúc');
               return;
             }
-              // Create a Request object
-              var request = Requests(
-                customerInfo: CustomerInfo(
-                    fullName: widget.customer.name,
-                    phone: widget.customer.phone,
-                    address: finalAddress,
-                    usedPoint: widget.customer.points[0].point),
-                service: RequestService(
-                    title: widget.service.title,
-                    coefficientService: 1.0,
-                    coefficientOther: 1.0,
-                    cost: widget.service.basicPrice),
-                location: (selectedProvince != null && selectedDistrict != null && selectedWard != null && selectedDetailedAddress != null)
-                    ? RequestLocation(
-                  province: selectedProvince!.name,
-                  district: selectedDistrict ?? '',
-                  ward: selectedWard ?? '',
-                )
-                    : RequestLocation(
-                    province: widget.customer.addresses[0].province,
-                    district: widget.customer.addresses[0].district,
-                    ward: widget.customer.addresses[0].ward),
-                id: '',
-                // Generate or provide an ID if required
-                oderDate: DateTime.now().toIso8601String(),
-                scheduleIds: [],
-                // Add any schedule IDs if needed
-                startDate: DateFormat('yyyy-MM-dd').format(DateTime(
-                    selectedDate!.year,
-                    selectedDate!.month,
-                    selectedDate!.day)),
-                startTime: DateTime(selectedDate!.year, selectedDate!.month,
-                    selectedDate!.day, _startTime!.hour, _startTime!.minute)
-                    .toIso8601String(),
-                endTime: DateTime(selectedEndDate!.year, selectedEndDate.month,
-                    selectedEndDate.day, _endTime!.hour, _endTime!.minute)
-                    .toIso8601String(),
-                requestType: endDate != null ? 'Dài hạn' : 'Ngắn hạn',
-                // Set based on your application's logic
-                totalCost: 0,
-                // Calculate or set the total cost
-                status: 'chưa tiến hành',
-                // Set the initial status
-                deleted: false,
-                comment:
-                Comment(review: '', loseThings: false, breakThings: false),
-                profit: 0, // Calculate or set profit if applicable
-              );
-              print('Request Information:');
-              print('Customer Name: ${request.customerInfo.fullName}');
-              print('Customer Phone: ${request.customerInfo.phone}');
-              print('Customer Address: ${request.customerInfo.address}');
-              print('Service Title: ${request.service.title}');
-              print('Start Date: ${request.startDate}');
-              print('Start Time: ${request.startTime}');
-              print('End Time: ${request.endTime}');
-              print(
-                  'Location: ${request.location.province}, ${request.location.district}');
-              print('Order Date: ${request.oderDate}');
-              print('Request Type: ${request.requestType}');
-              print('Total Cost: ${request.totalCost}');
-              print('Status: ${request.status}');
+            // Create a Request object
+            var request = Requests(
+              customerInfo: CustomerInfo(
+                  fullName: widget.customer.name,
+                  phone: widget.customer.phone,
+                  address: finalAddress,
+                  usedPoint: widget.customer.points[0].point),
+              service: RequestService(
+                  title: widget.service.title,
+                  coefficientService: 1.0,
+                  coefficientOther: 1.0,
+                  cost: widget.service.basicPrice),
+              location: (selectedProvince != null &&
+                      selectedDistrict != null &&
+                      selectedWard != null &&
+                      selectedDetailedAddress != null)
+                  ? RequestLocation(
+                      province: selectedProvince!.name,
+                      district: selectedDistrict ?? '',
+                      ward: selectedWard ?? '',
+                    )
+                  : RequestLocation(
+                      province: widget.customer.addresses[0].province,
+                      district: widget.customer.addresses[0].district,
+                      ward: widget.customer.addresses[0].ward),
+              id: '',
+              // Generate or provide an ID if required
+              oderDate: DateTime.now().toIso8601String(),
+              scheduleIds: [],
+              // Add any schedule IDs if needed
+              startDate: DateFormat('yyyy-MM-dd').format(DateTime(
+                  selectedDate!.year, selectedDate!.month, selectedDate!.day)),
+              startTime: DateTime(selectedDate!.year, selectedDate!.month,
+                      selectedDate!.day, _startTime!.hour, _startTime!.minute)
+                  .toIso8601String(),
+              endTime: DateTime(selectedEndDate!.year, selectedEndDate.month,
+                      selectedEndDate.day, _endTime!.hour, _endTime!.minute)
+                  .toIso8601String(),
+              requestType: endDate != null ? 'Dài hạn' : 'Ngắn hạn',
+              // Set based on your application's logic
+              totalCost: 0,
+              // Calculate or set the total cost
+              status: 'chưa tiến hành',
+              // Set the initial status
+              deleted: false,
+              comment:
+                  Comment(review: '', loseThings: false, breakThings: false),
+              profit: 0, // Calculate or set profit if applicable
+            );
+            print('Request Information:');
+            print('Customer Name: ${request.customerInfo.fullName}');
+            print('Customer Phone: ${request.customerInfo.phone}');
+            print('Customer Address: ${request.customerInfo.address}');
+            print('Service Title: ${request.service.title}');
+            print('Start Date: ${request.startDate}');
+            print('Start Time: ${request.startTime}');
+            print('End Time: ${request.endTime}');
+            print(
+                'Location: ${request.location.province}, ${request.location.district}');
+            print('Order Date: ${request.oderDate}');
+            print('Request Type: ${request.requestType}');
+            print('Total Cost: ${request.totalCost}');
+            print('Status: ${request.status}');
 
-              if (_tabController.index == 0) {
-                request.endTime = DateTime(
-                    selectedDate!.year,
-                    selectedDate!.month,
-                    selectedDate!.day,
-                    _endTime!.hour,
-                    _endTime!.minute)
-                    .toIso8601String();
-                print('End Time: ${request.endTime}');
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => HelperList(
-                      customer: widget.customer,
-                      request: request,
-                      listDate: List.generate(1, (index) => startDate!),
-                      isOnDemand: true,
-                      costFactors: widget.costFactors,
-                      services: widget.services,
-                    ),
+            if (selectedIndex == 0) {
+              request.endTime = DateTime(
+                      selectedDate!.year,
+                      selectedDate!.month,
+                      selectedDate!.day,
+                      _endTime!.hour,
+                      _endTime!.minute)
+                  .toIso8601String();
+              print('End Time: ${request.endTime}');
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => HelperList(
+                    customer: widget.customer,
+                    request: request,
+                    listDate: List.generate(1, (index) => startDate!),
+                    isOnDemand: true,
+                    costFactors: widget.costFactors,
+                    services: widget.services,
                   ),
-                );
-              } else {
-                startDate =
-                    DateTime(startDate!.year, startDate!.month, startDate!.day);
-                endDate = DateTime(endDate!.year, endDate!.month, endDate!.day);
-                print(List.generate(
-                  endDate!.difference(startDate!).inDays + 1, // Số ngày cần tạo
+                ),
+              );
+            } else {
+              startDate =
+                  DateTime(startDate!.year, startDate!.month, startDate!.day);
+              endDate = DateTime(endDate!.year, endDate!.month, endDate!.day);
+              print(List.generate(
+                endDate!.difference(startDate!).inDays + 1, // Số ngày cần tạo
+                (index) => DateTime(startDate!.year, startDate!.month,
+                    startDate!.day + index), // Chỉ lấy ngày/tháng/năm
+              ));
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CustomCalendar(
+                    initialSelectedDates: List.generate(
+                      endDate!.difference(startDate!).inDays + 1,
+                      // Số ngày cần tạo
                       (index) => DateTime(startDate!.year, startDate!.month,
-                      startDate!.day + index), // Chỉ lấy ngày/tháng/năm
-                ));
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => CustomCalendar(
-                      initialSelectedDates: List.generate(
-                        endDate!.difference(startDate!).inDays + 1,
-                        // Số ngày cần tạo
-                            (index) => DateTime(startDate!.year, startDate!.month,
-                            startDate!.day + index), // Chỉ lấy ngày/tháng/năm
-                      ),
-                      customer: widget.customer,
-                      request: request,
-                      maxDate:
-                      DateTime(endDate!.year, endDate!.month, endDate!.day),
-                      minDate: DateTime(
-                          startDate!.year, startDate!.month, startDate!.day),
-                      costFactors: widget.costFactors,
-                      services: widget.services,
-                      // minDate: DateTime(2025, 2, 25),
-                      // maxDate: DateTime(2025, 2, 26),
+                          startDate!.day + index), // Chỉ lấy ngày/tháng/năm
                     ),
+                    customer: widget.customer,
+                    request: request,
+                    maxDate:
+                        DateTime(endDate!.year, endDate!.month, endDate!.day),
+                    minDate: DateTime(
+                        startDate!.year, startDate!.month, startDate!.day),
+                    costFactors: widget.costFactors,
+                    services: widget.services,
+                    // minDate: DateTime(2025, 2, 25),
+                    // maxDate: DateTime(2025, 2, 26),
                   ),
-                );
-              }
+                ),
+              );
+            }
           },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTabButton(int index, String text) {
+    bool isSelected = selectedIndex == index;
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => _onTabSelected(index),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: isSelected ? Colors.green : Colors.transparent,
+            borderRadius: BorderRadius.circular(30),
+          ),
+          alignment: Alignment.center,
+          child: AnimatedDefaultTextStyle(
+            duration: const Duration(milliseconds: 300),
+            style: TextStyle(
+              color: isSelected ? Colors.white : Colors.green,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Quicksand',
+              fontSize: isSelected ? 16 : 14,
+            ),
+            child: Text(text),
+          ),
         ),
       ),
     );

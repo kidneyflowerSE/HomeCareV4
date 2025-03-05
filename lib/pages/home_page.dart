@@ -649,18 +649,18 @@ class _HomeContentState extends State<HomeContent> {
         'isNew': true,
       },
       {
-        'icon': Icons.local_laundry_service_rounded,
-        'label': 'Giặt ủi',
-        'isNew': true
+        'icon': Icons.child_care_rounded,
+        'label': 'Chăm sóc bé',
+        'isNew': true,
       },
       {
-        'icon': Icons.build_rounded,
-        'label': 'Sửa chữa',
+        'icon': Icons.elderly_rounded,
+        'label': 'Chăm sóc người già',
         'isNew': false,
       },
       {
-        'icon': Icons.restaurant_rounded,
-        'label': 'Nấu ăn',
+        'icon': Icons.pregnant_woman_rounded,
+        'label': 'Chăm sóc sản phụ',
         'isNew': true,
       },
     ];
@@ -698,6 +698,8 @@ class _HomeContentState extends State<HomeContent> {
               bool isNew = (action['isNew'] as bool?) ?? false;
 
               return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Stack(
                     clipBehavior: Clip.none,
@@ -758,13 +760,19 @@ class _HomeContentState extends State<HomeContent> {
                     ],
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    action['label'] as String,
-                    // Thêm index vào label nếu cần
-                    style: const TextStyle(
-                      fontFamily: 'Quicksand',
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
+                  SizedBox(
+                    width: 80,
+                    child: Text(
+                      action['label'] as String,
+                      // Thêm index vào label nếu cần
+                      style: const TextStyle(
+                        fontFamily: 'Quicksand',
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.visible,
+                      textAlign: TextAlign.center,
                     ),
                   ),
                 ],
