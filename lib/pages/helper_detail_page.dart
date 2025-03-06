@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:foodapp/data/model/helper.dart';
 import 'package:intl/intl.dart';
 
+import '../data/model/service.dart';
+
 class HelperDetailPage extends StatelessWidget {
   final Helper helper;
+  final List<Services> services;
 
   const HelperDetailPage({
     super.key,
-    required this.helper,
+    required this.helper, required this.services,
   });
 
   @override
@@ -186,6 +189,11 @@ class HelperDetailPage extends StatelessWidget {
   }
 
   Widget _buildExperienceTab() {
+    List<Services> helperServices = services
+        .where((service) => helper.jobs.contains(service.id))
+        .toList();
+
+    print(helperServices);
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -198,7 +206,7 @@ class HelperDetailPage extends StatelessWidget {
           if (helper.jobs.isNotEmpty) ...[
             const SizedBox(height: 16),
             _buildChipSection(
-                'Kỹ năng', helper.jobs.map((job) => _buildChip(job)).toList()),
+                'Kỹ năng', helperServices.map((helperService) => _buildChip(helperService.title)).toList()),
           ],
           if (helper.experienceDescription != null) ...[
             const SizedBox(height: 16),

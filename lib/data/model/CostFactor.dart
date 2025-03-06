@@ -82,23 +82,34 @@ class Coefficient {
       id: map['_id'] ?? '',
       title: map['title'] ?? '',
       description: map['description'] ?? '',
-      value: (map['value'] as num).toDouble(),
+      value: (map['value'] as num?)?.toDouble() ?? 0.0, // Xử lý nếu null
       deleted: map['deleted'] ?? false,
       status: map['status'] ?? '',
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      "_id": id,
+      "title": title,
+      "description": description,
+      "value": value,
+      "deleted": deleted,
+      "status": status,
+    };
+  }
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is Coefficient &&
-          runtimeType == other.runtimeType &&
-          id == other.id &&
-          title == other.title &&
-          description == other.description &&
-          value == other.value &&
-          deleted == other.deleted &&
-          status == other.status;
+          other is Coefficient &&
+              runtimeType == other.runtimeType &&
+              id == other.id &&
+              title == other.title &&
+              description == other.description &&
+              value == other.value &&
+              deleted == other.deleted &&
+              status == other.status;
 
   @override
   int get hashCode =>

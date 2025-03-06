@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:foodapp/data/model/request.dart';
+import 'package:foodapp/data/model/service.dart';
 import 'package:provider/provider.dart';
 import 'package:foodapp/auth/login_or_register.dart';
 import 'package:foodapp/components/spashscreen.dart';
@@ -22,16 +24,34 @@ void main() {
 // Future<void> main() async {
 //   WidgetsFlutterBinding.ensureInitialized();
 //   var repository = DefaultRepository();
-//   // try {
-//   //   debugPrint('Sending message...');
-//   //   await repository.sendMessage('0795335321');
-//   //   debugPrint('Message sent!');
-//   // } catch (e) {
-//   //   debugPrint('Error in main: $e');
-//   // }
-//   // var customers = await repository.loadMessage(Message(phone: '0795335321'));
 //
+//   // var request = Requests(
+//   //     customerInfo: CustomerInfo(fullName: 'Quốc An Nguyễn',
+//   //         phone: '0908123675',
+//   //         address: "abc",
+//   //         usedPoint: 0),
+//   //     service: RequestService(title: "Rửa bát",
+//   //         coefficientService: 1.0,
+//   //         coefficientOther: 1.0,
+//   //         cost: 20000),
+//   //     location: RequestLocation(province: 'hcm', district: 'q1', ward: 'p1'),
+//   //     id: '',
+//   //     oderDate: "2025-03-03",
+//   //     scheduleIds: [],
+//   //     startTime: "06:00",
+//   //     endTime: "10:00",
+//   //     requestType: 'Ngắn hạn',
+//   //     totalCost: 0,
+//   //     status: '',
+//   //     deleted: false,
+//   //     comment: Comment(review: '', loseThings: false, breakThings: false),
+//   //     profit: 0, startDate: "2025-03-03");
+//   //
 //   var customers = await repository.loadServices();
+//   // var totalCost = await repository.calculateCost(20000,
+//   //     request, customers!, 1.1);
+//   // print(totalCost);
+//
 //   if(customers != null){
 //     for(var customer in customers){
 //       debugPrint(customer.toString());
@@ -46,7 +66,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: context.watch<ThemeProvider>().themeData,
+      theme: context
+          .watch<ThemeProvider>()
+          .themeData,
       home: const SplashScreen(),
     );
   }

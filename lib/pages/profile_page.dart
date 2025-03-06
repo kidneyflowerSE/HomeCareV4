@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:foodapp/components/my_textfield.dart';
 import 'package:foodapp/data/model/customer.dart';
 import 'package:foodapp/pages/F.A.QPage.dart';
+import 'package:foodapp/pages/center_support_page.dart';
 import 'package:foodapp/pages/choose_location_page.dart';
+import 'package:foodapp/pages/customer_right_page.dart';
 import 'package:foodapp/pages/edit_information_page.dart';
+import 'package:foodapp/pages/feedback_complaint_page.dart';
+import 'package:foodapp/pages/login_page.dart';
 import 'package:foodapp/pages/policy.dart';
+import 'package:foodapp/pages/register_page.dart';
+import 'package:foodapp/pages/training_helper_page.dart';
 
 class ProfilePage extends StatefulWidget {
   final Customer customer;
@@ -15,6 +22,269 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   int index = 0;
+
+  void _showConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          "Xác nhận",
+          style: TextStyle(
+            fontFamily: 'Quicksand',
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        content: Text(
+          "Bạn có chắc chắn muốn xóa tài khoản không?",
+          style: TextStyle(
+            fontFamily: 'Quicksand',
+            fontSize: 16,
+          ),
+        ),
+        actions: [
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.blue,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                "Không",
+                style: TextStyle(
+                  fontFamily: 'Quicksand',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.red,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _showPasswordDialog(context);
+              },
+              child: Text(
+                "Dạ Cóa",
+                style: TextStyle(
+                  fontFamily: 'Quicksand',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showConfirmationLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          "Xác nhận",
+          style: TextStyle(
+            fontFamily: 'Quicksand',
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        content: Text(
+          "Bạn có chắc chắn muốn đăng xuất không?",
+          style: TextStyle(
+            fontFamily: 'Quicksand',
+            fontSize: 16,
+          ),
+        ),
+        actions: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(
+                    "Không",
+                    style: TextStyle(
+                      fontFamily: 'Quicksand',
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginPage()),
+                    );
+                  },
+                  child: Text(
+                    "Dạ Cóa",
+                    style: TextStyle(
+                      fontFamily: 'Quicksand',
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showPasswordDialog(BuildContext context) {
+    TextEditingController passwordController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        title: Text(
+          "Nhập mật khẩu",
+          style: TextStyle(
+            fontFamily: 'Quicksand',
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            MyTextField(
+              controller: passwordController,
+              hintText: 'Nhập mật khẩu',
+              obscureText: true,
+              keyboardType: TextInputType.text,
+            )
+          ],
+        ),
+        actionsAlignment: MainAxisAlignment.spaceBetween,
+        actions: [
+          Container(
+            width: 100, // Định kích thước nút
+            decoration: BoxDecoration(
+              color: Colors.blue,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                "Hủy",
+                style: TextStyle(
+                  fontFamily: 'Quicksand',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+          Container(
+            width: 130, // Định kích thước nút
+            decoration: BoxDecoration(
+              color: Colors.red,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _showSuccessDialog(context);
+              },
+              child: Text(
+                "Xác nhận xoá",
+                style: TextStyle(
+                  fontFamily: 'Quicksand',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showSuccessDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          "Thành công",
+          style: TextStyle(
+            fontFamily: 'Quicksand',
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: Text(
+          "Tài khoản đã được xóa thành công.",
+          style: TextStyle(
+            fontFamily: 'Quicksand',
+            fontSize: 16,
+          ),
+        ),
+        actions: [
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.green,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginPage()),
+                );
+              },
+              child: Text(
+                "OK",
+                style: TextStyle(
+                  fontFamily: 'Quicksand',
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +322,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 },
                 child: Container(
                   padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
@@ -131,10 +401,9 @@ class _ProfilePageState extends State<ProfilePage> {
                       // );
                     }),
                     MenuItem(Icons.person_off_rounded, "Yêu cầu xóa tài khoản",
-                            () {
-                          _showStaticDialog(context,
-                              "Chức năng xóa tài khoản đang được thử nghiệm.");
-                        }),
+                        () {
+                      _showConfirmationDialog(context);
+                    }),
                   ],
                 ),
                 // Section Quy trình, điều khoản, chính sách
@@ -144,10 +413,13 @@ class _ProfilePageState extends State<ProfilePage> {
                   [
                     MenuItem(
                         Icons.person_pin_rounded, "Quyền lợi của khách hàng",
-                            () {
-                          _showStaticDialog(context,
-                              "Quyền lợi khách hàng đang được thử nghiệm.");
-                        }),
+                        () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => CustomerRight()),
+                      );
+                    }),
                     MenuItem(Icons.gavel_rounded, "Pháp lý", () {
                       // _showStaticDialog(
                       //     context, "Pháp lý đang được thử nghiệm.");
@@ -157,10 +429,13 @@ class _ProfilePageState extends State<ProfilePage> {
                       );
                     }),
                     MenuItem(Icons.school, "Quy trình đào tạo người giúp việc",
-                            () {
-                          _showStaticDialog(
-                              context, "Quy trình đào tạo đang được thử nghiệm.");
-                        }),
+                        () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => TrainingHelperPage()),
+                      );
+                    }),
                   ],
                 ),
                 // Section Trợ giúp & hỗ trợ
@@ -169,30 +444,35 @@ class _ProfilePageState extends State<ProfilePage> {
                   "Trợ giúp & hỗ trợ",
                   [
                     MenuItem(Icons.headset_mic, "Trung tâm hỗ trợ", () {
-                      _showStaticDialog(
-                          context, "Trung tâm hỗ trợ đang được thử nghiệm.");
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => SupportCenterPage()),
+                      );
                     }),
                     MenuItem(Icons.question_mark_rounded, "Câu hỏi thường gặp",
-                            () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => FAQScreen()),
-                          );
-                        }),
+                        () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => FAQScreen()),
+                      );
+                    }),
                     MenuItem(Icons.question_answer_rounded,
                         "Góp ý, khiếu nại qua App", () {
-                          _showStaticDialog(
-                              context, "Phản hồi đang được thử nghiệm.");
-                        }),
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => FeedbackComplaintsPage()),
+                      );
+                    }),
                   ],
                 ),
-                // Nút đăng xuất
+
                 Padding(
                   padding: const EdgeInsets.all(20),
                   child: ElevatedButton(
                     onPressed: () {
-                      _showStaticDialog(
-                          context, "Đăng xuất đang được thử nghiệm.");
+                      _showConfirmationLogoutDialog(context);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red.shade600,
@@ -208,6 +488,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         fontFamily: 'Quicksand',
+                        color: Colors.white,
                       ),
                     ),
                   ),
@@ -215,11 +496,12 @@ class _ProfilePageState extends State<ProfilePage> {
                 // Phiên bản
                 const Center(
                   child: Text(
-                    "Version 2.0.25",
+                    "Version 11.3.5",
                     style: TextStyle(
                       fontFamily: 'Quicksand',
                       color: Colors.grey,
-                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
                     ),
                   ),
                 ),
@@ -266,7 +548,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
           child: Column(
             children:
-            items.map((item) => _buildMenuItem(context, item)).toList(),
+                items.map((item) => _buildMenuItem(context, item)).toList(),
           ),
         ),
       ],
@@ -287,12 +569,13 @@ class _ProfilePageState extends State<ProfilePage> {
           item.title,
           style: const TextStyle(
             fontFamily: 'Quicksand',
-            fontSize: 14,
+            fontSize: 16,
             color: Colors.black87,
+            fontWeight: FontWeight.w600,
           ),
         ),
         trailing:
-        const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+            const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
         onTap: item.onTap,
       ),
     );
@@ -358,7 +641,7 @@ class _ProfilePageState extends State<ProfilePage> {
             TextButton(
               onPressed: () => Navigator.pop(context),
               child:
-              const Text("OK", style: TextStyle(fontFamily: 'Quicksand')),
+                  const Text("OK", style: TextStyle(fontFamily: 'Quicksand')),
             ),
           ],
         ),
@@ -367,7 +650,6 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 }
 
-// Class đại diện cho các menu item
 class MenuItem {
   final IconData icon;
   final String title;

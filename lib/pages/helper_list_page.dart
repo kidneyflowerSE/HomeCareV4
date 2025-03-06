@@ -242,7 +242,7 @@ class _HelperListState extends State<HelperList> {
           child: HelperCard(
             helper: helpers[index],
             onTap: () => _navigateToReviewOrder(helpers[index]),
-            allServices: [],
+            allServices: [], services: widget.services,
           ),
         );
       },
@@ -273,12 +273,13 @@ class HelperCard extends StatelessWidget {
   final Helper helper;
   final VoidCallback onTap;
   final List<Service> allServices;
+  final List<Services> services;
 
   const HelperCard({
     Key? key,
     required this.helper,
     required this.onTap,
-    required this.allServices,
+    required this.allServices, required this.services,
   }) : super(key: key);
 
   @override
@@ -466,7 +467,7 @@ class HelperCard extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => HelperDetailPage(helper: helper),
+                builder: (context) => HelperDetailPage(helper: helper, services: services,),
               ),
             );
           },

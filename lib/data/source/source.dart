@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:foodapp/data/model/CostFactor.dart';
 import 'package:foodapp/data/model/F.A.Q.dart';
+import 'package:foodapp/data/model/coefficient.dart';
 import 'package:foodapp/data/model/helper.dart';
 import 'package:foodapp/data/model/location.dart';
 import 'package:foodapp/data/model/message.dart';
@@ -46,6 +47,15 @@ abstract interface class DataSource {
   Future<void> sendMessage(String phone);
 
   Future<List<CostFactor>?> loadCostFactorData();
+
+  Future<CoefficientOther?> loadCoefficientOther();
+
+  Future<Map<String, dynamic>?> calculateCost(num servicePrice,
+      String startTime,
+      String endTime,
+      String startDate,
+      CoefficientOther coefficientOther,
+      num serviceFactor);
 }
 
 class RemoteDataSource implements DataSource {
@@ -79,11 +89,12 @@ class RemoteDataSource implements DataSource {
       if (response.statusCode == 200) {
         final bodyContent = utf8.decode(response.bodyBytes);
         final List<dynamic> locationList = jsonDecode(bodyContent);
-        return locationList.map((location) => Location.fromJson(location))
+        return locationList
+            .map((location) => Location.fromJson(location))
             .toList();
       } else {
-        print('Failed to load location data. Status code: ${response
-            .statusCode}');
+        print(
+            'Failed to load location data. Status code: ${response.statusCode}');
         return null;
       }
     } catch (e) {
@@ -101,11 +112,12 @@ class RemoteDataSource implements DataSource {
       if (response.statusCode == 200) {
         final bodyContent = utf8.decode(response.bodyBytes);
         final List<dynamic> customerList = jsonDecode(bodyContent);
-        return customerList.map((customer) => Customer.fromJson(customer))
+        return customerList
+            .map((customer) => Customer.fromJson(customer))
             .toList();
       } else {
-        print('Failed to load customer data. Status code: ${response
-            .statusCode}');
+        print(
+            'Failed to load customer data. Status code: ${response.statusCode}');
         return null;
       }
     } catch (e) {
@@ -134,7 +146,6 @@ class RemoteDataSource implements DataSource {
     }
   }
 
-
   @override
   Future<List<Services>?> loadServicesData() async {
     const url = 'https://api.homekare.site/service';
@@ -144,11 +155,12 @@ class RemoteDataSource implements DataSource {
       if (response.statusCode == 200) {
         final bodyContent = utf8.decode(response.bodyBytes);
         final List<dynamic> servicesList = jsonDecode(bodyContent);
-        return servicesList.map((services) => Services.fromJson(services))
+        return servicesList
+            .map((services) => Services.fromJson(services))
             .toList();
       } else {
-        print('Failed to load services data. Status code: ${response
-            .statusCode}');
+        print(
+            'Failed to load services data. Status code: ${response.statusCode}');
         return null;
       }
     } catch (e) {
@@ -167,7 +179,8 @@ class RemoteDataSource implements DataSource {
         // print(response.body);
         final bodyContent = utf8.decode(response.bodyBytes);
         final List<dynamic> requestList = jsonDecode(bodyContent);
-        return requestList.map((request) => Requests.fromJson(request))
+        return requestList
+            .map((request) => Requests.fromJson(request))
             .toList();
       } else {
         print(
@@ -184,15 +197,15 @@ class RemoteDataSource implements DataSource {
   Future<List<Policy>?> loadPolicy() async {
     const url = 'https://api.homekare.site/policy';
     final uri = Uri.parse(url);
-    try{
+    try {
       final response = await http.get(uri);
-      if(response.statusCode == 200){
+      if (response.statusCode == 200) {
         final bodyContent = utf8.decode(response.bodyBytes);
         final List<dynamic> policyList = jsonDecode(bodyContent);
         return policyList.map((policy) => Policy.fromJson(policy)).toList();
-      }
-      else {
-        print('Failed to load policy data. Status code: ${response.statusCode}');
+      } else {
+        print(
+            'Failed to load policy data. Status code: ${response.statusCode}');
         return null;
       }
     } catch (e) {
@@ -205,14 +218,13 @@ class RemoteDataSource implements DataSource {
   Future<List<FAQ>?> loadFAQ() async {
     const url = 'https://api.homekare.site/question';
     final uri = Uri.parse(url);
-    try{
+    try {
       final response = await http.get(uri);
-      if(response.statusCode == 200){
+      if (response.statusCode == 200) {
         final bodyContent = utf8.decode(response.bodyBytes);
         final List<dynamic> faqList = jsonDecode(bodyContent);
         return faqList.map((faq) => FAQ.fromJson(faq)).toList();
-      }
-      else {
+      } else {
         print('Failed to load FAQ data. Status code: ${response.statusCode}');
         return null;
       }
@@ -242,8 +254,8 @@ class RemoteDataSource implements DataSource {
         }
         return await loadRequestDetailId(requestIds);
       } else {
-        print('Failed to load request detail data. Status code: ${response
-            .statusCode}');
+        print(
+            'Failed to load request detail data. Status code: ${response.statusCode}');
         return null;
       }
     } catch (e) {
@@ -254,19 +266,19 @@ class RemoteDataSource implements DataSource {
 
   Future<List<RequestDetail>?> loadRequestDetailId(List<String> id) async {
     final String idString = id.join(',');
-    String url =
-        'https://api.homekare.site/requestDetail?ids=$idString';
+    String url = 'https://api.homekare.site/requestDetail?ids=$idString';
     final uri = Uri.parse(url);
     try {
       final response = await http.get(uri);
       if (response.statusCode == 200) {
         final bodyContent = utf8.decode(response.bodyBytes);
         final List<dynamic> detailsList = jsonDecode(bodyContent);
-        return detailsList.map((detail) => RequestDetail.fromJson(detail))
+        return detailsList
+            .map((detail) => RequestDetail.fromJson(detail))
             .toList();
       } else {
-        print('Failed to load request detail IDs. Status code: ${response
-            .statusCode}');
+        print(
+            'Failed to load request detail IDs. Status code: ${response.statusCode}');
         return null;
       }
     } catch (e) {
@@ -285,14 +297,12 @@ class RemoteDataSource implements DataSource {
         final bodyContent = utf8.decode(response.bodyBytes);
         final List<dynamic> timeOffList = jsonDecode(bodyContent);
         return timeOffList.map((timeOff) => TimeOff.fromJson(timeOff)).toList();
-      }
-      else {
-        print('Failed to load request detail IDs. Status code: ${response
-            .statusCode}');
+      } else {
+        print(
+            'Failed to load request detail IDs. Status code: ${response.statusCode}');
         return null;
       }
-    }
-    catch (e) {
+    } catch (e) {
       print('Error loading request detail IDs: $e');
       return null;
     }
@@ -347,8 +357,8 @@ class RemoteDataSource implements DataSource {
 
   @override
   Future<List<Message>?> loadMessageData(Message message) async {
-    final url = Uri.parse(
-        'https://api.homekare.site/message?phone=${message.phone}');
+    final url =
+        Uri.parse('https://api.homekare.site/message?phone=${message.phone}');
     try {
       final response = await http.get(url);
 
@@ -394,79 +404,88 @@ class RemoteDataSource implements DataSource {
     final uri = Uri.parse(url);
     try {
       final response = await http.get(uri);
-      if(response.statusCode == 200){
+      if (response.statusCode == 200) {
         final bodyContent = utf8.decode(response.bodyBytes);
         final List<dynamic> costFactorList = jsonDecode(bodyContent);
-        return costFactorList.map((costFactor) => CostFactor.fromJson(costFactor))
+        return costFactorList
+            .map((costFactor) => CostFactor.fromJson(costFactor))
             .toList();
       } else {
         print(
             'Failed to load request data. Status code: ${response.statusCode}');
         return null;
       }
+    } catch (e) {
+      print('Error loading CostFactor data: $e');
+      return null;
     }
-    catch (e) {
+  }
+
+  @override
+  Future<Map<String, dynamic>?> calculateCost(
+      num servicePrice,
+      String startTime,
+      String endTime,
+      String startDate,
+      CoefficientOther coefficientOther,
+      num serviceFactor) async {
+    const url = 'https://api.homekare.site/request/calculateCost';
+    final uri = Uri.parse(url);
+    final headers = {'Content-Type': 'application/json'};
+    final body = jsonEncode({
+      "servicePrice": servicePrice,
+      "startTime": startTime,
+      "endTime": endTime,
+      "workDate": startDate,
+      "officeStartTime": "06:00",
+      "officeEndTime": "20:00",
+      "coefficient_other": coefficientOther.toJson(),
+      "serviceFactor": serviceFactor
+    });
+
+    debugPrint(body);
+
+    try {
+      final response = await http.post(uri, headers: headers, body: body);
+
+      if (response.statusCode == 200) {
+        final decodedResponse =
+            jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+        // debugPrint("Response Body: $decodedResponse");
+        return decodedResponse;
+      } else {
+        print(
+            'Failed to post requests calculation. Status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+        return null;
+      }
+    } catch (e) {
+      print('Error posting requests calculation: $e');
+      return null;
+    }
+  }
+
+  @override
+  Future<CoefficientOther?> loadCoefficientOther() async {
+    final url = "https://api.homekare.site/costFactor/other";
+    final uri = Uri.parse(url);
+
+    try {
+      final response = await http.get(uri);
+
+      if (response.statusCode == 200) {
+        final bodyContent = utf8.decode(response.bodyBytes);
+        final Map<String, dynamic> coefficientOtherMap =
+            jsonDecode(bodyContent);
+
+        return CoefficientOther.fromJson(coefficientOtherMap);
+      } else {
+        print('Failed to load data. Status code: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
       print('Error loading CostFactor data: $e');
       return null;
     }
   }
 }
-
-
-// class LocalDataSource implements DataSource {
-//   @override
-//   Future<List<Helper>?> loadCleanerData() async {
-//     final String response = await rootBundle.loadString('assets/cleaners.json');
-//     final List<dynamic> cleanerList = jsonDecode(response);
-//     return cleanerList.map((cleaner) => Helper.fromJson(cleaner)).toList();
-//   }
-//
-//   @override
-//   Future<List<Location>?> loadLocationData() async {
-//     final String response = await rootBundle.loadString('assets/location.json');
-//     final List<dynamic> locationList = jsonDecode(response);
-//     return locationList.map((location) => Location.fromJson(location)).toList();
-//   }
-//
-//   @override
-//   Future<List<Customer>?> loadCustomerData() async {
-//     final String response = await rootBundle.loadString('assets/customer.json');
-//     final List<dynamic> customerList = jsonDecode(response);
-//     return customerList.map((customer) => Customer.fromJson(customer)).toList();
-//   }
-//
-//   @override
-//   Future<List<Services>?> loadServicesData() async {
-//     final String response = await rootBundle.loadString('assets/services.json');
-//     final List<dynamic> servicesList = jsonDecode(response);
-//     return servicesList.map((services) => Services.fromJson(services)).toList();
-//   }
-//
-//   @override
-//   Future<List<Requests>?> loadRequestData() async {
-//     final String response = await rootBundle.loadString('assets/request.json');
-//     final List<dynamic> requestList = jsonDecode(response);
-//     return requestList.map((request) => Requests.fromJson(request)).toList();
-//   }
-//
-//   @override
-//   Future<List<RequestDetail>?> loadRequestDetailData() async {
-//     final String response = await rootBundle.loadString('assets/customer.json');
-//     final List<dynamic> requestDetailList = jsonDecode(response);
-//     return requestDetailList
-//         .map((detail) => RequestDetail.fromJson(detail))
-//         .toList();
-//   }
-//
-//   @override
-//   Future<void> sendRequests(Requests requests) {
-//     // TODO: implement sendRequests
-//     throw UnimplementedError();
-//   }
-//
-//   @override
-//   Future<List<TimeOff>?> loadTimeOffData() async{
-//     // TODO: implement loadTimeOffData
-//     throw UnimplementedError();
-//   }
-// }

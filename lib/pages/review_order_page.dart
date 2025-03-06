@@ -566,7 +566,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                           context,
                           MaterialPageRoute(
                             builder: (context) =>
-                                HelperDetailPage(helper: widget.helper!),
+                                HelperDetailPage(helper: widget.helper!, services: widget.services,),
                           ),
                         );
                       }
