@@ -129,22 +129,20 @@ class _FAQScreenState extends State<FAQScreen> {
   final List<Map<String, String>> faqs = [];
   List<bool> isOpenList = [];
 
-
   @override
   void initState() {
     super.initState();
     loadData();
   }
 
-  void loadData() async{
+  void loadData() async {
     var repository = DefaultRepository();
     var data = await repository.loadFAQ();
     setState(() {
       faqList = data ?? [];
-      faqs.addAll(faqList!.map((faq) => {
-        "question": faq.question,
-        "answer": faq.answer
-      }).toList());
+      faqs.addAll(faqList!
+          .map((faq) => {"question": faq.question, "answer": faq.answer})
+          .toList());
     });
     isOpenList = List.generate(faqs.length, (index) => false);
   }
@@ -152,7 +150,17 @@ class _FAQScreenState extends State<FAQScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Câu hỏi thường gặp"),backgroundColor: Colors.green,),
+      appBar: AppBar(
+          title: Text("Câu hỏi thường gặp",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+                fontFamily: 'Quicksand',
+              )),
+          backgroundColor: Colors.green,
+          iconTheme: IconThemeData(color: Colors.white)),
+      backgroundColor: Colors.grey.shade50,
       body: ListView.builder(
         padding: EdgeInsets.all(10),
         itemCount: faqs.length,
@@ -160,14 +168,20 @@ class _FAQScreenState extends State<FAQScreen> {
           return Card(
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            elevation: 3,
+            elevation: 1,
             child: Theme(
               data: Theme.of(context).copyWith(
-                dividerColor: Colors.transparent, // Ẩn gạch dưới ExpansionTile
+                dividerColor: Colors.transparent,
               ),
               child: ExpansionTile(
-                title: Text(faqs[index]["question"]!,
-                    style: TextStyle(fontWeight: FontWeight.bold)),
+                title: Text(
+                  faqs[index]["question"]!,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'Quicksand',
+                    fontSize: 16,
+                  ),
+                ),
                 // Màu nền khi mở rộng
                 backgroundColor: Colors.blue.shade50,
                 textColor: Colors.green,
@@ -180,12 +194,16 @@ class _FAQScreenState extends State<FAQScreen> {
                 initiallyExpanded: isOpenList[index],
 
                 trailing: AnimatedSwitcher(
-                  duration: Duration(milliseconds: 300),
+                  duration: Duration(milliseconds: 600),
                   transitionBuilder: (child, animation) {
                     return RotationTransition(turns: animation, child: child);
                   },
                   child: isOpenList[index]
-                      ? Icon(Icons.remove, key: ValueKey('open'), color: Colors.green,)
+                      ? Icon(
+                          Icons.remove,
+                          key: ValueKey('open'),
+                          color: Colors.green,
+                        )
                       : Icon(Icons.add, key: ValueKey('closed')),
                 ),
                 onExpansionChanged: (isOpen) {
@@ -196,8 +214,14 @@ class _FAQScreenState extends State<FAQScreen> {
                 children: [
                   Padding(
                     padding: EdgeInsets.all(10),
-                    child: Text(faqs[index]["answer"]!,
-                        style: TextStyle(color: Colors.black87)),
+                    child: Text(
+                      faqs[index]["answer"]!,
+                      style: TextStyle(
+                        color: Colors.black87,
+                        fontFamily: 'Quicksand',
+                        fontSize: 14,
+                      ),
+                    ),
                   ),
                 ],
               ),
