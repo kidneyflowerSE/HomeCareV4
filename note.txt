@@ -1,9 +1,7 @@
 thêm giá dịch vụ  = giá cơ bản x hệ số dịch vụ ở Service Order
-thêm lọc nhân viên bận
-chỉnh lại kĩ năng của helper 
 chỉnh lại màu các status trong activity
-trang lịch sử thanh toán
 yêu cầu xoá tài khoản
-trang quyền lợi khách hàng
 quy trình đào tạo người giúp việc
 chức năng đăng xuất
+trang lịch sử thanh toán
+trang quyền lợi khách hàng
