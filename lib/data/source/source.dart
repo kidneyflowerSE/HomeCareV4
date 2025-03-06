@@ -50,6 +50,8 @@ abstract interface class DataSource {
 
   Future<CoefficientOther?> loadCoefficientOther();
 
+  Future<List<CoefficientOther>?> loadCoefficientService();
+
   Future<Map<String, dynamic>?> calculateCost(num servicePrice,
       String startTime,
       String endTime,
@@ -437,8 +439,8 @@ class RemoteDataSource implements DataSource {
       "startTime": startTime,
       "endTime": endTime,
       "workDate": startDate,
-      "officeStartTime": "06:00",
-      "officeEndTime": "20:00",
+      "officeStartTime": "08:00",
+      "officeEndTime": "18:00",
       "coefficient_other": coefficientOther.toJson(),
       "serviceFactor": serviceFactor
     });
@@ -475,8 +477,7 @@ class RemoteDataSource implements DataSource {
 
       if (response.statusCode == 200) {
         final bodyContent = utf8.decode(response.bodyBytes);
-        final Map<String, dynamic> coefficientOtherMap =
-            jsonDecode(bodyContent);
+        final Map<String, dynamic> coefficientOtherMap = jsonDecode(bodyContent);
 
         return CoefficientOther.fromJson(coefficientOtherMap);
       } else {
@@ -486,6 +487,30 @@ class RemoteDataSource implements DataSource {
     } catch (e) {
       print('Error loading CostFactor data: $e');
       return null;
+    }
+  }
+
+  @override
+  Future<List<CoefficientOther>?> loadCoefficientService() async{
+    const String url = "https://api.homekare.site/costFactor/service"; // Thay bằng URL API thực tế
+    final Uri uri = Uri.parse(url);
+
+    try {
+      final response = await http.get(uri);
+
+      if (response.statusCode == 200) {
+        final bodyContent = utf8.decode(response.bodyBytes);
+        final List<dynamic> coefficientServiceList = jsonDecode(bodyContent);
+        return coefficientServiceList
+            .map((coefficient) => CoefficientOther.fromJson(coefficient))
+            .toList();
+      } else {
+        print('Failed to load data. Status code: ${response.statusCode}');
+        return [];
+      }
+    } catch (e) {
+      print('Error loading CostFactor data: $e');
+      return [];
     }
   }
 }

@@ -47,16 +47,17 @@ void main() {
 //   //     comment: Comment(review: '', loseThings: false, breakThings: false),
 //   //     profit: 0, startDate: "2025-03-03");
 //   //
-//   var customers = await repository.loadServices();
+//   var customers = await repository.loadCoefficientService();
 //   // var totalCost = await repository.calculateCost(20000,
 //   //     request, customers!, 1.1);
 //   // print(totalCost);
+//   print(customers?.first.coefficientList.toString());
 //
-//   if(customers != null){
-//     for(var customer in customers){
-//       debugPrint(customer.toString());
-//     }
-//   }
+//   // if(customers != null){
+//   //   for(var customer in customers){
+//   //     debugPrint(customer.toString());
+//   //   }
+//   // }
 // }
 
 class MyApp extends StatelessWidget {

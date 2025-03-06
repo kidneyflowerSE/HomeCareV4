@@ -22,6 +22,7 @@ class HelperList extends StatefulWidget {
   final List<DateTime> listDate;
   final bool isOnDemand;
   final List<Services> services;
+  final Services service;
 
   const HelperList({
     super.key,
@@ -31,6 +32,7 @@ class HelperList extends StatefulWidget {
     required this.isOnDemand,
     required this.costFactors,
     required this.services,
+    required this.service,
   });
 
   @override
@@ -108,7 +110,7 @@ class _HelperListState extends State<HelperList> {
                       customer: widget.customer,
                       request: widget.request,
                       costFactors: widget.costFactors,
-                      services: widget.services,
+                      services: widget.services, service: widget.service,
                     ),
                   ),
                 ),
@@ -242,7 +244,8 @@ class _HelperListState extends State<HelperList> {
           child: HelperCard(
             helper: helpers[index],
             onTap: () => _navigateToReviewOrder(helpers[index]),
-            allServices: [], services: widget.services,
+            allServices: [],
+            services: widget.services,
           ),
         );
       },
@@ -262,7 +265,7 @@ class _HelperListState extends State<HelperList> {
           helper: helper,
           request: widget.request,
           costFactors: widget.costFactors,
-          services: widget.services,
+          services: widget.services, service: widget.service,
         ),
       ),
     );
@@ -279,7 +282,8 @@ class HelperCard extends StatelessWidget {
     Key? key,
     required this.helper,
     required this.onTap,
-    required this.allServices, required this.services,
+    required this.allServices,
+    required this.services,
   }) : super(key: key);
 
   @override
@@ -467,7 +471,10 @@ class HelperCard extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => HelperDetailPage(helper: helper, services: services,),
+                builder: (context) => HelperDetailPage(
+                  helper: helper,
+                  services: services,
+                ),
               ),
             );
           },

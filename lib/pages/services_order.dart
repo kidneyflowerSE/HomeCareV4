@@ -55,6 +55,7 @@ class _ServicesOrderState extends State<ServicesOrder>
   String? selectedDetailedAddress;
 
   int selectedIndex = 0;
+
   void _onTabSelected(int index) {
     if (selectedIndex == index) return;
 
@@ -519,6 +520,7 @@ class _ServicesOrderState extends State<ServicesOrder>
                     isOnDemand: true,
                     costFactors: widget.costFactors,
                     services: widget.services,
+                    service: widget.service,
                   ),
                 ),
               );
@@ -549,6 +551,7 @@ class _ServicesOrderState extends State<ServicesOrder>
                         startDate!.year, startDate!.month, startDate!.day),
                     costFactors: widget.costFactors,
                     services: widget.services,
+                    service: widget.service,
                     // minDate: DateTime(2025, 2, 25),
                     // maxDate: DateTime(2025, 2, 26),
                   ),

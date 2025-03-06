@@ -14,6 +14,7 @@ class CustomCalendar extends StatefulWidget {
   final Requests request;
   final List<CostFactor> costFactors;
   final List<Services> services;
+  final Services service;
 
   const CustomCalendar({
     Key? key,
@@ -24,6 +25,7 @@ class CustomCalendar extends StatefulWidget {
     required this.request,
     required this.costFactors,
     required this.services,
+    required this.service,
   }) : super(key: key);
 
   @override
@@ -250,6 +252,7 @@ class _CustomCalendarState extends State<CustomCalendar> {
                       isOnDemand: false,
                       costFactors: widget.costFactors,
                       services: widget.services,
+                      service: widget.service,
                     ),
                   ),
                 );
