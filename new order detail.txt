@@ -1,0 +1,843 @@
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import '../data/model/request.dart';
+import 'package:intl/date_symbol_data_local.dart';
+
+class OrderDetailPage extends StatefulWidget {
+  final Requests request;
+
+  const OrderDetailPage({super.key, required this.request});
+
+  @override
+  State<OrderDetailPage> createState() => _OrderDetailPageState();
+}
+
+class _OrderDetailPageState extends State<OrderDetailPage> {
+  @override
+  void initState() {
+    super.initState();
+    initializeDateFormatting('vi_VN', null);
+  }
+
+  String _formatCurrency(double amount) {
+    final NumberFormat formatter = NumberFormat("#,###", "vi_VN");
+    double roundedAmount = (amount / 1000).ceil() * 1000;
+    return "${formatter.format(roundedAmount)} đ";
+  }
+
+  double promotion = 5000;
+
+  String _formatDate(String dateStr) {
+    DateTime dateTime = DateTime.parse(dateStr).toLocal();
+    return DateFormat("EEEE, dd 'Tháng' MM, yyyy - HH:mm", "vi_VN")
+        .format(dateTime);
+  }
+
+  // Get current status step based on request status
+  int _getCurrentStatusStep() {
+    // This is a placeholder - you should implement logic based on your actual request status field
+    // For example: if (widget.request.status == "pending") return 0;
+    String status = widget.request.status?.toLowerCase() ?? "pending";
+    
+    switch (status) {
+      case "pending": return 0;
+      case "confirmed": return 1;
+      case "in_progress": return 2;
+      case "completed": return 3;
+      case "cancelled": return -1; // Special case for cancelled orders
+      default: return 0;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey.shade50,
+      body: CustomScrollView(
+        slivers: [
+          _buildAppBar(),
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                _buildStatusProgressTracker(),
+                const SizedBox(height: 24),
+                _buildCustomerInfo(),
+                const SizedBox(height: 24),
+                _buildHelperInfo(),
+                const SizedBox(height: 24),
+                _buildServiceDetails(),
+                const SizedBox(height: 24),
+                _buildPaymentSummary(),
+                const SizedBox(height: 24),
+                _buildSupportSection(),
+                const SizedBox(height: 100), // Bottom padding for content
+              ]),
+            ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: _buildBottomActions(),
+    );
+  }
+
+  Widget _buildAppBar() {
+    return SliverAppBar(
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+        onPressed: () {
+          Navigator.pop(context);
+        },
+      ),
+      expandedHeight: 60,
+      pinned: true,
+      stretch: true,
+      backgroundColor: Colors.green,
+      foregroundColor: Colors.green,
+      elevation: 0,
+      flexibleSpace: FlexibleSpaceBar( 
+        title: const Text(
+          'Chi tiết đơn hàng',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+            fontFamily: 'Quicksand',
+          ),
+        ),
+        background: Container(
+          decoration: const BoxDecoration(
+            color: Colors.green,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatusProgressTracker() {
+    final int currentStep = _getCurrentStatusStep();
+    final bool isCancelled = currentStep == -1;
+    
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            isCancelled ? 'Đơn hàng đã hủy' : 'Trạng thái đơn hàng',
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Quicksand',
+            ),
+          ),
+          const SizedBox(height: 20),
+          
+          if (isCancelled)
+            _buildCancelledStatus()
+          else
+            _buildStatusFlow(currentStep),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCancelledStatus() {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.red.withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(Icons.cancel, color: Colors.red),
+        ),
+        const SizedBox(width: 16),
+        const Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Đơn hàng đã bị hủy',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red,
+                  fontFamily: 'Quicksand',
+                ),
+              ),
+              SizedBox(height: 4),
+              Text(
+                'Đơn hàng đã bị hủy bỏ. Vui lòng liên hệ hỗ trợ để biết thêm chi tiết.',
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontFamily: 'Quicksand',
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatusFlow(int currentStep) {
+    final List<Map<String, dynamic>> steps = [
+      {
+        'title': 'Chờ xác nhận',
+        'subtitle': 'Đơn hàng đang chờ xác nhận',
+        'icon': Icons.access_time_rounded
+      },
+      {
+        'title': 'Đã xác nhận',
+        'subtitle': 'Đơn hàng đã được xác nhận',
+        'icon': Icons.check_circle_outline
+      },
+      {
+        'title': 'Đang thực hiện',
+        'subtitle': 'Người giúp việc đang làm việc',
+        'icon': Icons.cleaning_services_rounded
+      },
+      {
+        'title': 'Hoàn thành',
+        'subtitle': 'Dịch vụ đã hoàn thành',
+        'icon': Icons.verified_rounded
+      },
+    ];
+
+    return Column(
+      children: List.generate(steps.length, (index) {
+        final bool isActive = index <= currentStep;
+        final bool isLast = index == steps.length - 1;
+        
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Status circle and connector line
+            Column(
+              children: [
+                Container(
+                  width: 28,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    color: isActive 
+                        ? Colors.green 
+                        : Colors.grey.shade300,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    steps[index]['icon'],
+                    color: Colors.white,
+                    size: 16,
+                  ),
+                ),
+                if (!isLast)
+                  Container(
+                    width: 2,
+                    height: 40,
+                    color: isActive && index < currentStep
+                        ? Colors.green
+                        : Colors.grey.shade300,
+                  ),
+              ],
+            ),
+            
+            // Status text
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(left: 16, bottom:20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      steps[index]['title'],
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: isActive ? Colors.green : Colors.grey,
+                        fontFamily: 'Quicksand',
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      steps[index]['subtitle'],
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: isActive ? Colors.black87 : Colors.grey,
+                        fontFamily: 'Quicksand',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        );
+      }),
+    );
+  }
+
+  Widget _buildCustomerInfo() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Thông tin khách hàng',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Quicksand',
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.blue.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.person_2_outlined,
+                  color: Colors.blue,
+                  size: 32,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.request.customerInfo.fullName,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: 'Quicksand',
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      widget.request.customerInfo.phone,
+                      style: const TextStyle(
+                        color: Colors.grey,
+                        fontFamily: 'Quicksand',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                onPressed: () {
+                  // Add call functionality
+                },
+                icon: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.call,
+                    color: Colors.green,
+                    size: 22,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHelperInfo() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Thông tin người giúp việc',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Quicksand',
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.green.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.cleaning_services_outlined,
+                  color: Colors.green,
+                  size: 32,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.request.helper?.name ?? 'Đang chờ xác nhận',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: 'Quicksand',
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      widget.request.helper?.phone ?? 'Chưa có thông tin',
+                      style: const TextStyle(
+                        color: Colors.grey,
+                        fontFamily: 'Quicksand',
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.star,
+                          color: Colors.amber,
+                          size: 18,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${widget.request.helper?.rating ?? 0.0}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontFamily: 'Quicksand',
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          '(${widget.request.helper?.completedJobs ?? 0} công việc)',
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 13,
+                            fontFamily: 'Quicksand',
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              widget.request.helper != null
+                  ? IconButton(
+                      onPressed: () {
+                        // Add call functionality
+                      },
+                      icon: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.green.withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.call,
+                          color: Colors.green,
+                          size: 22,
+                        ),
+                      ),
+                    )
+                  : Container(),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildServiceDetails() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Chi tiết dịch vụ',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Quicksand',
+            ),
+          ),
+          const SizedBox(height: 16),
+          _buildServiceItem(
+            icon: Icons.cleaning_services_rounded,
+            title: widget.request.service.title,
+            subtitle: 'Dọn dẹp nhà cửa, lau nhà, rửa chén',
+          ),
+          const SizedBox(height: 16),
+          _buildServiceItem(
+            icon: Icons.location_on_rounded,
+            title: widget.request.customerInfo.address,
+            subtitle: 'Phường Đa Kao, Quận 1, TP.Hồ Chí Minh',
+          ),
+          const SizedBox(height: 16),
+          _buildServiceItem(
+            icon: Icons.calendar_today_rounded,
+            title: _formatDate(widget.request.oderDate),
+            subtitle: 'Thời gian đặt lịch',
+          ),
+          const SizedBox(height: 16),
+          _buildServiceItem(
+            icon: Icons.access_time_rounded,
+            title: '${widget.request.duration} giờ',
+            subtitle: 'Thời gian dự kiến',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildServiceItem({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+  }) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: Colors.green.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(icon, color: Colors.green, size: 22),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                  fontFamily: 'Quicksand',
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                subtitle,
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: Colors.grey,
+                  fontFamily: 'Quicksand',
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPaymentSummary() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Thanh toán',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Quicksand',
+                ),
+              ),
+              Text(
+                'Đã thanh toán',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.green,
+                  fontFamily: 'Quicksand',
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _buildPaymentRow(
+            'Chi phí dịch vụ',
+            _formatCurrency(
+              widget.request.totalCost.toDouble(),
+            ),
+          ),
+          const SizedBox(height: 8),
+          _buildPaymentRow('Khuyến mãi', '- ${_formatCurrency(promotion)}'),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Divider(
+              color: Colors.grey.shade200,
+            ),
+          ),
+          _buildPaymentRow(
+            'Tổng thanh toán',
+            _formatCurrency(widget.request.totalCost.toDouble() - promotion),
+            isTotal: true,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Divider(
+              color: Colors.grey.shade200,
+            ),
+          ),
+          _buildPaymentMethodRow()
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPaymentRow(String label, String value, {bool isTotal = false}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: isTotal ? 16 : 14,
+            fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+            color: isTotal ? Colors.black : Colors.grey[600],
+            fontFamily: 'Quicksand',
+          ),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: isTotal ? 16 : 14,
+            fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+            color: isTotal ? Colors.green : Colors.grey[600],
+            fontFamily: 'Quicksand',
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPaymentMethodRow() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        const Text(
+          'Hình thức thanh toán',
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            fontFamily: 'Quicksand',
+          ),
+        ),
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: Colors.blue.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: const Icon(
+                Icons.credit_card,
+                color: Colors.blue,
+                size: 18,
+              ),
+            ),
+            const SizedBox(width: 8),
+            const Text(
+              'Ngân hàng VCB',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Colors.black87,
+                fontFamily: 'Quicksand',
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSupportSection() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: InkWell(
+        onTap: () {},
+        borderRadius: BorderRadius.circular(16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.green.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.support_agent,
+                color: Colors.green,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Text(
+              'Bạn cần hỗ trợ ?',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                fontFamily: 'Quicksand',
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBottomActions() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, -4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: ElevatedButton(
+              onPressed: () {},
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.grey[100],
+                foregroundColor: Colors.black87,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text(
+                'Báo cáo',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'Quicksand',
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: ElevatedButton(
+              onPressed: () {},
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text(
+                'Đặt lại',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                  fontFamily: 'Quicksand',
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

@@ -87,8 +87,8 @@ class HelperDetailPage extends StatelessWidget {
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  spreadRadius: 1,
+                  blurRadius: 5,
+                  spreadRadius: 5,
                 ),
               ],
             ),
@@ -142,8 +142,11 @@ class HelperDetailPage extends StatelessWidget {
                           const SizedBox(height: 4),
                           Row(
                             children: [
-                              Icon(Icons.badge_outlined,
-                                  size: 16, color: Colors.green.shade700),
+                              Icon(
+                                Icons.badge_outlined,
+                                size: 16,
+                                color: Colors.green.shade700,
+                              ),
                               const SizedBox(width: 4),
                               Text(
                                 helper.helperId ?? 'No ID',
@@ -158,8 +161,11 @@ class HelperDetailPage extends StatelessWidget {
                           const SizedBox(height: 4),
                           Row(
                             children: [
-                              Icon(Icons.phone_outlined,
-                                  size: 16, color: Colors.green.shade700),
+                              Icon(
+                                Icons.phone_outlined,
+                                size: 16,
+                                color: Colors.green.shade700,
+                              ),
                               const SizedBox(width: 4),
                               Text(
                                 helper.phone ?? 'Chưa cập nhật',
@@ -400,7 +406,7 @@ class HelperDetailPage extends StatelessWidget {
           const SizedBox(height: 16),
           if (helper.workingArea.districts.isNotEmpty)
             _buildCardSection(
-              'Quận/Huyện',
+              'Khu vực làm việc',
               Icons.map_outlined,
               Wrap(
                 spacing: 8,

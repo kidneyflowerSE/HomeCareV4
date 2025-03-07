@@ -38,6 +38,8 @@ abstract interface class Repository {
 
   Future<void> canceledRequest(String id);
 
+  Future<void> doneConfirmRequest(String id);
+
   Future<void> sendMessage(String phone);
 
   Future<List<Message>?> loadMessage(Message message);
@@ -136,6 +138,11 @@ class DefaultRepository implements Repository {
   }
 
   @override
+  Future<void> doneConfirmRequest(String id) async {
+    return await remoteDataSource.doneRequest(id);
+  }
+
+  @override
   Future<Map<String, dynamic>?> calculateCost(
       num servicePrice,
       String startTime,
@@ -153,7 +160,7 @@ class DefaultRepository implements Repository {
   }
 
   @override
-  Future<List<CoefficientOther>?> loadCoefficientService() async{
+  Future<List<CoefficientOther>?> loadCoefficientService() async {
     return await remoteDataSource.loadCoefficientService();
   }
 }

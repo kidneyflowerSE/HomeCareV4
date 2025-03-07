@@ -40,6 +40,8 @@ abstract interface class DataSource {
 
   Future<void> cancelRequest(String id);
 
+  Future<void> doneRequest(String id);
+
   Future<List<TimeOff>?> loadTimeOffData();
 
   Future<List<Message>?> loadMessageData(Message message);
@@ -52,7 +54,8 @@ abstract interface class DataSource {
 
   Future<List<CoefficientOther>?> loadCoefficientService();
 
-  Future<Map<String, dynamic>?> calculateCost(num servicePrice,
+  Future<Map<String, dynamic>?> calculateCost(
+      num servicePrice,
       String startTime,
       String endTime,
       String startDate,
@@ -358,6 +361,28 @@ class RemoteDataSource implements DataSource {
   }
 
   @override
+  Future<void> doneRequest(String id) async {
+    final url = 'https://api.homekare.site/request/done';
+    final uri = Uri.parse(url);
+    final headers = {'Content-Type': 'application/json'};
+    final body = jsonEncode({'id': id});
+    try {
+      final response = await http.post(uri, headers: headers, body: body);
+
+      if (response.statusCode == 200) {
+        if (kDebugMode) {
+          print('Done request posted successfully!');
+        }
+      } else {
+        print('Failed to post requests. Status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+      }
+    } catch (e) {
+      print('Error posting requests: $e');
+    }
+  }
+
+  @override
   Future<List<Message>?> loadMessageData(Message message) async {
     final url =
         Uri.parse('https://api.homekare.site/message?phone=${message.phone}');
@@ -477,7 +502,8 @@ class RemoteDataSource implements DataSource {
 
       if (response.statusCode == 200) {
         final bodyContent = utf8.decode(response.bodyBytes);
-        final Map<String, dynamic> coefficientOtherMap = jsonDecode(bodyContent);
+        final Map<String, dynamic> coefficientOtherMap =
+            jsonDecode(bodyContent);
 
         return CoefficientOther.fromJson(coefficientOtherMap);
       } else {
@@ -491,8 +517,9 @@ class RemoteDataSource implements DataSource {
   }
 
   @override
-  Future<List<CoefficientOther>?> loadCoefficientService() async{
-    const String url = "https://api.homekare.site/costFactor/service"; // Thay bằng URL API thực tế
+  Future<List<CoefficientOther>?> loadCoefficientService() async {
+    const String url =
+        "https://api.homekare.site/costFactor/service"; // Thay bằng URL API thực tế
     final Uri uri = Uri.parse(url);
 
     try {

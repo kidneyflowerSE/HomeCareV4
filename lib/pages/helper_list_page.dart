@@ -12,7 +12,6 @@ import 'package:foodapp/data/model/service.dart';
 import 'package:foodapp/data/model/CostFactor.dart';
 import 'package:foodapp/data/model/TimeOff.dart';
 import 'package:foodapp/pages/review_order_page.dart';
-import 'package:foodapp/components/my_employee_detail.dart';
 import 'package:foodapp/data/repository/repository.dart';
 
 class HelperList extends StatefulWidget {
@@ -43,8 +42,9 @@ class _HelperListState extends State<HelperList> {
   late List<Helper> helpers = [];
   late List<TimeOff> timeOffList = [];
   bool _isLoading = true;
-  String _selectedFilter = 'Tất cả';
+  String _selectedFilter = 'Gần đây';
   final List<String> _filters = [
+    'Gần đây',
     'Tất cả',
     'Kinh nghiệm',
     'Đánh giá',
@@ -110,7 +110,8 @@ class _HelperListState extends State<HelperList> {
                       customer: widget.customer,
                       request: widget.request,
                       costFactors: widget.costFactors,
-                      services: widget.services, service: widget.service,
+                      services: widget.services,
+                      service: widget.service,
                     ),
                   ),
                 ),
@@ -120,7 +121,7 @@ class _HelperListState extends State<HelperList> {
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                   margin: const EdgeInsets.only(right: 10),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Colors.green.shade50,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
@@ -129,7 +130,7 @@ class _HelperListState extends State<HelperList> {
                         'Bỏ qua',
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.red,
+                          color: Colors.green.shade800,
                           fontWeight: FontWeight.w600,
                           fontFamily: 'Quicksand',
                         ),
@@ -170,6 +171,9 @@ class _HelperListState extends State<HelperList> {
     }).toList();
 
     switch (_selectedFilter) {
+      case 'Tất cả':
+        break;
+
       case 'Kinh nghiệm':
         availableHelpers
             .sort((a, b) => b.yearOfExperience.compareTo(a.yearOfExperience));
@@ -229,26 +233,30 @@ class _HelperListState extends State<HelperList> {
   }
 
   Widget _buildHelperGrid(List<Helper> helpers) {
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      padding: const EdgeInsets.symmetric(
-        horizontal: 20,
-        vertical: 10,
-      ),
-      itemCount: helpers.length,
-      itemBuilder: (context, index) {
-        return Padding(
-          padding:
-              const EdgeInsets.only(bottom: 16), // Khoảng cách giữa các item
-          child: HelperCard(
-            helper: helpers[index],
-            onTap: () => _navigateToReviewOrder(helpers[index]),
-            allServices: [],
-            services: widget.services,
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 10,
+        ),
+        child: Column(
+          children: List.generate(
+            helpers.length,
+            (index) {
+              return Padding(
+                padding: const EdgeInsets.only(
+                    bottom: 16), // Khoảng cách giữa các item
+                child: HelperCard(
+                  helper: helpers[index],
+                  onTap: () => _navigateToReviewOrder(helpers[index]),
+                  allServices: [],
+                  services: widget.services,
+                ),
+              );
+            },
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -265,7 +273,8 @@ class _HelperListState extends State<HelperList> {
           helper: helper,
           request: widget.request,
           costFactors: widget.costFactors,
-          services: widget.services, service: widget.service,
+          services: widget.services,
+          service: widget.service,
         ),
       ),
     );
@@ -433,14 +442,54 @@ class HelperCard extends StatelessWidget {
 
   /// Các công việc có thể làm
   Widget _buildJobTags() {
-    return Expanded(
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal, // Cho phép cuộn ngang
-        child: Row(
-          children: helper.jobs.take(3).map((job) => _buildTag(job)).toList(),
+    List<Services> helperServices =
+        services.where((service) => helper.jobs.contains(service.id)).toList();
+
+    if (helperServices.isNotEmpty) {
+      return Expanded(
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: helperServices
+                .map((service) => Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: Chip(
+                        label: Text(service.title),
+                        backgroundColor: Colors.green.shade50,
+                        labelStyle: TextStyle(
+                          color: Colors.green.shade800,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 12,
+                          fontFamily: 'Quicksand',
+                        ),
+                        side: BorderSide(color: Colors.green.shade200),
+                        padding: const EdgeInsets.all(0),
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                    ))
+                .toList(),
+          ),
         ),
-      ),
-    );
+      );
+    } else {
+      return Container(
+        padding: const EdgeInsets.all(8.0),
+        decoration: BoxDecoration(
+            color: Colors.green.shade50,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: Colors.green.shade200,
+            )),
+        child: Text(
+          "Chưa tìm thấy kĩ năng của người giúp việc",
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.green[800],
+            fontFamily: 'Quicksand',
+          ),
+        ),
+      );
+    }
   }
 
   Widget _buildTag(String label) {

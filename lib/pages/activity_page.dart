@@ -438,6 +438,80 @@ class _OnDemandState extends State<OnDemand> {
     );
   }
 
+  void _showConfirmationDialog(BuildContext context, Requests request) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          "Xác nhận",
+          style: TextStyle(
+            fontFamily: 'Quicksand',
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        content: Text(
+          "Xác nhận người giúp việc đã hoàn thành việc và thanh toán ${formatCurrency(request.totalCost.toDouble())} cho người giúp việc?",
+          style: TextStyle(
+            fontFamily: 'Quicksand',
+            fontSize: 16,
+          ),
+        ),
+        actions: [
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.blue,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                "Không",
+                style: TextStyle(
+                  fontFamily: 'Quicksand',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.red,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                // _showPaymentDialog(context, request);
+                _doneRequest(request);
+              },
+              child: Text(
+                "Xác nhận",
+                style: TextStyle(
+                  fontFamily: 'Quicksand',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _doneRequest(Requests request) {
+    var repository = DefaultRepository();
+    repository.doneConfirmRequest(request.id);
+    setState(() {
+      request.status = "done";
+    });
+  }
+
   void _cancelRequest(Requests request) {
     var repository = DefaultRepository();
     repository.canceledRequest(request.id);
@@ -662,8 +736,8 @@ class _OnDemandState extends State<OnDemand> {
                                       : request.status == 'processing'
                                           ? ElevatedButton(
                                               onPressed: () {
-                                                // showCancelConfirmationDialog(
-                                                //     context, request);
+                                                _showConfirmationDialog(
+                                                    context, request);
                                               },
                                               style: ElevatedButton.styleFrom(
                                                 backgroundColor: Colors.blue,
