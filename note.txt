@@ -1,5 +1,4 @@
-thêm giá dịch vụ  = giá cơ bản x hệ số dịch vụ ở Service Order
-chỉnh lại kĩ năng của helper 
+chỉnh lại kĩ năng của helper
 
 fix cuộn ở trang chọn người giúp việc
 

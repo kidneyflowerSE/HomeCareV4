@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:foodapp/components/time_selection.dart';
 import 'package:foodapp/data/model/CostFactor.dart';
+import 'package:foodapp/data/model/coefficient.dart';
 import 'package:foodapp/data/model/request.dart';
 import 'package:foodapp/pages/long_term_calendar_selection_page.dart';
 import 'package:intl/intl.dart';
@@ -39,6 +40,8 @@ class _ServicesOrderState extends State<ServicesOrder>
   // late TabController _tabController;
   List<Location> locations = [];
   List<Customer> customers = [];
+  List<CoefficientOther>? coefficientService = [];
+  num basicCoefficient = 0;
   bool isLoading = true;
   String orderType = 'Ngắn hạn';
   DateTime? selectedDate;
@@ -82,10 +85,12 @@ class _ServicesOrderState extends State<ServicesOrder>
     var repository = DefaultRepository();
     var dataLocation = await repository.loadLocation();
     var dataCustomer = await repository.loadCustomer();
+    var dataCoefficient = await repository.loadCoefficientService();
     if (mounted) {
       setState(() {
         locations = dataLocation ?? [];
         customers = dataCustomer ?? [];
+        coefficientService = dataCoefficient ?? [];
         isLoading = false;
       });
     }
@@ -104,6 +109,11 @@ class _ServicesOrderState extends State<ServicesOrder>
 
   @override
   Widget build(BuildContext context) {
+    if(coefficientService!.isNotEmpty) {
+      basicCoefficient = coefficientService!.first.coefficientList
+          .firstWhere((coefficientId) => coefficientId.id == widget.service.coefficientId)
+          .value;
+    }
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
@@ -191,7 +201,7 @@ class _ServicesOrderState extends State<ServicesOrder>
 
                         SizedBox(width: 8),
                         Text(
-                          formatCurrency(widget.service.basicPrice.toDouble()),
+                          formatCurrency(widget.service.basicPrice.toDouble() * basicCoefficient.toDouble()),
                           style: TextStyle(
                             fontFamily: 'Quicksand',
                             fontSize: 18,
