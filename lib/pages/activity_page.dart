@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:foodapp/data/model/CostFactor.dart';
@@ -7,6 +8,7 @@ import 'package:foodapp/pages/order_detail_page.dart';
 import 'package:foodapp/pages/services_order.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
+import 'package:web_socket_channel/io.dart';
 
 import '../data/model/customer.dart';
 import '../data/model/service.dart';
@@ -212,6 +214,7 @@ class OnDemand extends StatefulWidget {
 
 class _OnDemandState extends State<OnDemand> {
   late Map<String, List<Requests>> groupedRequests;
+  late IOWebSocketChannel channel;
 
   @override
   void initState() {
@@ -235,6 +238,17 @@ class _OnDemandState extends State<OnDemand> {
         groupedRequests[date] = [request];
       }
     }
+
+    // channel = IOWebSocketChannel.connect('wss://api.homekare.site/request');
+    //
+    // channel.stream.listen((message){
+    //   final data = jsonDecode(message);
+    //
+    //   // Đổi trạng thái và thông báo ở đây
+    //   setState(() {
+    //
+    //   });
+    // });
   }
 
   String formatCurrency(double amount) {
