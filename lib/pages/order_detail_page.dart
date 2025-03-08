@@ -23,6 +23,7 @@ class OrderDetailPage extends StatefulWidget {
 
 class _OrderDetailPageState extends State<OrderDetailPage> {
   late List<RequestDetail>? requestDetailData = [];
+  final List<Helper> requestHelpers = [];
 
   @override
   void initState() {
@@ -57,8 +58,14 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    print(requestDetailData);
+
     // Helper helperInfo = widget.helpers.where((helper) => helper.helperId == requestDetailData)
+    for (var data in requestDetailData!) {
+      var requestHelper =
+          widget.helpers.firstWhere((helper) => helper.id == data.helperID);
+      print(requestHelper);
+      requestHelpers.add(requestHelper);
+    }
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       body: CustomScrollView(

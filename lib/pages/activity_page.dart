@@ -46,6 +46,7 @@ class _ActivityPageState extends State<ActivityPage>
   void initState() {
     super.initState();
     loadRequestData();
+    loadHelperData();
 
     _tabController = TabController(length: 2, vsync: this);
     startPolling(); // Bắt đầu polling
