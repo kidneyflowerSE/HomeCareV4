@@ -1,11 +1,5 @@
 
 
 fix UI chi tiết đơn hàng
-chưa có id người giúp việc trong đơn hàng
 
 thêm thông báo cho đơn hàng
-
-xem lại nút xác nhận hoàn thành ở activity -> chuyển cho status thành done
-cái này t có thêm logic ở repository và source rồi nhưng POST nó chưa được
-
-thêm helper vào trong đơn hàng để hiện trong chi tiết đơn hàng

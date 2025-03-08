@@ -47,11 +47,13 @@ void main() {
 //   //     comment: Comment(review: '', loseThings: false, breakThings: false),
 //   //     profit: 0, startDate: "2025-03-03");
 //   //
-//   var customers = await repository.loadCoefficientService();
+//   // List<String> ids = ['67ca5f695e4280bfc267587d,'];
+//   var customers = await repository.doneConfirmRequest('67c694777c8f836e8dcc6567');
+//
 //   // var totalCost = await repository.calculateCost(20000,
 //   //     request, customers!, 1.1);
 //   // print(totalCost);
-//   print(customers?.first.coefficientList.toString());
+//   // print(customers?.first.coefficientList.toString());
 //
 //   // if(customers != null){
 //   //   for(var customer in customers){

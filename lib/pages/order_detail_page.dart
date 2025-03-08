@@ -3,6 +3,9 @@ import 'package:intl/intl.dart';
 import '../data/model/request.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
+import '../data/model/requestdetail.dart';
+import '../data/repository/repository.dart';
+
 class OrderDetailPage extends StatefulWidget {
   final Requests request;
 
@@ -13,10 +16,23 @@ class OrderDetailPage extends StatefulWidget {
 }
 
 class _OrderDetailPageState extends State<OrderDetailPage> {
+  late List<RequestDetail>? requestDetailData = [];
+
   @override
   void initState() {
     super.initState();
     initializeDateFormatting('vi_VN', null);
+    loadRequestDetailData(widget.request);
+  }
+
+  Future<void> loadRequestDetailData(Requests request) async{
+    var repository = DefaultRepository();
+    if(request.scheduleIds.isNotEmpty){
+      var data = await repository.loadRequestDetailId(request.scheduleIds);
+      setState(() {
+        requestDetailData = data ?? [];
+      });
+    }
   }
 
   String _formatCurrency(double amount) {
@@ -35,6 +51,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    print(requestDetailData);
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       body: CustomScrollView(

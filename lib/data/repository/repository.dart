@@ -32,6 +32,8 @@ abstract interface class Repository {
 
   Future<List<RequestDetail>?> loadRequestDetail();
 
+  Future<List<RequestDetail>?> loadRequestDetailId(List<String> id);
+
   Future<List<TimeOff>?> loadTimeOff();
 
   Future<void> sendRequest(Requests requests);
@@ -139,7 +141,7 @@ class DefaultRepository implements Repository {
 
   @override
   Future<void> doneConfirmRequest(String id) async {
-    return await remoteDataSource.doneRequest(id);
+    return await remoteDataSource.finishRequest(id);
   }
 
   @override
@@ -162,5 +164,10 @@ class DefaultRepository implements Repository {
   @override
   Future<List<CoefficientOther>?> loadCoefficientService() async {
     return await remoteDataSource.loadCoefficientService();
+  }
+
+  @override
+  Future<List<RequestDetail>?> loadRequestDetailId(List<String> id) async {
+    return await remoteDataSource.loadRequestDetailId(id);
   }
 }

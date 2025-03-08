@@ -40,7 +40,7 @@ abstract interface class DataSource {
 
   Future<void> cancelRequest(String id);
 
-  Future<void> doneRequest(String id);
+  Future<void> finishRequest(String id);
 
   Future<List<TimeOff>?> loadTimeOffData();
 
@@ -270,7 +270,10 @@ class RemoteDataSource implements DataSource {
   }
 
   Future<List<RequestDetail>?> loadRequestDetailId(List<String> id) async {
-    final String idString = id.join(',');
+    String idString = id.join(',');
+    if(idString.endsWith(',')){
+      idString = idString.substring(0, idString.length - 1);
+    }
     String url = 'https://api.homekare.site/requestDetail?ids=$idString';
     final uri = Uri.parse(url);
     try {
@@ -361,8 +364,8 @@ class RemoteDataSource implements DataSource {
   }
 
   @override
-  Future<void> doneRequest(String id) async {
-    final url = 'https://api.homekare.site/request/done';
+  Future<void> finishRequest(String id) async {
+    final url = 'https://api.homekare.site/request/finish';
     final uri = Uri.parse(url);
     final headers = {'Content-Type': 'application/json'};
     final body = jsonEncode({'id': id});
