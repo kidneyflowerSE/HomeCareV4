@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:foodapp/data/model/helper.dart';
 import 'package:intl/intl.dart';
 import '../data/model/request.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -8,8 +9,13 @@ import '../data/repository/repository.dart';
 
 class OrderDetailPage extends StatefulWidget {
   final Requests request;
+  final List<Helper> helpers;
 
-  const OrderDetailPage({super.key, required this.request});
+  const OrderDetailPage({
+    super.key,
+    required this.request,
+    required this.helpers,
+  });
 
   @override
   State<OrderDetailPage> createState() => _OrderDetailPageState();
@@ -25,9 +31,9 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
     loadRequestDetailData(widget.request);
   }
 
-  Future<void> loadRequestDetailData(Requests request) async{
+  Future<void> loadRequestDetailData(Requests request) async {
     var repository = DefaultRepository();
-    if(request.scheduleIds.isNotEmpty){
+    if (request.scheduleIds.isNotEmpty) {
       var data = await repository.loadRequestDetailId(request.scheduleIds);
       setState(() {
         requestDetailData = data ?? [];
@@ -52,6 +58,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
   @override
   Widget build(BuildContext context) {
     print(requestDetailData);
+    // Helper helperInfo = widget.helpers.where((helper) => helper.helperId == requestDetailData)
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       body: CustomScrollView(
@@ -185,8 +192,9 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Thông tin khách hàng',
+            // ${widget.request.helperId},
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,

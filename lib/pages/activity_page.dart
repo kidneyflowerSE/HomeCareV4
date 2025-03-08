@@ -3,8 +3,10 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:foodapp/data/model/CostFactor.dart';
+import 'package:foodapp/data/model/helper.dart';
 import 'package:foodapp/data/model/request.dart';
 import 'package:foodapp/data/model/requestdetail.dart';
+import 'package:foodapp/pages/helper_list_page.dart';
 import 'package:foodapp/pages/order_detail_page.dart';
 import 'package:foodapp/pages/services_order.dart';
 import 'package:intl/intl.dart';
@@ -36,6 +38,7 @@ class _ActivityPageState extends State<ActivityPage>
   late TabController _tabController;
   List<Requests> requests = [];
   List<Requests>? requestCustomer = [];
+  List<Helper>? helperList = [];
   Timer? _pollingTimer;
   bool isLoading = true; // Thêm biến để theo dõi trạng thái tải dữ liệu
 
@@ -43,6 +46,7 @@ class _ActivityPageState extends State<ActivityPage>
   void initState() {
     super.initState();
     loadRequestData();
+
     _tabController = TabController(length: 2, vsync: this);
     startPolling(); // Bắt đầu polling
   }
@@ -58,6 +62,14 @@ class _ActivityPageState extends State<ActivityPage>
     _pollingTimer?.cancel(); // Dừng polling khi thoát màn hình
     _tabController.dispose();
     super.dispose();
+  }
+
+  Future<void> loadHelperData() async {
+    var repository = DefaultRepository();
+    var data = await repository.loadCleanerData();
+    setState(() {
+      helperList = data ?? [];
+    });
   }
 
   Future<void> loadRequestData() async {
@@ -153,6 +165,7 @@ class _ActivityPageState extends State<ActivityPage>
                     customer: widget.customer,
                     costFactors: widget.costFactors,
                     services: widget.services,
+                    helperList: helperList!,
                   )
                 : LongTerm(
                     requests: requestCustomer ?? [],
@@ -160,6 +173,7 @@ class _ActivityPageState extends State<ActivityPage>
                     customer: widget.customer,
                     costFactors: widget.costFactors,
                     services: widget.services,
+                    helperList: helperList!,
                   ),
       ),
     );
@@ -201,13 +215,16 @@ class OnDemand extends StatefulWidget {
   final Customer customer;
   final List<CostFactor> costFactors;
   final List<Services> services;
+  final List<Helper> helperList;
 
-  const OnDemand(
-      {super.key,
-      required this.requests,
-      required this.customer,
-      required this.costFactors,
-      required this.services});
+  const OnDemand({
+    super.key,
+    required this.requests,
+    required this.customer,
+    required this.costFactors,
+    required this.services,
+    required this.helperList,
+  });
 
   @override
   State<OnDemand> createState() => _OnDemandState();
@@ -823,6 +840,7 @@ class _OnDemandState extends State<OnDemand> {
                                         MaterialPageRoute(
                                           builder: (context) => OrderDetailPage(
                                             request: request,
+                                            helpers: widget.helperList,
                                           ),
                                         ),
                                       );
@@ -863,13 +881,15 @@ class LongTerm extends StatefulWidget {
   final Customer customer;
   final List<CostFactor> costFactors;
   final List<Services> services;
+  final List<Helper> helperList;
 
   const LongTerm(
       {super.key,
       required this.requests,
       required this.customer,
       required this.costFactors,
-      required this.services});
+      required this.services,
+      required this.helperList});
 
   @override
   State<LongTerm> createState() => _LongTermState();
@@ -1417,6 +1437,7 @@ class _LongTermState extends State<LongTerm> {
                                         MaterialPageRoute(
                                           builder: (context) => OrderDetailPage(
                                             request: request,
+                                            helpers: widget.helperList,
                                           ),
                                         ),
                                       );
