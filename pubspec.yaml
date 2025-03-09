@@ -1,5 +1,5 @@
 name: foodapp
-description: "A new Flutter project."
+description: "HomeCare Services Application"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -38,13 +38,37 @@ dependencies:
   cupertino_icons: ^1.0.8
   collection: ^1.18.0
   http: ^1.2.2
-  intl: ^0.19.0
+  intl: ^0.20.1
   percent_indicator: ^4.2.3
-  video_player: ^2.9.2
   awesome_dialog: ^3.2.1
   table_calendar: ^3.1.2
-  syncfusion_flutter_calendar: ^27.2.4
-  syncfusion_flutter_datepicker: ^27.2.4
+  syncfusion_flutter_calendar: ^28.1.41
+  syncfusion_flutter_datepicker: ^28.1.41
+  carousel_slider: ^5.0.0
+  smooth_page_indicator: ^1.0.0+2
+  flutter_staggered_grid_view: ^0.7.0
+  dropdown_button2: ^2.3.9
+  animations: ^2.0.11
+  flutter_launcher_icons: ^0.14.3
+  horizontal_date_picker_flutter: ^0.0.1
+  convex_bottom_bar: ^3.2.0
+  salomon_bottom_bar: ^3.3.2
+  lottie: ^3.3.1
+  cached_network_image: ^3.4.1
+  flutter_staggered_animations: ^1.1.1
+  path_provider: ^2.1.5
+  shimmer: ^3.0.0
+  dropdown_search: ^6.0.2
+  web_socket_channel: ^3.0.2
+
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "lib/images/logo.png"  # Đổi thành đường dẫn icon của bạn
+  adaptive_icon_background: "#ffffff"  # Màu nền adaptive icon (Android)
+  adaptive_icon_foreground: "lib/images/logo.png"  # Adaptive icon foreground
+
 
 dev_dependencies:
   flutter_test:
@@ -55,7 +79,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^4.0.0
+  flutter_lints: ^5.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -88,6 +112,13 @@ flutter:
     - lib/images/delay/homecare.png
     - lib/images/delay/hand.png
     - lib/images/delay/line.png
+    - lib/images/payment/momo.jpg
+    - lib/images/payment/vietcombank.jpg
+    - lib/images/payment/vnpay.jpg
+    - lib/images/vnpay.png
+    - lib/images/momo.png
+    - lib/images/loading.json
+
 
 
 

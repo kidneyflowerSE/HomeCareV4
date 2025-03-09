@@ -1,372 +1,373 @@
 import 'package:flutter/material.dart';
-import 'package:foodapp/components/my_button.dart';
+import 'package:foodapp/data/model/helper.dart';
 
 class MyEmployeeDetail extends StatelessWidget {
-  const MyEmployeeDetail({super.key});
+  final Helper helper;
+
+  const MyEmployeeDetail({super.key, required this.helper});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(60.0), // Chiều cao của AppBar
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.green[400], // Màu nền của AppBar
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.3), // Màu bóng
-                spreadRadius: 3, // Bán kính lan của bóng
-                blurRadius: 10, // Độ mờ của bóng
-                offset: const Offset(0, 3), // Độ lệch của bóng theo trục x, y
-              ),
-            ],
+      appBar: AppBar(
+        title: const Text(
+          "Chi tiết nhân viên",
+          style: TextStyle(
+            color: Colors.white,
+            fontFamily: 'Quicksand',
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
           ),
-          child: AppBar(
-            automaticallyImplyLeading: false,
-            // backgroundColor: Colors.transparent,
-            // elevation: 0,
-            centerTitle: true,
-            title: const Text(
-              "Chi tiết nhân viên",
-              style: TextStyle(
-                fontFamily: 'Quicksand',
-                fontWeight: FontWeight.w700,
-                fontSize: 18,
-              ),
-            ),
-            leading: const Icon(Icons.arrow_back_ios_new_outlined),
-            actions: [
-              Icon(
-                Icons.heart_broken,
-                color: Colors.redAccent[700],
-              ),
-              const SizedBox(width: 16),
-              const Icon(Icons.info_outline_rounded),
-              const SizedBox(width: 8),
-            ],
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.green,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 16),
+            _buildEmployeeId(helper.helperId ?? ''),
+            const SizedBox(height: 16),
+            _buildProfileSection(helper),
+            const SizedBox(height: 20),
+            _buildStatistics(helper),
+            const SizedBox(height: 20),
+            _buildSkillsSection(helper.jobs),
+            const SizedBox(height: 20),
+            _buildAboutSection(helper.experienceDescription ?? ''),
+            const SizedBox(height: 20),
+            _buildAdditionalInfo(helper),
+            const SizedBox(height: 20),
+            _buildWorkingAreaSection(helper.workingArea),
+            const SizedBox(height: 20),
+            _buildHealthCertificates(helper.healthCertificates),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmployeeId(String employeeId) {
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: Colors.green[50],
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.green.shade200),
+        ),
+        child: Text(
+          "Mã nhân viên: $employeeId",
+          style: const TextStyle(
+            color: Colors.green,
+            fontWeight: FontWeight.w600,
+            fontFamily: 'Quicksand',
+            fontSize: 14,
           ),
         ),
       ),
-      body: Container(
-        margin: const EdgeInsets.only(top: 25),
-        child: Column(
-          children: [
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 100),
-              alignment: Alignment.center,
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                color: Colors.green[400],
-              ),
-              height: 25,
-              child: const Text(
-                "Mã nhân viên: #49549",
+    );
+  }
+
+  Widget _buildProfileSection(Helper helper) {
+    return Center(
+      child: Column(
+        children: [
+          CircleAvatar(
+            radius: 60,
+            backgroundImage: NetworkImage(helper.avatar ?? ''),
+            onBackgroundImageError: (error, stackTrace) =>
+                const Icon(Icons.person, size: 60),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            helper.fullName ?? 'Không có tên',
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Quicksand',
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.location_on, color: Colors.grey, size: 16),
+              const SizedBox(width: 4),
+              Text(
+                helper.address ?? 'Không có địa chỉ',
                 style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                    fontFamily: 'Quicksand',
-                    fontSize: 16),
-              ),
-            ),
-            const SizedBox(height: 25),
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(154),
-                border: Border.all(
-                  color: Colors.green,
-                  width: 4,
-                ),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(150),
-                child: Image.asset(
-                  'lib/images/staff/anhhuy.jpg',
-                  height: 300,
-                  width: 300,
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              "Phạm Nguyễn Quốc Huy",
-              style: TextStyle(
-                  color: Colors.green[400],
+                  color: Colors.grey[600],
                   fontFamily: 'Quicksand',
-                  fontSize: 25,
-                  fontWeight: FontWeight.w800),
-            ),
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.location_on_sharp,
-                  color: Colors.grey[400],
                 ),
-                const SizedBox(width: 5),
-                Text(
-                  "Quận Thủ Đức, TP.Hồ Chí Minh",
-                  style: TextStyle(
-                    color: Colors.grey[400],
-                    fontSize: 16,
-                    fontFamily: 'Quicksand',
-                  ),
-                )
-              ],
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    children: [
-                      const Text(
-                        "20",
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontFamily: 'Quicksand',
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        "Tuổi",
-                        style: TextStyle(
-                          color: Colors.grey[400],
-                          fontFamily: 'Quicksand',
-                          fontSize: 16,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: Column(
-                    children: [
-                      const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            "5",
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontFamily: 'Quicksand',
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Icon(
-                            Icons.star,
-                            color: Colors.amberAccent,
-                          )
-                        ],
-                      ),
-                      Text(
-                        "Số sao",
-                        style: TextStyle(
-                          color: Colors.grey[400],
-                          fontFamily: 'Quicksand',
-                          fontSize: 16,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: Column(
-                    children: [
-                      const Text(
-                        "582",
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontFamily: 'Quicksand',
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        "Giờ làm",
-                        style: TextStyle(
-                          color: Colors.grey[400],
-                          fontFamily: 'Quicksand',
-                          fontSize: 16,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: Column(
-                    children: [
-                      const Text(
-                        "239",
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontFamily: 'Quicksand',
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        "Đánh giá",
-                        style: TextStyle(
-                          color: Colors.grey[400],
-                          fontFamily: 'Quicksand',
-                          fontSize: 16,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 4),
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.green.shade500,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            spreadRadius: 1,
-                            blurRadius: 5,
-                            offset: const Offset(0, 4),
-                          )
-                        ],
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          width: 2,
-                          color: Colors.green.shade800,
-                        ),
-                      ),
-                      child: const Center(
-                        child: Text(
-                          'Quét nhà',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontFamily: 'Quicksand',
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 4),
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.green.shade500,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            spreadRadius: 1,
-                            blurRadius: 5,
-                            offset: const Offset(0, 4),
-                          )
-                        ],
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          width: 2,
-                          color: Colors.green.shade800,
-                        ),
-                      ),
-                      child: const Center(
-                        child: Text(
-                          'Rửa chén',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontFamily: 'Quicksand',
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 4),
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.green.shade500,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            spreadRadius: 1,
-                            blurRadius: 5,
-                            offset: const Offset(0, 4),
-                          )
-                        ],
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          width: 2,
-                          color: Colors.green.shade800,
-                        ),
-                      ),
-                      child: const Center(
-                        child: Text(
-                          'Nấu cơm',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontFamily: 'Quicksand',
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 4),
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.green.shade500,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            spreadRadius: 1,
-                            blurRadius: 5,
-                            offset: const Offset(0, 4),
-                          )
-                        ],
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          width: 2,
-                          color: Colors.green.shade800,
-                        ),
-                      ),
-                      child: const Center(
-                        child: Text(
-                          'Giặt đồ',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontFamily: 'Quicksand',
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatistics(Helper helper) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _buildStatItem(
+              helper.yearOfExperience.toString(), "Năm KN", Icons.work),
+          _buildStatItem(
+              helper.height.toString(), "Chiều cao (cm)", Icons.height),
+          _buildStatItem(
+              helper.weight.toString(), "Cân nặng (kg)", Icons.line_weight),
+          _buildStatItem(
+              helper.gender ?? 'Không rõ', "Giới tính", Icons.person),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatItem(String value, String label, IconData icon) {
+    return Column(
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 16, color: Colors.grey[600]),
+            const SizedBox(width: 4),
+            Text(
+              value,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Quicksand',
               ),
             ),
           ],
         ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: TextStyle(
+            color: Colors.grey[600],
+            fontSize: 12,
+            fontFamily: 'Quicksand',
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSkillsSection(List<String> skills) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Kỹ năng",
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Quicksand',
+          ),
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: skills
+              .map((skill) => _buildSkillChip(skill, Icons.cleaning_services))
+              .toList(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSkillChip(String label, IconData icon) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.green.shade50,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.green.shade200),
       ),
-      bottomNavigationBar: BottomAppBar(
-        child: MyButton(text: "Đặt lịch với nhân viên này", onTap: () {}),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: Colors.green),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: TextStyle(
+              color: Colors.green.shade700,
+              fontFamily: 'Quicksand',
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAboutSection(String about) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Giới thiệu",
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Quicksand',
+          ),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          about,
+          style: TextStyle(
+            color: Colors.grey[600],
+            height: 1.5,
+            fontFamily: 'Quicksand',
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAdditionalInfo(Helper helper) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Thông tin bổ sung",
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Quicksand',
+          ),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          "Quốc tịch: ${helper.nationality ?? 'Không rõ'}",
+          style: TextStyle(
+            color: Colors.grey[600],
+            fontFamily: 'Quicksand',
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          "Trình độ học vấn: ${helper.educationLevel ?? 'Không rõ'}",
+          style: TextStyle(
+            color: Colors.grey[600],
+            fontFamily: 'Quicksand',
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          "Ngày bắt đầu làm việc: ${helper.startDate ?? 'Không rõ'}",
+          style: TextStyle(
+            color: Colors.grey[600],
+            fontFamily: 'Quicksand',
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildWorkingAreaSection(WorkingArea workingArea) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Khu vực làm việc",
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Quicksand',
+          ),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          "Tỉnh: ${workingArea.province}",
+          style: TextStyle(
+            color: Colors.grey[600],
+            height: 1.5,
+            fontFamily: 'Quicksand',
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          "Quận: ${workingArea.districts.join(', ')}",
+          style: TextStyle(
+            color: Colors.grey[600],
+            height: 1.5,
+            fontFamily: 'Quicksand',
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildHealthCertificates(List<String> certificates) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Chứng chỉ sức khỏe",
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Quicksand',
+          ),
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children:
+              certificates.map((cert) => _buildCertificate(cert)).toList(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCertificate(String certificateUrl) {
+    return Container(
+      width: 160,
+      height: 90,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Image.network(
+          certificateUrl,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return Container(
+              color: Colors.grey[200],
+              child: const Icon(
+                Icons.image_not_supported,
+                color: Colors.grey,
+              ),
+            );
+          },
+        ),
       ),
     );
   }

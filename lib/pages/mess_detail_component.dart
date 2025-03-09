@@ -17,7 +17,6 @@ class MessDetailComponent extends StatefulWidget {
 }
 
 class _MessDetailComponentState extends State<MessDetailComponent> {
-  // function to send message
   final TextEditingController _messageController = TextEditingController();
   final List<String> _messages = [];
 
@@ -35,16 +34,9 @@ class _MessDetailComponentState extends State<MessDetailComponent> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // toolbarHeight: 80,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-
+        elevation: 1,
+        backgroundColor: Colors.green,
         title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(50),
@@ -59,9 +51,10 @@ class _MessDetailComponentState extends State<MessDetailComponent> {
             Text(
               widget.name,
               style: const TextStyle(
-                  fontFamily: 'Quicksand',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600),
+                fontFamily: 'Quicksand',
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ],
         ),
@@ -69,111 +62,93 @@ class _MessDetailComponentState extends State<MessDetailComponent> {
           PopupMenuButton<String>(
             onSelected: (value) {
               if (value == 'block') {
-                // ignore: avoid_print
-                print('User blocked');
-              } else if (value == 'cancel') {
-                // ignore: avoid_print
-                print('Action canceled');
+                // Handle block action
+              } else if (value == 'love') {
+                // Handle favorite action
               }
             },
             itemBuilder: (BuildContext context) {
               return [
                 const PopupMenuItem(
                   value: 'block',
-                  child: Text(
-                    'Chặn người giúp việc này',
-                    style: TextStyle(
-                      fontFamily: 'Quicksand',
-                      fontSize: 14,
-                    ),
-                  ),
+                  child: Text('Chặn người giúp việc này'),
                 ),
                 const PopupMenuItem(
                   value: 'love',
-                  child: Text(
-                    'Thêm vào danh sách yêu thích',
-                    style: TextStyle(
-                      fontFamily: 'Quicksand',
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-                const PopupMenuItem(
-                  value: 'cancel',
-                  child: Text(
-                    'Cancel',
-                    style: TextStyle(
-                      fontFamily: 'Quicksand',
-                      fontSize: 14,
-                    ),
-                  ),
+                  child: Text('Thêm vào danh sách yêu thích'),
                 ),
               ];
             },
-            icon: const Icon(Icons.more_vert_rounded),
+            icon: const Icon(Icons.more_vert),
           ),
         ],
       ),
-      // Cho bố cục không bị che khi bàn phím hiện lên
-      resizeToAvoidBottomInset: true,
       body: Column(
         children: [
           Expanded(
             child: ListView.builder(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
               itemCount: _messages.length,
+              reverse: true, // Start from the bottom
               itemBuilder: (context, index) {
                 return Align(
                   alignment: Alignment.centerRight,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 10.0,
-                      horizontal: 15.0,
-                    ),
-                    margin: const EdgeInsets.symmetric(vertical: 2),
+                    margin: const EdgeInsets.symmetric(vertical: 5),
+                    padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.green,
-                      borderRadius: BorderRadius.circular(15),
+                      color: Colors.green.shade600,
+                      borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(
                       _messages[index],
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(
+                        fontFamily: 'Quicksand',
+                        fontSize: 14,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 );
               },
             ),
           ),
-          Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 8.0, vertical: 10.0),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            color: Colors.white,
             child: Row(
               children: [
                 Expanded(
                   child: TextField(
                     controller: _messageController,
                     decoration: InputDecoration(
-                      hintText: 'Aa',
-                      hintStyle: TextStyle(
+                      contentPadding: const EdgeInsets.symmetric(
+                        vertical: 12,
+                        horizontal: 16,
+                      ),
+                      hintText: "Aa",
+                      hintStyle: const TextStyle(
                         fontFamily: 'Quicksand',
-                        color: Colors.grey[500],
-                        fontWeight: FontWeight.w400,
+                        fontSize: 14,
+                        color: Colors.grey,
                       ),
                       filled: true,
-                      fillColor: const Color.fromARGB(255, 236, 232, 232),
+                      fillColor: Colors.grey.shade200,
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0),
+                        borderRadius: BorderRadius.circular(30),
                         borderSide: BorderSide.none,
                       ),
                     ),
-                    onTap: () {},
                   ),
                 ),
-                const SizedBox(width: 10),
-                IconButton(
-                  icon: const Icon(Icons.send),
-                  color: Colors.green,
-                  onPressed: _sendMessage,
+                const SizedBox(width: 8),
+                CircleAvatar(
+                  radius: 24,
+                  backgroundColor: Colors.green,
+                  child: IconButton(
+                    icon: const Icon(Icons.send, color: Colors.white),
+                    onPressed: _sendMessage,
+                  ),
                 ),
               ],
             ),

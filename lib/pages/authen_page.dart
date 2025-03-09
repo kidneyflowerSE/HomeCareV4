@@ -1,290 +1,232 @@
-// import 'package:flutter/material.dart';
-// import 'package:foodapp/components/my_button.dart';
-// import 'package:foodapp/components/my_confirm_text.dart';
-// import 'package:foodapp/pages/login_page.dart';
-
-// class AuthenPage extends StatelessWidget {
-//   final void Function()? onTap;
-
-//   const AuthenPage({super.key, required this.onTap});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     void login() {
-//       /*
-//       Fill out authentication here
-//       */
-
-//       // Navigate to login page
-//       Navigator.push(
-//         context,
-//         MaterialPageRoute(
-//           builder: (context) => LoginPage(onTap: () {}),
-//         ),
-//       );
-//     }
-
-//     return Scaffold(
-//       backgroundColor: Colors.white,
-//       resizeToAvoidBottomInset:
-//           false, // Prevents the Stack from resizing when the keyboard appears
-//       body: Stack(
-//         children: [
-//           // Background with circles
-//           Positioned(
-//             left: 0,
-//             top: -70,
-//             child: ClipRect(
-//               child: Align(
-//                 alignment: Alignment.topLeft,
-//                 widthFactor: 1.0,
-//                 child: Container(
-//                   width: 120,
-//                   height: 120,
-//                   decoration: const BoxDecoration(
-//                     color: Color(0xFF8cbe3d),
-//                     shape: BoxShape.circle,
-//                   ),
-//                 ),
-//               ),
-//             ),
-//           ),
-//           Positioned(
-//             left: -80,
-//             top: -30,
-//             child: ClipRect(
-//               child: Align(
-//                 alignment: Alignment.topLeft,
-//                 widthFactor: 1.0,
-//                 child: Container(
-//                   width: 150,
-//                   height: 150,
-//                   decoration: const BoxDecoration(
-//                     color: Color(0xFF02571c),
-//                     shape: BoxShape.circle,
-//                   ),
-//                 ),
-//               ),
-//             ),
-//           ),
-//           Positioned(
-//             right: 0,
-//             bottom: -70,
-//             child: ClipRect(
-//               child: Align(
-//                 alignment: Alignment.bottomRight,
-//                 widthFactor: 1.0,
-//                 child: Container(
-//                   width: 120,
-//                   height: 120,
-//                   decoration: const BoxDecoration(
-//                     color: Color(0xFF8cbe3d),
-//                     shape: BoxShape.circle,
-//                   ),
-//                 ),
-//               ),
-//             ),
-//           ),
-//           Positioned(
-//             right: -80,
-//             bottom: -30,
-//             child: ClipRect(
-//               child: Align(
-//                 alignment: Alignment.bottomRight,
-//                 widthFactor: 1.0,
-//                 child: Container(
-//                   width: 150,
-//                   height: 150,
-//                   decoration: const BoxDecoration(
-//                     color: Color(0xFF02571c),
-//                     shape: BoxShape.circle,
-//                   ),
-//                 ),
-//               ),
-//             ),
-//           ),
-
-//           // Main content
-//           Center(
-//             child: Column(
-//               mainAxisAlignment: MainAxisAlignment.start,
-//               children: [
-//                 // Logo
-//                 Image.asset(
-//                   './lib/images/logo.png',
-//                   width: 220,
-//                   height: 220,
-//                 ),
-
-//                 const SizedBox(height: 25),
-
-//                 Padding(
-//                   padding: const EdgeInsets.symmetric(horizontal: 25),
-//                   child: Text(
-//                     'Mã xác nhận gồm 6 chữ số vừa được gửi vào email của bạn. Vui lòng nhập mã của bạn bên dưới:',
-//                     style: TextStyle(fontFamily: 'Quicksand', fontSize: 14),
-//                   ),
-//                 ),
-
-//                 // Confirm text field
-//                 MyConfirmText(),
-
-//                 const SizedBox(height: 20),
-
-//                 // Confirm button
-//                 MyButton(text: "Xác nhận", onTap: login),
-//               ],
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
 import 'package:flutter/material.dart';
 import 'package:foodapp/components/my_button.dart';
 import 'package:foodapp/components/my_confirm_text.dart';
+import 'package:foodapp/components/spashscreen.dart';
 import 'package:foodapp/pages/login_page.dart';
 
-class AuThenPage extends StatelessWidget {
+class AuthenticationPage extends StatefulWidget {
   final void Function()? onTap;
 
-  const AuThenPage({super.key, required this.onTap});
+  const AuthenticationPage({super.key, required this.onTap});
+
+  @override
+  State<AuthenticationPage> createState() => _AuthenticationPageState();
+}
+
+class _AuthenticationPageState extends State<AuthenticationPage>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
+  String verificationCode = ""; // Biến lưu mã xác nhận
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.0, 0.5, curve: Curves.easeOut),
+      ),
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.5),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.3, 1.0, curve: Curves.easeOutCubic),
+      ),
+    );
+
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void login() {
+    print("Mã xác nhận: $verificationCode"); // Debug: In mã xác nhận
+    if (verificationCode.length == 6 && verificationCode.compareTo('111111') == 0) {
+      // Thực hiện xác thực ở đây (gửi mã lên server để kiểm tra)
+      Navigator.push(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => SplashScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          transitionDuration: const Duration(milliseconds: 500),
+        ),
+      );
+    } else {
+      // Hiển thị cảnh báo nếu chưa nhập đủ mã
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Vui lòng nhập đầy đủ mã xác nhận")),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    void login() {
-      /*
-
-    fill out authentication here
-
-    */
-
-      // navigate to home page
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => LoginPage(
-            onTap: () {},
-          ),
-        ),
-      );
-    }
-
     return Scaffold(
-      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          Positioned(
-            left: 0,
-            top: -70,
-            child: ClipRect(
-              child: Align(
-                alignment: Alignment.topLeft,
-                widthFactor: 1.0,
-                child: Container(
-                  width: 120,
-                  height: 120,
-                  decoration: const BoxDecoration(
-                    color: Colors.yellow,
-                    shape: BoxShape.circle,
-                  ),
-                ),
+          // Animated background gradient
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.green.shade50,
+                  Colors.white,
+                  Colors.green.shade50,
+                ],
               ),
             ),
           ),
-          Positioned(
-            left: -80,
-            top: -30,
-            child: ClipRect(
-              child: Align(
-                alignment: Alignment.topLeft,
-                widthFactor: 1.0,
-                child: Container(
-                  width: 150,
-                  height: 150,
-                  decoration: const BoxDecoration(
-                    color: Colors.green,
-                    shape: BoxShape.circle,
+
+          SafeArea(
+            child: FadeTransition(
+              opacity: _fadeAnimation,
+              child: SlideTransition(
+                position: _slideAnimation,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: Image.asset(
+                            'lib/images/logo.png',
+                            width: 180,
+                            height: 180,
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 10),
+
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(15),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
+                        ),
+                        child: const Text(
+                          'Mã xác nhận gồm 6 chữ số vừa được gửi vào email của bạn. Vui lòng nhập mã của bạn bên dưới:',
+                          style: TextStyle(
+                            fontFamily: 'Quicksand',
+                            fontSize: 16,
+                            height: 1.5,
+                            color: Color(0xFF2D3748),
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+
+                      const SizedBox(height: 10),
+
+                      // Nhận giá trị mã xác nhận
+                      MyConfirmText(
+                        onCodeChanged: (code) {
+                          setState(() {
+                            verificationCode = code;
+                          });
+                        },
+                      ),
+
+                      const SizedBox(height: 10),
+
+                      // Nút xác nhận
+                      Container(
+                        width: double.infinity,
+                        height: 55,
+                        child: ElevatedButton(
+                          onPressed: login,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green.shade700,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                          ),
+                          child: const Text(
+                            "Xác nhận",
+                            style: TextStyle(fontSize: 18, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-            ),
-          ),
-          Positioned(
-            right: 0,
-            bottom: -70,
-            child: ClipRect(
-              child: Align(
-                alignment: Alignment.bottomRight,
-                widthFactor: 1.0,
-                child: Container(
-                  width: 120,
-                  height: 120,
-                  decoration: const BoxDecoration(
-                    color: Colors.yellow,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            right: -80,
-            bottom: -30,
-            child: ClipRect(
-              child: Align(
-                alignment: Alignment.bottomRight,
-                widthFactor: 1.0,
-                child: Container(
-                  width: 150,
-                  height: 150,
-                  decoration: const BoxDecoration(
-                    color: Colors.green,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                // logo
-                Image.asset(
-                  'lib/images/logo.png',
-                  width: 220,
-                  height: 220,
-                ),
-
-                const SizedBox(
-                  height: 25,
-                ),
-
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 25),
-                  child: Text(
-                    'Mã xác nhận gồm 6 chữ số vừa được gửi vào email của bạn. Vui lòng nhập mã của bạn bên dưới:',
-                    style: TextStyle(fontFamily: 'Quicksand', fontSize: 14),
-                  ),
-                ),
-
-                // Ô nhập mã xác nhận
-                const MyConfirmText(),
-
-                const SizedBox(
-                  height: 20,
-                ),
-
-                MyButton(text: "Xác nhận", onTap: login)
-              ],
             ),
           ),
         ],
       ),
     );
   }
+}
+
+// Custom painter for decorative circles
+class CirclesPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..style = PaintingStyle.fill
+      ..shader = LinearGradient(
+        colors: [
+          Colors.green.shade200.withOpacity(0.2),
+          Colors.green.shade300.withOpacity(0.3),
+        ],
+      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
+
+    // Top-left circles
+    canvas.drawCircle(
+      Offset(0, size.height * 0.1),
+      size.width * 0.2,
+      paint,
+    );
+    canvas.drawCircle(
+      Offset(size.width * 0.1, 0),
+      size.width * 0.15,
+      paint,
+    );
+
+    // Bottom-right circles
+    canvas.drawCircle(
+      Offset(size.width, size.height * 0.9),
+      size.width * 0.2,
+      paint,
+    );
+    canvas.drawCircle(
+      Offset(size.width * 0.9, size.height),
+      size.width * 0.15,
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }

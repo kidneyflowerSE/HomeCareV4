@@ -1,6 +1,6 @@
 class Helper {
   String id;
-  double baseFactor;
+  num baseFactor;
   String? helperId;
   String? fullName;
   String? startDate;
@@ -11,7 +11,7 @@ class Helper {
   WorkingArea workingArea;
   String? jobDetail;
   List<String> jobs;
-  int yearOfExperience;
+  num yearOfExperience;
   String? experienceDescription;
   String? avatar;
   List<String> healthCertificates;
@@ -19,8 +19,8 @@ class Helper {
   String? gender;
   String? nationality;
   String? educationLevel;
-  double height;
-  double weight;
+  num height;
+  num weight;
   bool deleted;
 
   Helper({
@@ -147,7 +147,7 @@ class WorkingArea {
 
   factory WorkingArea.fromJson(Map<String, dynamic> map) {
     return WorkingArea(
-      province: map['province'],
+      province: map['province'] ?? "Không có thông tin",
       districts: List<String>.from(map['districts'] ?? []),
     );
   }

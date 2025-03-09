@@ -1,5 +1,5 @@
-import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:foodapp/components/warning_dialog.dart';
 import 'package:intl/intl.dart';
 
 class TimeStart extends StatefulWidget {
@@ -32,21 +32,21 @@ class _TimeStartState extends State<TimeStart> {
     if (widget.initialTime != null) {
       _selectedTime = widget.initialTime;
     } else {
-    if (referenceDate.hour > 15 && referenceDate.day == now.day) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        showPopUpWarning(
-            'Thời gian hiện tại đã qua 15:00. Vui lòng chọn ngày khác');
-      });
-    } else if (referenceDate.hour >= 6 && referenceDate.hour < 14) {
-      int additionalHours = referenceDate.minute > 30 ? 4 : 3;
-      _selectedTime = TimeOfDay(
-        hour: referenceDate.hour + additionalHours,
-        minute: 0,
-      );
-    } else {
-      _selectedTime =
-          null; // Giữ _selectedTime là null nếu không có điều kiện nào được thỏa mãn
-    }
+      if (referenceDate.hour >= 15 && referenceDate.day == now.day) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showPopUpWarning(context,
+              'Thời gian hiện tại đã qua 15:00. Vui lòng chọn ngày khác');
+        });
+      } else if (referenceDate.hour >= 6 && referenceDate.hour < 15) {
+        int additionalHours = referenceDate.minute > 30 ? 4 : 3;
+        _selectedTime = TimeOfDay(
+          hour: referenceDate.hour + additionalHours,
+          minute: 0,
+        );
+      } else {
+        _selectedTime =
+            null; // Giữ _selectedTime là null nếu không có điều kiện nào được thỏa mãn
+      }
     }
 
     // Gọi onTimeChanged ngay khi khởi tạo
@@ -125,16 +125,16 @@ class _TimeStartState extends State<TimeStart> {
 
         // Nếu thời gian hiện tại đã qua 15:00 (3 giờ chiều), thông báo lỗi
         if (now.hour >= 15) {
-          showPopUpWarning(
+          showPopUpWarning(context,
               'Thời gian hiện tại đã qua 15:00. Vui lòng chọn ngày khác');
           return;
         } else if (selectedDateTime.isBefore(now)) {
           showPopUpWarning(
-              'Thời gian không được chọn trước thời gian hiện tại');
+              context, 'Thời gian không được chọn trước thời gian hiện tại');
           return;
         } else if (selectedDateTime.isBefore(startTime) ||
             selectedDateTime.isAfter(endTime)) {
-          showPopUpWarning('Thời gian phải từ 6:00 đến 15:00 hôm nay');
+          showPopUpWarning(context, 'Thời gian phải từ 6:00 đến 15:00 hôm nay');
           return;
         }
       } else {
@@ -145,7 +145,8 @@ class _TimeStartState extends State<TimeStart> {
 
         if (selectedDateTime.isBefore(startTime) ||
             selectedDateTime.isAfter(endTime)) {
-          showPopUpWarning('Thời gian phải từ 6:00 đến 18:00 cho ngày khác');
+          showPopUpWarning(
+              context, 'Thời gian phải từ 6:00 đến 18:00 cho ngày khác');
           return;
         }
       }
@@ -156,17 +157,6 @@ class _TimeStartState extends State<TimeStart> {
         widget.onTimeChanged(_selectedTime!);
       });
     }
-  }
-
-  void showPopUpWarning(String warning) {
-    AwesomeDialog(
-      context: context,
-      animType: AnimType.scale,
-      dialogType: DialogType.warning,
-      desc: warning,
-      btnOkOnPress: () {},
-      btnCancelOnPress: () {},
-    ).show();
   }
 
   @override
@@ -181,7 +171,18 @@ class _TimeStartState extends State<TimeStart> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12.0),
             decoration: BoxDecoration(
-              border: Border.all(color: Colors.green),
+              color: Colors.white,
+              border: Border.all(
+                color: Colors.grey.shade200,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  offset: Offset(0.0, 1.0),
+                  color: Colors.grey.withOpacity(0.2),
+                  blurRadius: 4.0,
+                  spreadRadius: 0.0,
+                )
+              ],
               borderRadius: BorderRadius.circular(8.0),
             ),
             child: Row(
@@ -191,11 +192,21 @@ class _TimeStartState extends State<TimeStart> {
                   _selectedTime != null
                       ? formatTimeOfDay(_selectedTime!)
                       : 'Chọn thời gian bắt đầu',
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontFamily: 'Quicksand',
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: _selectedTime != null
+                      ? TextStyle(
+                          fontSize: 16,
+                          fontStyle: FontStyle.normal,
+                          fontFamily: 'Quicksand',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
+                        )
+                      : TextStyle(
+                          fontSize: 15,
+                          fontStyle: FontStyle.italic,
+                          fontFamily: 'Quicksand',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey.shade400,
+                        ),
                 ),
                 const Icon(
                   Icons.timelapse_rounded,

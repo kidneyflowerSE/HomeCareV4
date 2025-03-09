@@ -1,108 +1,186 @@
 import 'package:flutter/material.dart';
+import 'package:foodapp/data/model/CostFactor.dart';
+import 'package:foodapp/pages/all_service_page.dart';
 import 'package:foodapp/pages/services_order.dart';
-
 import '../data/model/service.dart';
 
 class ServiceListMenu extends StatefulWidget {
   final dynamic customer;
   final List<Services> services;
+  final List<CostFactor> costFactors;
 
-  const ServiceListMenu({Key? key, required this.customer, required this.services}) : super(key: key);
+  const ServiceListMenu({
+    Key? key,
+    required this.customer,
+    required this.services,
+    required this.costFactors,
+  }) : super(key: key);
 
   @override
   State<ServiceListMenu> createState() => _ServiceListMenuState();
 }
 
 class _ServiceListMenuState extends State<ServiceListMenu> {
-  final List<Map<String, String>> servicesInfo = [
-    {'iconPath': 'lib/images/services/bridge.png', 'label': 'Dọn nhà'},
-    {'iconPath': 'lib/images/services/choi.png', 'label': 'Rửa chén bát'},
-    {'iconPath': 'lib/images/services/clean.png', 'label': 'Giặt đồ'},
-    {'iconPath': 'lib/images/services/nobiet.png', 'label': 'Lau nhà'},
-    {'iconPath': 'lib/images/services/rubbish.png', 'label': 'Vệ sinh tủ lạnh'},
-    {'iconPath': 'lib/images/services/wash.png', 'label': 'Chăm trẻ em'},
-    {'iconPath': 'lib/images/services/xabong.png', 'label': 'Dark Services'},
-    {'iconPath': 'lib/images/services/xit.png', 'label': 'Tắm hộ'},
+  final servicesInfo = <Map<String, dynamic>>[
+    {'icon': Icons.cleaning_services, 'label': 'Dọn nhà'},
+    {'icon': Icons.child_care, 'label': 'Chăm sóc bé'},
+    {'icon': Icons.elderly, 'label': 'Chăm sóc người già'},
+    {'icon': Icons.pregnant_woman, 'label': 'Chăm sóc sản phụ'},
+    {'icon': Icons.medical_services, 'label': 'Nuôi bệnh'},
+    {'icon': Icons.school, 'label': 'Đưa đón bé'},
+    {'icon': Icons.restaurant, 'label': 'Nấu ăn'},
+    {'icon': Icons.cleaning_services_outlined, 'label': 'Vệ sinh phòng'},
   ];
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: GridView.builder(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 4,
-          crossAxisSpacing: 10,
-          mainAxisSpacing: 20,
-          childAspectRatio: 0.75,
-        ),
-        itemCount: servicesInfo.length,
-        itemBuilder: (context, index) {
-          return InkWell(
-            onTap: () {
-              Navigator.push(
-                context,
-                PageRouteBuilder(
-                  pageBuilder: (context, animation, secondaryAnimation) =>
-                      ServicesOrder(
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          // Tiêu đề + Xem tất cả
+
+          Text(
+            'Danh sách dịch vụ',
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+              fontFamily: 'Quicksand',
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          Wrap(
+            spacing: 16,
+            runSpacing: 20,
+            alignment: WrapAlignment.start,
+            children: List.generate(
+              servicesInfo.length,
+              (index) => _buildServiceItem(index),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: Colors.green.shade50,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: TextButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AllServicesPage(
                         customer: widget.customer,
-                        service: widget.services[index],
-                      ),
-                  transitionsBuilder:
-                      (context, animation, secondaryAnimation, child) {
-                    const begin = Offset(1.0, 0.0);
-                    const end = Offset.zero;
-                    const curve = Curves.easeInOut;
-
-                    var tween = Tween(begin: begin, end: end)
-                        .chain(CurveTween(curve: curve));
-                    var offsetAnimation = animation.drive(tween);
-
-                    return SlideTransition(
-                      position: offsetAnimation,
-                      child: child,
-                    );
-                  },
-                ),
-              );
-            },
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
+                        services: widget.services,
+                        costFactors: widget.costFactors),
+                  ),
+                );
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Xem tất cả',
+                    style: TextStyle(
                       color: Colors.green,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: 'Quicksand',
+                      fontSize: 14,
                     ),
                   ),
-                  child: CircleAvatar(
-                    backgroundColor: Colors.white,
-                    radius: 30,
-                    child: Image.asset(
-                      servicesInfo[index]['iconPath']!,
-                      fit: BoxFit.contain,
-                      height: 40,
-                      width: 40,
-                    ),
+                  const SizedBox(width: 8),
+                  const Icon(
+                    Icons.arrow_forward_ios,
+                    color: Colors.green,
+                    size: 16,
                   ),
-                ),
-                const SizedBox(height: 5),
-                Expanded(
-                  child: Text(
-                    servicesInfo[index]['label']!,
-                    style: const TextStyle(
-                        fontSize: 14,
-                        fontFamily: 'Quicksand',
-                        fontWeight: FontWeight.w500),
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                  ),
-                ),
-              ],
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildServiceItem(int index) {
+    return InkWell(
+      onTap: () => _navigateToService(index),
+      borderRadius: BorderRadius.circular(12),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.green.shade50,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              servicesInfo[index]['icon'] as IconData,
+              color: Colors.green.shade700,
+              size: 32, // Tăng icon size
+            ),
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            width: 70,
+            child: Text(
+              servicesInfo[index]['label'],
+              style: const TextStyle(
+                fontFamily: 'Quicksand',
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _navigateToService(int index) {
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => ServicesOrder(
+          customer: widget.customer,
+          service: widget.services[index],
+          costFactors: widget.costFactors,
+          services: widget.services,
+        ),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, 0.1),
+              end: Offset.zero,
+            ).animate(animation),
+            child: FadeTransition(
+              opacity: animation,
+              child: child,
             ),
           );
         },
+        transitionDuration: const Duration(milliseconds: 300),
       ),
     );
   }

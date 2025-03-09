@@ -49,7 +49,18 @@ class _CalendarDropdownState extends State<CalendarDropdown> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.green),
+          color: Colors.white,
+          border: Border.all(
+            color: Colors.grey.shade200,
+          ),
+          boxShadow: [
+            BoxShadow(
+              offset: Offset(0.0, 1.0),
+              color: Colors.grey.withOpacity(0.2),
+              blurRadius: 4.0,
+              spreadRadius: 0.0,
+            )
+          ],
           borderRadius: BorderRadius.circular(8.0),
         ),
         child: Row(
@@ -59,17 +70,17 @@ class _CalendarDropdownState extends State<CalendarDropdown> {
               _selectedDate != null
                   ? DateFormat('dd/MM/yyyy').format(_selectedDate!)
                   : DateFormat('dd/MM/yyyy').format(_getDefaultDate()),
-              style: const TextStyle(
-                fontSize: 15,
-                color: Colors.grey,
-                fontStyle: FontStyle.italic,
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.black,
+                // fontStyle: FontStyle.italic,
                 fontFamily: 'Quicksand',
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const Icon(
+            Icon(
               Icons.calendar_month_rounded,
-              color: Colors.green,
+              color: Colors.green.shade400,
             ),
           ],
         ),

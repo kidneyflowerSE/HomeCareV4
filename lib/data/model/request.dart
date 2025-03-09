@@ -47,7 +47,7 @@ class Requests {
       // Provide a default or placeholder object
       location: map['location'] != null
           ? RequestLocation.fromJson(map['location'])
-          : RequestLocation(province: '', district: ''),
+          : RequestLocation(province: '', district: '', ward: ''),
       id: map['_id'] ?? '',
       oderDate: map['orderDate'] ?? '',
       scheduleIds: List<String>.from(map['scheduleIds'] ?? []),
@@ -125,7 +125,7 @@ class Requests {
 
   @override
   String toString() {
-    return 'Request{customerInfo: $customerInfo, service: $service, location: $location, id: $id, oderDate: $oderDate, scheduleIds: $scheduleIds, startTime: $startTime, endTime: $endTime, requestType: $requestType, totalCost: $totalCost, status: $status, deleted: $deleted, comment: $comment, profit: $profit}';
+    return 'Requests{customerInfo: $customerInfo, service: $service, location: $location, id: $id, oderDate: $oderDate, scheduleIds: $scheduleIds, startTime: $startTime, endTime: $endTime, requestType: $requestType, totalCost: $totalCost, status: $status, deleted: $deleted, comment: $comment, profit: $profit, helperId: $helperId, startDate: $startDate}';
   }
 }
 
@@ -163,24 +163,29 @@ class Comment {
 class RequestLocation {
   String province;
   String district;
+  String ward;
 
-  RequestLocation({required this.province, required this.district});
+  RequestLocation({required this.province, required this.district, required this.ward});
 
   factory RequestLocation.fromJson(Map<String, dynamic> map) {
     return RequestLocation(
-        province: map['province'], district: map['district']);
+      province: map['province'] ?? '',
+      district: map['district'] ?? '',
+      ward: map['ward'] ?? '',
+    );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'province': province,
       'district': district,
+      'ward': ward,
     };
   }
 
   @override
   String toString() {
-    return 'RequestLocation{province: $province, district: $district}';
+    return 'RequestLocation{province: $province, district: $district, ward: $ward}';
   }
 }
 

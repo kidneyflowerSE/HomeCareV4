@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:foodapp/components/my_button.dart';
+import 'package:foodapp/data/model/CostFactor.dart';
 import 'package:foodapp/data/model/request.dart';
-import 'package:foodapp/pages/helper_list_page.dart';
 import '../data/model/customer.dart';
+import 'package:foodapp/pages/helper_list_page.dart';
+import '../data/model/service.dart';
 
 class CustomCalendar extends StatefulWidget {
   final List<DateTime> initialSelectedDates;
@@ -9,14 +12,20 @@ class CustomCalendar extends StatefulWidget {
   final DateTime? maxDate;
   final Customer customer;
   final Requests request;
+  final List<CostFactor> costFactors;
+  final List<Services> services;
+  final Services service;
 
-  CustomCalendar({
+  const CustomCalendar({
     Key? key,
     this.initialSelectedDates = const [],
     this.minDate,
     this.maxDate,
     required this.customer,
     required this.request,
+    required this.costFactors,
+    required this.services,
+    required this.service,
   }) : super(key: key);
 
   @override
@@ -36,7 +45,6 @@ class _CustomCalendarState extends State<CustomCalendar> {
     super.initState();
     _selectedDates = widget.initialSelectedDates;
 
-    // Nếu có ngày chọn sẵn, đặt ngày đầu tiên làm ngày focus
     if (_selectedDates.isNotEmpty) {
       _focusedDate = _selectedDates.first;
     }
@@ -53,8 +61,10 @@ class _CustomCalendarState extends State<CustomCalendar> {
     super.dispose();
   }
 
+  // Existing methods remain the same (calculatePageIndex, calculateDateFromPageIndex, etc.)
   int _calculatePageIndex(DateTime date) {
-    return (date.year * 12 + date.month) - (DateTime(2000, 1).year * 12 + DateTime(2000, 1).month);
+    return (date.year * 12 + date.month) -
+        (DateTime(2000, 1).year * 12 + DateTime(2000, 1).month);
   }
 
   DateTime _calculateDateFromPageIndex(int pageIndex) {
@@ -62,21 +72,22 @@ class _CustomCalendarState extends State<CustomCalendar> {
     return DateTime(baseDate.year + pageIndex ~/ 12, pageIndex % 12 + 1);
   }
 
-  List<DateTime> _generateDaysInMonth(DateTime date) {
+  List<DateTime?> _generateDaysInMonth(DateTime date) {
     final firstDayOfMonth = DateTime(date.year, date.month, 1);
     final lastDayOfMonth = DateTime(date.year, date.month + 1, 0);
 
-    return List.generate(
-      lastDayOfMonth.day,
-          (index) => DateTime(date.year, date.month, index + 1),
-    );
-  }
+    int leadingDays = (firstDayOfMonth.weekday - 1) % 7;
 
-  List<DateTime> _generateDaysInWeek(DateTime date) {
-    final firstDayOfWeek = date.subtract(Duration(days: date.weekday - 1));
-    return List.generate(7, (index) {
-      return firstDayOfWeek.add(Duration(days: index));
-    });
+    List<DateTime?> days = List.generate(
+      lastDayOfMonth.day,
+      (index) => DateTime(date.year, date.month, index + 1),
+    );
+
+    for (int i = 0; i < leadingDays; i++) {
+      days.insert(0, null);
+    }
+
+    return days;
   }
 
   bool _isDateInRange(DateTime date) {
@@ -85,7 +96,8 @@ class _CustomCalendarState extends State<CustomCalendar> {
 
     if (minDate != null && date.isBefore(minDate)) return false;
     if (maxDate != null && date.isAfter(maxDate)) return false;
-    if (date.isBefore(DateTime.now().subtract(const Duration(days: 1)))) return false;
+    if (date.isBefore(DateTime.now().subtract(const Duration(days: 1))))
+      return false;
 
     return true;
   }
@@ -94,12 +106,10 @@ class _CustomCalendarState extends State<CustomCalendar> {
     if (!_isDateInRange(date)) return;
 
     setState(() {
-      // Nếu chỉ còn 2 ngày, không cho phép hủy thêm ngày
       if (_selectedDates.length <= 2 && _selectedDates.contains(date)) {
-        return; // Không làm gì nếu số ngày chọn đã là 2 và người dùng cố gắng hủy
+        return;
       }
 
-      // Thêm hoặc xóa ngày khỏi danh sách chọn
       if (_selectedDates.contains(date)) {
         _selectedDates.remove(date);
       } else {
@@ -110,14 +120,39 @@ class _CustomCalendarState extends State<CustomCalendar> {
 
   @override
   Widget build(BuildContext context) {
-    final weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    final weekdays = [
+      'Thứ 2',
+      'Thứ 3',
+      'Thứ 4',
+      'Thứ 5',
+      'Thứ 6',
+      'Thứ 7',
+      'Chủ Nhật'
+    ];
+    // final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
+      // backgroundColor: colorScheme.background,
       appBar: AppBar(
-        title: Text('Lịch chọn nhiều ngày'),
+        elevation: 0,
+        backgroundColor: Colors.green,
+        title: Text(
+          'Chọn ngày',
+          style: TextStyle(
+            fontFamily: 'Quicksand',
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        iconTheme: IconThemeData(color: Colors.white),
+        centerTitle: true,
         actions: [
           IconButton(
-            icon: Icon(_isWeekView ? Icons.calendar_today : Icons.view_week),
+            icon: Icon(
+              _isWeekView ? Icons.calendar_today : Icons.view_week,
+              // color: colorScheme.onPrimary,
+            ),
             onPressed: () {
               setState(() {
                 _isWeekView = !_isWeekView;
@@ -128,20 +163,15 @@ class _CustomCalendarState extends State<CustomCalendar> {
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                DropdownButton<int>(
+                _buildDropdownWithLabel(
                   value: _selectedMonth,
-                  items: List.generate(
-                    12,
-                        (index) => DropdownMenuItem(
-                      value: index + 1,
-                      child: Text("${index + 1}", style: const TextStyle(fontSize: 16)),
-                    ),
-                  ),
+                  items: List.generate(12, (index) => index + 1),
+                  label: 'Tháng',
                   onChanged: (newMonth) {
                     if (newMonth != null) {
                       final newDate = DateTime(_selectedYear, newMonth, 1);
@@ -150,16 +180,11 @@ class _CustomCalendarState extends State<CustomCalendar> {
                     }
                   },
                 ),
-                const SizedBox(width: 10),
-                DropdownButton<int>(
+                _buildDropdownWithLabel(
                   value: _selectedYear,
                   items: List.generate(
-                    30,
-                        (index) => DropdownMenuItem(
-                      value: DateTime.now().year - 15 + index,
-                      child: Text("${DateTime.now().year - 15 + index}"),
-                    ),
-                  ),
+                      30, (index) => DateTime.now().year - 15 + index),
+                  label: 'Năm',
                   onChanged: (newYear) {
                     if (newYear != null) {
                       final newDate = DateTime(newYear, _selectedMonth, 1);
@@ -184,66 +209,26 @@ class _CustomCalendarState extends State<CustomCalendar> {
               },
               itemBuilder: (context, pageIndex) {
                 final date = _calculateDateFromPageIndex(pageIndex);
-                final days = _isWeekView
-                    ? _generateDaysInWeek(date)
-                    : _generateDaysInMonth(date);
+                final days = _generateDaysInMonth(date);
 
                 return Column(
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: weekdays.map((day) {
-                        return Expanded(
-                          child: Center(
-                            child: Text(
-                              day,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
+                    _buildWeekdayHeader(weekdays),
                     Expanded(
                       child: GridView.builder(
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        padding: const EdgeInsets.all(8),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 7,
-                          crossAxisSpacing: 4.0,
-                          mainAxisSpacing: 4.0,
+                          crossAxisSpacing: 8.0,
+                          mainAxisSpacing: 8.0,
                         ),
                         itemCount: days.length,
                         itemBuilder: (context, index) {
                           final day = days[index];
-                          final isSelected = _selectedDates.contains(day);
-                          final isInRange = _isDateInRange(day);
-
-                          return GestureDetector(
-                            onTap: () => _toggleDateSelection(day),
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
-                              decoration: BoxDecoration(
-                                color: isSelected ? Colors.blue : Colors.white,
-                                border: isSelected
-                                    ? Border.all(color: Colors.blueAccent, width: 2)
-                                    : null,
-                                borderRadius: BorderRadius.circular(8.0),
-                              ),
-                              alignment: Alignment.center,
-                              child: Text(
-                                day.day.toString(),
-                                style: TextStyle(
-                                  color: isInRange
-                                      ? (isSelected ? Colors.white : Colors.black)
-                                      : Colors.grey,
-                                  fontWeight: isSelected
-                                      ? FontWeight.bold
-                                      : FontWeight.normal,
-                                ),
-                              ),
-                            ),
-                          );
+                          return day == null
+                              ? const SizedBox.shrink()
+                              : _buildCalendarDay(day);
                         },
                       ),
                     ),
@@ -254,9 +239,9 @@ class _CustomCalendarState extends State<CustomCalendar> {
           ),
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: ElevatedButton(
-              onPressed: () {
-                print("Selected Dates: $_selectedDates");
+            child: MyButton(
+              text: 'Xác nhận',
+              onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -265,14 +250,123 @@ class _CustomCalendarState extends State<CustomCalendar> {
                       request: widget.request,
                       listDate: _selectedDates,
                       isOnDemand: false,
+                      costFactors: widget.costFactors,
+                      services: widget.services,
+                      service: widget.service,
                     ),
                   ),
                 );
               },
-              child: const Text('Xác nhận'),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildDropdownWithLabel({
+    required int value,
+    required List<int> items,
+    required String label,
+    required void Function(int?) onChanged,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 15,
+            fontFamily: 'Quicksand',
+            color: Colors.grey[600],
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 4),
+        DropdownButton<int>(
+          value: value,
+          dropdownColor: Colors.white,
+          underline: Container(
+            height: 2,
+            color: Colors.green,
+          ),
+          items: items
+              .map((item) => DropdownMenuItem(
+                    value: item,
+                    child: Text(
+                      "$item",
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontFamily: 'Quicksand',
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ))
+              .toList(),
+          onChanged: onChanged,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildWeekdayHeader(List<String> weekdays) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: weekdays.map((day) {
+          return Expanded(
+            child: Center(
+              child: Text(
+                day,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Quicksand',
+                  color: Colors.grey[600],
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildCalendarDay(DateTime day) {
+    final isSelected = _selectedDates.contains(day);
+    final isInRange = _isDateInRange(day);
+
+    return GestureDetector(
+      onTap: () => _toggleDateSelection(day),
+      child: Container(
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.green[500] : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: isSelected
+              ? null
+              : Border.all(color: Colors.grey[300]!, width: 1),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: Colors.green[200]!.withOpacity(0.5),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  )
+                ]
+              : [],
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          day.day.toString(),
+          style: TextStyle(
+            color: isInRange
+                ? (isSelected ? Colors.white : Colors.black87)
+                : Colors.grey,
+            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+            fontFamily: 'Quicksand',
+          ),
+        ),
       ),
     );
   }

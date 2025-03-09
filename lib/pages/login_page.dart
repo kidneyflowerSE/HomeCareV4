@@ -1,269 +1,398 @@
-import 'dart:developer';
-
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:foodapp/components/my_button.dart';
 import 'package:foodapp/components/my_textfield.dart';
+import 'package:foodapp/data/model/CostFactor.dart';
 import 'package:foodapp/data/model/customer.dart';
 import 'package:foodapp/data/model/request.dart';
 import 'package:foodapp/data/model/service.dart';
-import 'package:foodapp/data/repository/repository.dart';
 import 'package:foodapp/pages/home_page.dart';
-import 'package:flutter/material.dart';
+import 'package:foodapp/pages/register_page.dart';
+import 'package:lottie/lottie.dart';
+import '../data/repository/repository.dart';
 
 class LoginPage extends StatefulWidget {
   final void Function()? onTap;
 
   const LoginPage({
     super.key,
-    required this.onTap,
+    this.onTap,
   });
 
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
-  final TextEditingController emailController = TextEditingController();
+class _LoginPageState extends State<LoginPage>
+    with SingleTickerProviderStateMixin {
+  final TextEditingController phoneController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final FocusNode phoneFocusNode = FocusNode();
+  final FocusNode passwordFocusNode = FocusNode();
+
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
+  List<Requests> requestsCustomer = [];
   List<Customer> customers = [];
   List<Requests> requests = [];
-  List<Requests> requestsCustomer = [];
   List<Services> services = [];
-  bool _isLoading = true;
+  List<CostFactor> costFactor = [];
+
+  String? phoneError;
+  String? passwordError;
+  bool isLoading = false;
+  bool isLoginSuccess = false;
 
   @override
   void initState() {
     super.initState();
-    loadCustomerData();
-    loadRequestData();
-    loadServicesData();
+    loadData();
+    setupAnimations();
+    setupFocusListeners();
   }
 
-  Future<void> loadCustomerData() async {
-    var repository = DefaultRepository();
-    var data = await repository.loadCustomer();
-    setState(() {
-      customers = data ?? [];
-      _isLoading = false;
+  void setupAnimations() {
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeIn,
+    ));
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.5),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOutQuart,
+    ));
+
+    _animationController.forward();
+  }
+
+  void setupFocusListeners() {
+    phoneFocusNode.addListener(() {
+      setState(() {});
+    });
+    passwordFocusNode.addListener(() {
+      setState(() {});
     });
   }
 
-  Future<void> loadRequestData() async {
-    var repository = DefaultRepository();
-    var data = await repository.loadRequest();
-    setState(() {
-      requests = data ?? [];
-      _isLoading = false;
-    });
-  }
+  bool isLoadingData = true;
+  Future<void> loadData() async {
+    setState(() => isLoadingData = true);
+    try {
+      var repository = DefaultRepository();
+      final customerData = await repository.loadCustomer();
+      final requestData = await repository.loadRequest();
+      final servicesData = await repository.loadServices();
+      final costFactorData = await repository.loadCostFactor();
 
-  Future<void> loadServicesData() async{
-    var repository = DefaultRepository();
-    var data = await repository.loadServices();
-    setState(() {
-      services = data ?? [];
-      _isLoading = false;
-    });
-  }
-
-  //login method
-  void login() {
-    bool isTrue = false;
-    int index = 0;
-    for (index; index < customers.length; ++index) {
-      if (passwordController.text == customers[index].password) {
-        isTrue = true;
-        break;
-      }
+      setState(() {
+        customers = customerData ?? [];
+        requests = requestData ?? [];
+        services = servicesData ?? [];
+        costFactor = costFactorData ?? [];
+      });
+    } finally {
+      setState(() => isLoadingData = false);
     }
-    if (isTrue) {
-      requestsCustomer = requests
-          .where((request) =>
-              request.customerInfo.fullName == 'tran phi hung')
-          .toList();
-      // navigate to home page
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => HomePage(customer: customers[index], requests: requestsCustomer, services: services,),
-        ),
-      );
+  }
+
+  String? validatePhone(String value) {
+    if (value.isEmpty) {
+      return "Số điện thoại không được để trống";
+    }
+    if (!RegExp(r'^\d{10}$').hasMatch(value)) {
+      return "Số điện thoại không hợp lệ. Vui lòng nhập 10 số";
+    }
+    return null;
+  }
+
+  String? validatePassword(String value) {
+    if (value.isEmpty) {
+      return "Mật khẩu không được để trống";
+    }
+    return null;
+  }
+
+  Future<void> login() async {
+    final phone = phoneController.text.trim();
+    final password = passwordController.text.trim();
+
+    setState(() {
+      phoneError = validatePhone(phone);
+      passwordError = validatePassword(password);
+    });
+
+    if (phoneError != null || passwordError != null) return;
+
+    setState(() => isLoading = true);
+
+    try {
+      await Future.delayed(
+          const Duration(seconds: 2)); // Simulate network delay
+
+      bool isValid = false;
+      int customerIndex = 0;
+
+      for (int i = 0; i < customers.length; i++) {
+        if (customers[i].phone == phone && customers[i].password == password) {
+          isValid = true;
+          customerIndex = i;
+          break;
+        }
+      }
+
+      if (isValid) {
+        setState(() {
+          isLoginSuccess = true;
+        });
+        requestsCustomer = requests
+            .where((request) =>
+                request.customerInfo.fullName == customers[customerIndex].name)
+            .toList();
+
+        // Future.delayed(const Duration(seconds: 1), () {
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) => HomePage(
+                customer: customers[customerIndex],
+                requests: requestsCustomer,
+                services: services,
+                costFactor: costFactor,
+              ),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: child,
+                );
+              },
+              transitionDuration: const Duration(milliseconds: 500),
+            ),
+          );
+        }
+      } else {
+        setState(
+            () => passwordError = "Số điện thoại hoặc mật khẩu không đúng");
+      }
+    } finally {
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
     }
   }
 
   @override
-  Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
+  void dispose() {
+    phoneController.dispose();
+    passwordController.dispose();
+    phoneFocusNode.dispose();
+    passwordFocusNode.dispose();
+    _animationController.dispose();
+    super.dispose();
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          // Nền với các hình tròn
-          Positioned(
-            left: 0,
-            top: -70,
-            child: ClipRect(
-              child: Align(
-                alignment: Alignment.topLeft,
-                widthFactor: 1.0,
-                child: Container(
-                  width: 120,
-                  height: 120,
-                  decoration: const BoxDecoration(
-                    color: Colors.yellow,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            left: -80,
-            top: -30,
-            child: ClipRect(
-              child: Align(
-                alignment: Alignment.topLeft,
-                widthFactor: 1.0,
-                child: Container(
-                  width: 150,
-                  height: 150,
-                  decoration: const BoxDecoration(
-                    color: Colors.green,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            right: 0,
-            bottom: -70,
-            child: ClipRect(
-              child: Align(
-                alignment: Alignment.bottomRight,
-                widthFactor: 1.0,
-                child: Container(
-                  width: 120,
-                  height: 120,
-                  decoration: const BoxDecoration(
-                    color: Colors.yellow,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            right: -80,
-            bottom: -30,
-            child: ClipRect(
-              child: Align(
-                alignment: Alignment.bottomRight,
-                widthFactor: 1.0,
-                child: Container(
-                  width: 150,
-                  height: 150,
-                  decoration: const BoxDecoration(
-                    color: Colors.green,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          // Nội dung trang đăng nhập
-          Padding(
-            padding: const EdgeInsets.only(top: 45),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  //logo
-                  Image.asset(
-                    'lib/images/logo.png',
-                    width: 220,
-                    height: 220,
-                  ),
-
-                  const SizedBox(height: 20),
-                  // message, app slogan
-                  const Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.only(left: 25),
-                        child: Text(
-                          "Đăng nhập",
-                          style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green,
-                              fontFamily: 'Quicksand'),
+          SafeArea(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 24.0, vertical: 30.0),
+                child: FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: SlideTransition(
+                    position: _slideAnimation,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // Logo with hero animation
+                        Hero(
+                          tag: 'app_logo',
+                          child: Image.asset(
+                            'lib/images/logo.png',
+                            width: 180,
+                            height: 180,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 15),
 
-                  // email textfield
-                  MyTextField(
-                    controller: emailController,
-                    hintText: "Email hoặc số điện thoại",
-                    obscureText: false,
-                  ),
+                        const SizedBox(height: 20),
 
-                  const SizedBox(height: 10),
-
-                  // password textfield
-                  MyTextField(
-                    controller: passwordController,
-                    hintText: "Mật khẩu",
-                    obscureText: true,
-                  ),
-
-                  const SizedBox(height: 25),
-
-                  // sign in button
-                  MyButton(text: "Đăng nhập", onTap: login),
-
-                  const SizedBox(height: 10),
-
-                  // not a member? register now
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        "Chưa có tài khoản?",
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontFamily: 'Quicksand',
-                          fontSize: 16,
+                        // Welcome text
+                        TweenAnimationBuilder<double>(
+                          duration: const Duration(milliseconds: 800),
+                          tween: Tween(begin: 0, end: 1),
+                          builder: (context, value, child) {
+                            return Opacity(
+                              opacity: value,
+                              child: child,
+                            );
+                          },
+                          child: Column(
+                            children: const [
+                              Text(
+                                "Chào mừng trở lại!",
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                  fontFamily: 'Quicksand',
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                "Hãy đăng nhập để tiếp tục",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey,
+                                  fontFamily: 'Quicksand',
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 4),
-                      GestureDetector(
-                        onTap: widget.onTap,
-                        // onTap: login,
-                        child: const Text(
-                          "Đăng ký",
-                          style: TextStyle(
-                              fontFamily: 'Quicksand',
-                              color: Colors.red,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              fontStyle: FontStyle.italic),
+
+                        const SizedBox(height: 30),
+
+                        // Phone input
+                        MyTextField(
+                          controller: phoneController,
+                          hintText: "Số điện thoại",
+                          obscureText: false,
+                          keyboardType: TextInputType.number,
+                          errorText: phoneError,
+                          focusNode: phoneFocusNode,
+                          onChanged: (value) {
+                            if (phoneError != null) {
+                              setState(() {
+                                phoneError = validatePhone(value);
+                              });
+                            }
+                          },
                         ),
-                      ),
-                    ],
+
+                        const SizedBox(height: 15),
+
+                        // Password input
+                        MyTextField(
+                          controller: passwordController,
+                          hintText: "Mật khẩu",
+                          obscureText: true,
+                          keyboardType: TextInputType.text,
+                          errorText: passwordError,
+                          focusNode: passwordFocusNode,
+                          onChanged: (value) {
+                            if (passwordError != null) {
+                              setState(() {
+                                passwordError = validatePassword(value);
+                              });
+                            }
+                          },
+                        ),
+
+                        const SizedBox(height: 25),
+
+                        // Login button
+                        MyButton(
+                          text: isLoading ? "Đang đăng nhập..." : "Đăng nhập",
+                          onTap: isLoading ? null : login,
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        // Divider
+                        Row(
+                          children: const [
+                            Expanded(
+                                child:
+                                    Divider(thickness: 1, color: Colors.grey)),
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 8.0),
+                              child: Text(
+                                "Hoặc",
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontFamily: 'Quicksand',
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                                child:
+                                    Divider(thickness: 1, color: Colors.grey)),
+                          ],
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        // Register link
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              "Chưa có tài khoản?",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontFamily: 'Quicksand',
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const RegisterPage(),
+                                ),
+                              ),
+                              child: const Text(
+                                " Đăng ký",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.green,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'Quicksand',
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ],
+                ),
               ),
             ),
           ),
+          // if (isLoading)
+          //   Container(
+          //     color: Colors.black.withOpacity(0.5),
+          //     child: Center(
+          //       child: Lottie.asset(
+          //         'lib/images/loading.json',
+          //         width: 200,
+          //         height: 200,
+          //         repeat: true,
+          //       ),
+          //     ),
+          //   ),
         ],
       ),
     );

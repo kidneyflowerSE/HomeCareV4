@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 
 class FieldOrderService extends StatelessWidget {
   final String hintText;
+  final Function(String)? onChanged;
 
   const FieldOrderService({
     super.key,
     required this.hintText,
+    this.onChanged, // Nhận callback
   });
 
   @override
@@ -13,21 +15,23 @@ class FieldOrderService extends StatelessWidget {
     return Center(
       child: Container(
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.green), // Viền ngoài
-          borderRadius: BorderRadius.circular(8), // Bo góc
+          border: Border.all(color: Colors.green),
+          borderRadius: BorderRadius.circular(8),
         ),
         child: TextField(
+          onChanged: onChanged, // Gửi dữ liệu ra ngoài
           decoration: InputDecoration(
-              hintText: hintText,
-              hintStyle: const TextStyle(
-                fontFamily: 'Quicksand',
-                fontStyle: FontStyle.italic,
-                fontSize: 15,
-                color: Colors.grey,
-                fontWeight: FontWeight.w600,
-              ),
-              border: InputBorder.none, // Không viền bên trong
-              contentPadding: const EdgeInsets.symmetric(horizontal: 20)),
+            hintText: hintText,
+            hintStyle: const TextStyle(
+              fontFamily: 'Quicksand',
+              fontStyle: FontStyle.italic,
+              fontSize: 15,
+              color: Colors.grey,
+              fontWeight: FontWeight.w600,
+            ),
+            border: InputBorder.none,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+          ),
         ),
       ),
     );

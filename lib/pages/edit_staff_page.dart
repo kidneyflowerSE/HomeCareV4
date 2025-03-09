@@ -43,11 +43,13 @@ class EditStaffPage extends StatelessWidget {
               controller: nameController,
               hintText: "Họ tên của bạn",
               obscureText: false,
+              keyboardType: TextInputType.text,
             ),
             MyTextField(
               controller: emailController,
               hintText: "Nhập email của bạn (không bắt buộc)",
               obscureText: false,
+              keyboardType: TextInputType.text,
             )
           ],
         ),

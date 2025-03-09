@@ -1,12 +1,24 @@
-class RequestDetail{
-  String? id;
-  String? workingDate;
-  String? helperID;
-  String? status;
-  int? helperCost;
+import 'package:foodapp/data/model/request.dart';
+
+class RequestDetail {
+  Comment comment;
+  String id;
+  String workingDate;
+  String helperID;
+  String status;
+  num helperCost;
+  String startTime;
+  String endTime;
 
   RequestDetail(
-  {required this.id, required this.workingDate, required this.helperID, required this.status, required this.helperCost});
+      {required this.id,
+      required this.workingDate,
+      required this.helperID,
+      required this.status,
+      required this.helperCost,
+      required this.comment,
+      required this.startTime,
+      required this.endTime});
 
   @override
   bool operator ==(Object other) =>
@@ -27,18 +39,20 @@ class RequestDetail{
       status.hashCode ^
       helperCost.hashCode;
 
-  factory RequestDetail.fromJson(Map<String, dynamic> map){
+  factory RequestDetail.fromJson(Map<String, dynamic> map) {
     return RequestDetail(
-      id: map['_id'],
-      helperCost: map['helper_cost'],
-      helperID: map['helper_id'],
-      status: map['status'],
-      workingDate: map['workingDate']
-    );
+        id: map['_id'],
+        helperCost: map['helper_cost'],
+        helperID: map['helper_id'],
+        status: map['status'],
+        workingDate: map['workingDate'],
+        comment: Comment.fromJson(map['comment']),
+        startTime: 'startTime',
+        endTime: 'endTime');
   }
 
   @override
   String toString() {
-    return 'RequestDetail{id: $id, workingDate: $workingDate, helperID: $helperID, status: $status, helperCost: $helperCost}';
+    return 'RequestDetail{comment: $comment, id: $id, workingDate: $workingDate, helperID: $helperID, status: $status, helperCost: $helperCost, startTime: $startTime, endTime: $endTime}';
   }
 }
