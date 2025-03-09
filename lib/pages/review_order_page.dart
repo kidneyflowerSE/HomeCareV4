@@ -606,9 +606,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                                 fit: BoxFit.cover,
                               ),
                             )
-                          : Icon(Icons.person,
-                              color: Colors
-                                  .green), // Hiển thị icon nếu avatar null
+                          : Icon(Icons.person, color: Colors.green),
                     ),
                     title: Text(
                       widget.helper?.fullName ?? 'Hệ thống chọn',

@@ -842,6 +842,9 @@ class _OnDemandState extends State<OnDemand> {
                                           builder: (context) => OrderDetailPage(
                                             request: request,
                                             helpers: widget.helperList,
+                                            services: widget.services,
+                                            customer: widget.customer,
+                                            costFactors: widget.costFactors,
                                           ),
                                         ),
                                       );
@@ -1439,6 +1442,9 @@ class _LongTermState extends State<LongTerm> {
                                           builder: (context) => OrderDetailPage(
                                             request: request,
                                             helpers: widget.helperList,
+                                            services: widget.services,
+                                            costFactors: widget.costFactors,
+                                            customer: widget.customer,
                                           ),
                                         ),
                                       );
