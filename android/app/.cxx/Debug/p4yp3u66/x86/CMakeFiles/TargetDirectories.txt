@@ -1,0 +1,2 @@
+C:/Users/Dell Vostro 3400/AndroidStudioProjects/HomeCare_reupdate/android/app/.cxx/Debug/p4yp3u66/x86/CMakeFiles/edit_cache.dir
+C:/Users/Dell Vostro 3400/AndroidStudioProjects/HomeCare_reupdate/android/app/.cxx/Debug/p4yp3u66/x86/CMakeFiles/rebuild_cache.dir

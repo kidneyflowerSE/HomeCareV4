@@ -1,0 +1,20 @@
+                    -HC:\vscode\Flutter\flutter_windows_3.24.0-stable\flutter\packages\flutter_tools\gradle\src\main\groovy
+-DCMAKE_SYSTEM_NAME=Android
+-DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+-DCMAKE_SYSTEM_VERSION=21
+-DANDROID_PLATFORM=android-21
+-DANDROID_ABI=x86
+-DCMAKE_ANDROID_ARCH_ABI=x86
+-DANDROID_NDK=C:\Users\Dell Vostro 3400\AppData\Local\Android\sdk\ndk\25.1.8937393
+-DCMAKE_ANDROID_NDK=C:\Users\Dell Vostro 3400\AppData\Local\Android\sdk\ndk\25.1.8937393
+-DCMAKE_TOOLCHAIN_FILE=C:\Users\Dell Vostro 3400\AppData\Local\Android\sdk\ndk\25.1.8937393\build\cmake\android.toolchain.cmake
+-DCMAKE_MAKE_PROGRAM=C:\Users\Dell Vostro 3400\AppData\Local\Android\sdk\cmake\3.18.1\bin\ninja.exe
+-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=C:\Users\Dell Vostro 3400\AndroidStudioProjects\HomeCare_reupdate\build\app\intermediates\cxx\Debug\p4yp3u66\obj\x86
+-DCMAKE_RUNTIME_OUTPUT_DIRECTORY=C:\Users\Dell Vostro 3400\AndroidStudioProjects\HomeCare_reupdate\build\app\intermediates\cxx\Debug\p4yp3u66\obj\x86
+-DCMAKE_BUILD_TYPE=Debug
+-BC:\Users\Dell Vostro 3400\AndroidStudioProjects\HomeCare_reupdate\android\app\.cxx\Debug\p4yp3u66\x86
+-GNinja
+-Wno-dev
+--no-warn-unused-cli
+                    Build command args: []
+                    Version: 2

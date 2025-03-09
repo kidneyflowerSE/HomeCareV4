@@ -57,7 +57,7 @@ Future<void> main() async {
   // }
   // var customers = await repository.loadMessage(Message(phone: '0795335321'));
 
-  var customers = await repository.loadCleanerData();
+  var customers = await repository.loadPolicy();
   if(customers != null){
     for(var customer in customers){
       debugPrint(customer.toString());

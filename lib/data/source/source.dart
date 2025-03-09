@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:foodapp/data/model/helper.dart';
 import 'package:foodapp/data/model/location.dart';
 import 'package:foodapp/data/model/message.dart';
+import 'package:foodapp/data/model/policy.dart';
 import 'package:foodapp/data/model/requestdetail.dart';
 
 import 'package:http/http.dart' as http;
@@ -25,6 +26,8 @@ abstract interface class DataSource {
   Future<List<Customer>?> loadCustomerData();
 
   Future<List<Requests>?> loadRequestData();
+
+  Future<List<Policy>?> loadPolicy();
 
   Future<List<RequestDetail>?> loadRequestDetailData();
 
@@ -135,6 +138,27 @@ class RemoteDataSource implements DataSource {
       }
     } catch (e) {
       print('Error loading request data: $e');
+      return null;
+    }
+  }
+
+  @override
+  Future<List<Policy>?> loadPolicy() async {
+    const url = 'https://api.homekare.site/policy';
+    final uri = Uri.parse(url);
+    try{
+      final response = await http.get(uri);
+      if(response.statusCode == 200){
+        final bodyContent = utf8.decode(response.bodyBytes);
+        final List<dynamic> policyList = jsonDecode(bodyContent);
+        return policyList.map((policy) => Policy.fromJson(policy)).toList();
+      }
+      else {
+        print('Failed to load policy data. Status code: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error loading policy data: $e');
       return null;
     }
   }
