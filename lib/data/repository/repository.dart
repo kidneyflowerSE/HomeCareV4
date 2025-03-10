@@ -59,6 +59,8 @@ abstract interface class Repository {
       String startDate,
       CoefficientOther coefficientOther,
       num serviceFactor);
+
+  Future<void> sendCustomerRegisterRequest(Customer customer);
 }
 
 class DefaultRepository implements Repository {
@@ -169,5 +171,10 @@ class DefaultRepository implements Repository {
   @override
   Future<List<RequestDetail>?> loadRequestDetailId(List<String> id) async {
     return await remoteDataSource.loadRequestDetailId(id);
+  }
+
+  @override
+  Future<void> sendCustomerRegisterRequest(Customer customer) async{
+    return await remoteDataSource.sendCustomerRegisterRequest(customer);
   }
 }

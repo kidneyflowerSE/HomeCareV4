@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:foodapp/data/model/customer.dart';
 import 'package:foodapp/data/model/request.dart';
 import 'package:foodapp/data/model/service.dart';
 import 'package:provider/provider.dart';
@@ -48,7 +49,9 @@ void main() {
 //   //     profit: 0, startDate: "2025-03-03");
 //   //
 //   // List<String> ids = ['67ca5f695e4280bfc267587d,'];
-//   var customers = await repository.doneConfirmRequest('67c694777c8f836e8dcc6567');
+//
+//   var testCustomer = Customer(addresses: [Addresses(province: 'Vĩnh Long', district: 'Vũng Liêm', ward: 'Tân Quới Trung', detailedAddress: 'abc')], points: [Points(point: 100000000, id: '')], phone: '0795335321', name: 'Lý Trọng Ân', password: '111111', email: '');
+//   var customers = await repository.sendCustomerRegisterRequest(testCustomer);
 //
 //   // var totalCost = await repository.calculateCost(20000,
 //   //     request, customers!, 1.1);
