@@ -370,7 +370,7 @@ class RemoteDataSource implements DataSource {
     final url = 'https://api.homekare.site/request/finish';
     final uri = Uri.parse(url);
     final headers = {'Content-Type': 'application/json'};
-    final body = jsonEncode({'id': id});
+    final body = jsonEncode({'detailId': id});
     try {
       final response = await http.post(uri, headers: headers, body: body);
 

@@ -1,35 +1,37 @@
-import 'package:foodapp/data/model/request.dart';
+
+import 'package:foodapp/data/model/request.dart'; // Assuming you have a Comment model
 
 class RequestDetail {
   Comment comment;
   String id;
-  String workingDate;
+  String workingDate;  // Changed to DateTime
   String helperID;
   String status;
   num helperCost;
-  String startTime;
-  String endTime;
+  DateTime startTime;  // Changed to DateTime
+  DateTime endTime;    // Changed to DateTime
 
-  RequestDetail(
-      {required this.id,
-      required this.workingDate,
-      required this.helperID,
-      required this.status,
-      required this.helperCost,
-      required this.comment,
-      required this.startTime,
-      required this.endTime});
+  RequestDetail({
+    required this.id,
+    required this.workingDate,
+    required this.helperID,
+    required this.status,
+    required this.helperCost,
+    required this.comment,
+    required this.startTime,
+    required this.endTime,
+  });
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is RequestDetail &&
-          runtimeType == other.runtimeType &&
-          id == other.id &&
-          workingDate == other.workingDate &&
-          helperID == other.helperID &&
-          status == other.status &&
-          helperCost == other.helperCost;
+          other is RequestDetail &&
+              runtimeType == other.runtimeType &&
+              id == other.id &&
+              workingDate == other.workingDate &&
+              helperID == other.helperID &&
+              status == other.status &&
+              helperCost == other.helperCost;
 
   @override
   int get hashCode =>
@@ -41,14 +43,15 @@ class RequestDetail {
 
   factory RequestDetail.fromJson(Map<String, dynamic> map) {
     return RequestDetail(
-        id: map['_id'],
-        helperCost: map['helper_cost'],
-        helperID: map['helper_id'],
-        status: map['status'],
-        workingDate: map['workingDate'],
-        comment: Comment.fromJson(map['comment']),
-        startTime: 'startTime',
-        endTime: 'endTime');
+      id: map['_id'],
+      helperCost: map['helper_cost'],
+      helperID: map['helper_id'],
+      status: map['status'],
+      workingDate: map['workingDate'],  // Parsing to DateTime
+      comment: Comment.fromJson(map['comment']),
+      startTime: DateTime.parse(map['startTime']),  // Parsing to DateTime
+      endTime: DateTime.parse(map['endTime']),      // Parsing to DateTime
+    );
   }
 
   @override

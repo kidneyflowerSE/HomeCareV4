@@ -72,6 +72,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       body: _pages[_selectedIndex.clamp(0, _pages.length - 1)],
       bottomNavigationBar: Container(

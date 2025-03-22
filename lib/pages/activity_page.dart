@@ -2,12 +2,15 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:foodapp/components/Confirm_day.dart';
 import 'package:foodapp/data/model/CostFactor.dart';
 import 'package:foodapp/data/model/helper.dart';
 import 'package:foodapp/data/model/request.dart';
 import 'package:foodapp/data/model/requestdetail.dart';
 import 'package:foodapp/pages/helper_list_page.dart';
 import 'package:foodapp/pages/order_detail_page.dart';
+import 'package:foodapp/pages/order_success_page.dart';
+import 'package:foodapp/pages/payment_page.dart';
 import 'package:foodapp/pages/services_order.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
@@ -49,19 +52,10 @@ class _ActivityPageState extends State<ActivityPage>
     loadHelperData();
 
     _tabController = TabController(length: 2, vsync: this);
-    startPolling(); // Bắt đầu polling
-  }
-
-  void startPolling() {
-    _pollingTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
-      loadRequestData();
-    });
   }
 
   @override
   void dispose() {
-    _pollingTimer?.cancel(); // Dừng polling khi thoát màn hình
-    _tabController.dispose();
     super.dispose();
   }
 
@@ -503,9 +497,22 @@ class _OnDemandState extends State<OnDemand> {
             ),
             child: TextButton(
               onPressed: () {
-                Navigator.pop(context);
-                // _showPaymentDialog(context, request);
-                _doneRequest(request);
+                // Navigator.pop(context);
+                // // _showPaymentDialog(context, request);
+                // _doneRequest(request);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PaymentPage(
+                      amount: request.totalCost,
+                      // Tổng chi phí
+                      customer: widget.customer,
+                      costFactors: widget.costFactors,
+                      services: widget.services,
+                      request: request,
+                    ),
+                  ),
+                );
               },
               child: Text(
                 "Xác nhận",
@@ -521,14 +528,6 @@ class _OnDemandState extends State<OnDemand> {
         ],
       ),
     );
-  }
-
-  void _doneRequest(Requests request) {
-    var repository = DefaultRepository();
-    repository.doneConfirmRequest(request.id);
-    setState(() {
-      request.status = "done";
-    });
   }
 
   void _cancelRequest(Requests request) {
@@ -1356,7 +1355,10 @@ class _LongTermState extends State<LongTerm> {
                                         )
                                       : request.status == 'processing'
                                           ? ElevatedButton(
-                                              onPressed: () {},
+                                              onPressed: () {
+                                                print(request.scheduleIds);
+                                                showConfirmLongTermDayDialog(context, request);
+                                              },
                                               style: ElevatedButton.styleFrom(
                                                 backgroundColor: Colors.blue,
                                                 shape: RoundedRectangleBorder(

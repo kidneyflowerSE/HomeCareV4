@@ -9,12 +9,16 @@ class OrderSuccess extends StatefulWidget {
   final Customer customer;
   final List<CostFactor> costFactors;
   final List<Services> services;
+  final dynamic mainMessage;
+  final dynamic subMessage;
 
   const OrderSuccess({
     super.key,
     required this.customer,
     required this.costFactors,
     required this.services,
+    this.mainMessage,
+    this.subMessage,
   });
 
   @override
@@ -126,8 +130,8 @@ class _OrderSuccessState extends State<OrderSuccess>
                   opacity: _fadeAnimation,
                   child: Column(
                     children: [
-                      const Text(
-                        "Đặt đơn thành công!",
+                      Text(
+                        widget.mainMessage ?? "Đặt đơn thành công!",
                         style: TextStyle(
                           fontFamily: 'Quicksand',
                           fontSize: 28,
@@ -139,8 +143,9 @@ class _OrderSuccessState extends State<OrderSuccess>
                       const SizedBox(height: 16),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: const Text(
-                          "Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi. Hệ thống sẽ xử lý đơn hàng của bạn sớm nhất có thể.",
+                        child: Text(
+                          widget.subMessage ??
+                              "Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi. Hệ thống sẽ xử lý đơn hàng của bạn sớm nhất có thể.",
                           style: TextStyle(
                             fontFamily: 'Quicksand',
                             fontSize: 16,
