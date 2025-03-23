@@ -9,6 +9,10 @@ import 'package:foodapp/themes/theme_provider.dart';
 
 import 'components/request_provider.dart';
 import 'data/repository/repository.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
+import 'firebase_options.dart';
 
 void main() {
   runApp(
@@ -21,6 +25,44 @@ void main() {
     ),
   );
 }
+
+// Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+//   print("🔔 Nhận thông báo trong nền: ${message.notification?.title}");
+// }
+//
+// void main() async {
+//   WidgetsFlutterBinding.ensureInitialized();
+//   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+//
+//   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+//
+//   FirebaseMessaging messaging = FirebaseMessaging.instance;
+//   String? token = await messaging.getToken();
+//   print("📌 FCM Token: $token");
+//
+//   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+//     print("📩 Thông báo foreground: ${message.notification?.title}");
+//   });
+//
+//   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+//     print("📬 Người dùng bấm vào thông báo: ${message.notification?.title}");
+//   });
+//
+//   runApp(MyApp());
+// }
+//
+// class MyApp extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       debugShowCheckedModeBanner: false,
+//       home: Scaffold(
+//         appBar: AppBar(title: Text('FCM Test')),
+//         body: Center(child: Text("FCM đang hoạt động!")),
+//       ),
+//     );
+//   }
+// }
 
 // Future<void> main() async {
 //   WidgetsFlutterBinding.ensureInitialized();
