@@ -2,12 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:foodapp/components/my_button.dart';
 import 'package:foodapp/components/my_confirm_text.dart';
 import 'package:foodapp/components/spashscreen.dart';
+import 'package:foodapp/data/model/customer.dart';
+import 'package:foodapp/data/repository/repository.dart';
 import 'package:foodapp/pages/login_page.dart';
+
+import '../data/model/location.dart';
 
 class AuthenticationPage extends StatefulWidget {
   final void Function()? onTap;
+  final Customer customer;
 
-  const AuthenticationPage({super.key, required this.onTap});
+  const AuthenticationPage(
+      {super.key,
+      required this.onTap, required this.customer,});
 
   @override
   State<AuthenticationPage> createState() => _AuthenticationPageState();
@@ -55,14 +62,18 @@ class _AuthenticationPageState extends State<AuthenticationPage>
     super.dispose();
   }
 
-  void login() {
+  void login() async{
     print("Mã xác nhận: $verificationCode"); // Debug: In mã xác nhận
-    if (verificationCode.length == 6 && verificationCode.compareTo('111111') == 0) {
+    if (verificationCode.length == 6 &&
+        verificationCode.compareTo('111111') == 0) {
+      var repository = DefaultRepository();
+      await repository.remoteDataSource.sendCustomerRegisterRequest(widget.customer);
       // Thực hiện xác thực ở đây (gửi mã lên server để kiểm tra)
       Navigator.push(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => SplashScreen(),
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              SplashScreen(),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(opacity: animation, child: child);
           },

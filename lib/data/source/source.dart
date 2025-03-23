@@ -54,6 +54,8 @@ abstract interface class DataSource {
 
   Future<List<CoefficientOther>?> loadCoefficientService();
 
+  Future<void> sendCustomerRegisterRequest(Customer customer);
+
   Future<Map<String, dynamic>?> calculateCost(
       num servicePrice,
       String startTime,
@@ -271,7 +273,7 @@ class RemoteDataSource implements DataSource {
 
   Future<List<RequestDetail>?> loadRequestDetailId(List<String> id) async {
     String idString = id.join(',');
-    if(idString.endsWith(',')){
+    if (idString.endsWith(',')) {
       idString = idString.substring(0, idString.length - 1);
     }
     String url = 'https://api.homekare.site/requestDetail?ids=$idString';
@@ -368,7 +370,7 @@ class RemoteDataSource implements DataSource {
     final url = 'https://api.homekare.site/request/finish';
     final uri = Uri.parse(url);
     final headers = {'Content-Type': 'application/json'};
-    final body = jsonEncode({'id': id});
+    final body = jsonEncode({'detailId': id});
     try {
       final response = await http.post(uri, headers: headers, body: body);
 
@@ -541,6 +543,39 @@ class RemoteDataSource implements DataSource {
     } catch (e) {
       print('Error loading CostFactor data: $e');
       return [];
+    }
+  }
+
+  @override
+  Future<void> sendCustomerRegisterRequest(Customer customer) async {
+    const url = 'https://api.homekare.site/customer';
+    final uri = Uri.parse(url);
+    final headers = {'Content-Type': 'application/json'};
+    final body = jsonEncode({
+      "email" : customer.email,
+      "fullName": customer.name,
+      "phone": customer.phone,
+      "password": customer.password,
+      "points": [
+        {
+          "point": 100000000,
+        }
+      ],
+      "addresses": customer.addresses.map((address) => address.toJson()).toList(),
+    });
+
+    try {
+      final response = await http.post(uri, headers: headers, body: body);
+      if (response.statusCode == 200) {
+        if (kDebugMode) {
+          print('Requests posted successfully!');
+        }
+      } else {
+        print('Failed to post requests. Status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+      }
+    } catch (e) {
+      print('Error posting requests: $e');
     }
   }
 }

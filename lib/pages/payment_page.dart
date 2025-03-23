@@ -33,6 +33,14 @@ class _PaymentPageState extends State<PaymentPage> {
   String selectedPaymentMethod = "bank";
   bool isProcessing = false;
 
+  void _doneRequest(Requests request) {
+    var repository = DefaultRepository();
+    repository.doneConfirmRequest(request.scheduleIds.first);
+    setState(() {
+      request.status = "done";
+    });
+  }
+
   String formatCurrency(num amount) {
     final NumberFormat formatter = NumberFormat("#,###", "vi_VN");
     int roundedAmount = amount.round();
@@ -201,7 +209,7 @@ class _PaymentPageState extends State<PaymentPage> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight:
-                            isSelected ? FontWeight.w700 : FontWeight.w500,
+                        isSelected ? FontWeight.w700 : FontWeight.w500,
                         fontFamily: 'Quicksand',
                       ),
                     ),
@@ -371,22 +379,22 @@ class _PaymentPageState extends State<PaymentPage> {
             ),
             child: isProcessing
                 ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  )
+              height: 20,
+              width: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              ),
+            )
                 : Text(
-                    "Thanh toán ${formatCurrency(widget.amount)}",
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                      fontFamily: 'Quicksand',
-                    ),
-                  ),
+              "Thanh toán ${formatCurrency(widget.amount)}",
+              style: const TextStyle(
+                fontSize: 16,
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+                fontFamily: 'Quicksand',
+              ),
+            ),
           ),
         ),
       ),
@@ -401,17 +409,17 @@ class _PaymentPageState extends State<PaymentPage> {
     if (mounted) {
       setState(() => isProcessing = false);
 
-      var repository = DefaultRepository();
-      repository.sendRequest(widget.request);
+      _doneRequest(widget.request);
 
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
             builder: (context) => OrderSuccess(
-                  customer: widget.customer,
-                  costFactors: widget.costFactors,
-                  services: widget.services,
-                )),
+              customer: widget.customer,
+              costFactors: widget.costFactors,
+              services: widget.services,
+            ),
+        ),
       );
     }
   }

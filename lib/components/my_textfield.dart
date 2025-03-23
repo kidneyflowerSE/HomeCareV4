@@ -30,10 +30,13 @@ class _MyTextFieldState extends State<MyTextField>
   late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
   bool _isFocused = false;
+  bool _isObscure = false;
 
   @override
   void initState() {
     super.initState();
+    _isObscure = widget.obscureText;
+
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 200),
@@ -108,7 +111,7 @@ class _MyTextFieldState extends State<MyTextField>
                     children: [
                       TextField(
                         controller: widget.controller,
-                        obscureText: widget.obscureText,
+                        obscureText: _isObscure,
                         keyboardType: widget.keyboardType,
                         focusNode: widget.focusNode,
                         onChanged: widget.onChanged,
@@ -130,29 +133,45 @@ class _MyTextFieldState extends State<MyTextField>
                             horizontal: 20,
                             vertical: 16,
                           ),
-                          suffixIcon: widget.errorText != null
-                              ? TweenAnimationBuilder<double>(
-                                  duration: const Duration(milliseconds: 300),
-                                  tween: Tween(begin: 0.0, end: 1.0),
-                                  builder: (context, value, child) {
-                                    return Transform.scale(
-                                      scale: value,
-                                      child: Icon(
-                                        Icons.error_outline,
-                                        color: Colors.red.withOpacity(value),
-                                      ),
-                                    );
+                          suffixIcon: widget.obscureText
+                              ? IconButton(
+                                  icon: Icon(
+                                    _isObscure
+                                        ? Icons.visibility_off
+                                        : Icons.visibility,
+                                    color: Colors.grey[600],
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _isObscure = !_isObscure;
+                                    });
                                   },
                                 )
-                              : _isFocused
-                                  ? FadeTransition(
-                                      opacity: _fadeAnimation,
-                                      child: const Icon(
-                                        Icons.check_circle_outline,
-                                        color: Colors.green,
-                                      ),
+                              : widget.errorText != null
+                                  ? TweenAnimationBuilder<double>(
+                                      duration:
+                                          const Duration(milliseconds: 300),
+                                      tween: Tween(begin: 0.0, end: 1.0),
+                                      builder: (context, value, child) {
+                                        return Transform.scale(
+                                          scale: value,
+                                          child: Icon(
+                                            Icons.error_outline,
+                                            color:
+                                                Colors.red.withOpacity(value),
+                                          ),
+                                        );
+                                      },
                                     )
-                                  : null,
+                                  : _isFocused
+                                      ? FadeTransition(
+                                          opacity: _fadeAnimation,
+                                          child: const Icon(
+                                            Icons.check_circle_outline,
+                                            color: Colors.green,
+                                          ),
+                                        )
+                                      : null,
                         ),
                       ),
                       // Animated highlight line

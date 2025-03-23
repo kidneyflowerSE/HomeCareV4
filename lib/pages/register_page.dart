@@ -2,17 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:foodapp/auth/login_or_register.dart';
 import 'package:foodapp/components/my_button.dart';
 import 'package:foodapp/components/my_textfield.dart';
+import 'package:foodapp/components/warning_dialog.dart';
+import 'package:foodapp/data/model/customer.dart';
 import 'package:foodapp/pages/authen_page.dart';
 import 'package:foodapp/pages/login_page.dart';
 import 'package:lottie/lottie.dart';
 
+import '../components/city_selected.dart';
+import '../data/model/location.dart';
+import '../data/repository/repository.dart';
+
 class RegisterPage extends StatefulWidget {
   final void Function()? onTap;
 
-  const RegisterPage({
-    super.key,
-    this.onTap,
-  });
+  const RegisterPage({super.key, this.onTap});
 
   @override
   State<RegisterPage> createState() => _RegisterPageState();
@@ -24,60 +27,42 @@ class _RegisterPageState extends State<RegisterPage>
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmController = TextEditingController();
   final TextEditingController fullNameController = TextEditingController();
-  final TextEditingController locationController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
 
-  final FocusNode phoneFocusNode = FocusNode();
-  final FocusNode passwordFocusNode = FocusNode();
-  final FocusNode confirmFocusNode = FocusNode();
-  final FocusNode fullNameFocusNode = FocusNode();
-  final FocusNode locationFocusNode = FocusNode();
-
-  late final AnimationController _animationController = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 800),
-  );
-
-  late final Animation<double> _fadeAnimation = CurvedAnimation(
-    parent: _animationController,
-    curve: Curves.easeIn,
-  );
-
-  late final Animation<Offset> _slideAnimation = Tween<Offset>(
-    begin: const Offset(0, 0.1),
-    end: Offset.zero,
-  ).animate(CurvedAnimation(
-    parent: _animationController,
-    curve: Curves.easeOutQuart,
-  ));
+  List<Location> locations = [];
+  List<Customer> customers = [];
 
   String? phoneError;
   String? passwordError;
   String? confirmError;
   String? fullNameError;
-  String? locationError;
+  String? addressError;
+  String? emailError;
   bool isLoading = false;
-  bool isRegisterSuccess = false;
+  bool isLocationLoading = true;
+
+  Location? selectedProvince;
+  String? selectedDistrict;
+  String? selectedWard;
+  String? selectedDetailedAddress;
 
   @override
   void initState() {
     super.initState();
-    _animationController.forward();
+    loadData();
   }
 
-  @override
-  void dispose() {
-    _animationController.dispose();
-    phoneController.dispose();
-    passwordController.dispose();
-    confirmController.dispose();
-    fullNameController.dispose();
-    locationController.dispose();
-    phoneFocusNode.dispose();
-    passwordFocusNode.dispose();
-    confirmFocusNode.dispose();
-    fullNameFocusNode.dispose();
-    locationFocusNode.dispose();
-    super.dispose();
+  Future<void> loadData() async {
+    var repository = DefaultRepository();
+    var dataLocation = await repository.loadLocation();
+    var dataCustomer = await repository.loadCustomer();
+    if (mounted) {
+      setState(() {
+        locations = dataLocation ?? [];
+        customers = dataCustomer ?? [];
+        isLocationLoading = false;
+      });
+    }
   }
 
   Future<void> validateAndRegister() async {
@@ -86,7 +71,8 @@ class _RegisterPageState extends State<RegisterPage>
       passwordError = null;
       confirmError = null;
       fullNameError = null;
-      locationError = null;
+      addressError = null;
+      emailError = null;
       isLoading = true;
     });
 
@@ -96,7 +82,7 @@ class _RegisterPageState extends State<RegisterPage>
     String password = passwordController.text.trim();
     String confirmPassword = confirmController.text.trim();
     String fullName = fullNameController.text.trim();
-    String location = locationController.text.trim();
+    String email = emailController.text.trim();
 
     bool hasError = false;
 
@@ -104,8 +90,7 @@ class _RegisterPageState extends State<RegisterPage>
       setState(() => phoneError = "Số điện thoại không được để trống.");
       hasError = true;
     } else if (!RegExp(r'^0\d{9}$').hasMatch(phone)) {
-      setState(() => phoneError =
-          "Số điện thoại không hợp lệ. Vui lòng nhập 10 chữ số và bắt đầu bằng số 0.");
+      setState(() => phoneError = "Số điện thoại không hợp lệ.");
       hasError = true;
     }
 
@@ -130,36 +115,52 @@ class _RegisterPageState extends State<RegisterPage>
       hasError = true;
     }
 
-    if (location.isEmpty) {
-      setState(() => locationError = "Địa chỉ không được để trống");
+    if (email.isEmpty) {
+      setState(() => emailError = "Email không được để trống");
       hasError = true;
     }
 
+    if (selectedProvince == null ||
+        selectedDistrict == null ||
+        selectedWard == null ||
+        selectedDetailedAddress == null ||
+        selectedDetailedAddress!.trim().isEmpty) {
+      setState(() => addressError = "Vui lòng chọn đầy đủ địa chỉ.");
+      hasError = true;
+    }
+
+    if (customers.any((customer) => customer.phone == phone)) {
+      showPopUpWarning(context, 'Số điện thoại này đã được đăng ký. Vui lòng chọn số khác');
+      return;
+    }
+
+    if (customers.any((customer) => customer.email == email)) {
+      showPopUpWarning(context, 'Địa chỉ email này đã được đăng ký. Vui lòng chọn số khác');
+      return;
+    }
+
     if (!hasError && mounted) {
-      // Simulate successful registration
-      setState(() => isRegisterSuccess = true);
-      await Future.delayed(const Duration(seconds: 2));
-
-      if (!mounted) return;
-
+      var customer = Customer(
+        addresses: [
+          Addresses(
+              province: selectedProvince!.name,
+              district: selectedDistrict!,
+              ward: selectedWard!,
+              detailedAddress: selectedDetailedAddress!)
+        ],
+        points: [Points(point: 100000000, id: '')],
+        phone: phone,
+        name: fullName,
+        password: password,
+        email: email,
+      );
       Navigator.push(
         context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) =>
-              AuthenticationPage(onTap: () {}),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return FadeTransition(
-              opacity: animation,
-              child: SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(0, 0.1),
-                  end: Offset.zero,
-                ).animate(animation),
-                child: child,
-              ),
-            );
-          },
-          transitionDuration: const Duration(milliseconds: 500),
+        MaterialPageRoute(
+          builder: (context) => AuthenticationPage(
+            onTap: () {},
+            customer: customer,
+          ),
         ),
       );
     }
@@ -169,270 +170,111 @@ class _RegisterPageState extends State<RegisterPage>
 
   @override
   Widget build(BuildContext context) {
-    const TextStyle quicksandStyle = TextStyle(
-      fontFamily: 'Quicksand',
-    );
-
     return Scaffold(
-      resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
-      body: Stack(
-        children: [
-          SafeArea(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 24.0, vertical: 30.0),
-                child: FadeTransition(
-                  opacity: _fadeAnimation,
-                  child: SlideTransition(
-                    position: _slideAnimation,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Hero(
-                          tag: 'app_logo',
-                          child: Image.asset(
-                            'lib/images/logo.png',
-                            width: 180,
-                            height: 180,
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        TweenAnimationBuilder<double>(
-                          duration: const Duration(milliseconds: 800),
-                          tween: Tween(begin: 0, end: 1),
-                          builder: (context, value, child) {
-                            return Opacity(
-                              opacity: value,
-                              child: Transform.translate(
-                                offset: Offset(0, 20 * (1 - value)),
-                                child: child,
-                              ),
-                            );
-                          },
-                          child: Column(
-                            children: const [
-                              Text(
-                                "Tạo tài khoản mới",
-                                style: TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
-                                  fontFamily: 'Quicksand',
-                                ),
-                              ),
-                              SizedBox(height: 8),
-                              Text(
-                                "Vui lòng nhập thông tin của bạn",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.grey,
-                                  fontFamily: 'Quicksand',
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 30),
-                        MyTextField(
-                          controller: fullNameController,
-                          hintText: "Nhập tên của bạn",
-                          obscureText: true,
-                          keyboardType: TextInputType.text,
-                          errorText: fullNameError,
-                          focusNode: fullNameFocusNode,
-                          onChanged: (value) {
-                            if (fullNameError != null) {
-                              setState(() => fullNameError = null);
-                            }
-                          },
-                        ),
-                        const SizedBox(height: 15),
-                        MyTextField(
-                          controller: phoneController,
-                          hintText: "Nhập số điện thoại",
-                          obscureText: false,
-                          keyboardType: TextInputType.number,
-                          errorText: phoneError,
-                          focusNode: phoneFocusNode,
-                          onChanged: (value) {
-                            if (phoneError != null) {
-                              setState(() => phoneError = null);
-                            }
-                          },
-                        ),
-                        const SizedBox(height: 15),
-                        MyTextField(
-                          controller: locationController,
-                          hintText: "Nhập địa chỉ",
-                          obscureText: true,
-                          keyboardType: TextInputType.text,
-                          errorText: locationError,
-                          focusNode: locationFocusNode,
-                          onChanged: (value) {
-                            if (locationError != null) {
-                              setState(() => locationError = null);
-                            }
-                          },
-                        ),
-                        const SizedBox(height: 15),
-                        MyTextField(
-                          controller: passwordController,
-                          hintText: "Nhập mật khẩu",
-                          obscureText: true,
-                          keyboardType: TextInputType.text,
-                          errorText: passwordError,
-                          focusNode: passwordFocusNode,
-                          onChanged: (value) {
-                            if (passwordError != null) {
-                              setState(() => passwordError = null);
-                            }
-                          },
-                        ),
-                        const SizedBox(height: 15),
-                        MyTextField(
-                          controller: confirmController,
-                          hintText: "Xác nhận mật khẩu",
-                          obscureText: true,
-                          keyboardType: TextInputType.text,
-                          errorText: confirmError,
-                          focusNode: confirmFocusNode,
-                          onChanged: (value) {
-                            if (confirmError != null) {
-                              setState(() => confirmError = null);
-                            }
-                          },
-                        ),
-                        const SizedBox(height: 25),
-                        TweenAnimationBuilder<double>(
-                          duration: const Duration(milliseconds: 300),
-                          tween: Tween(begin: 0, end: 1),
-                          builder: (context, value, child) {
-                            return Transform.scale(
-                              scale: 0.8 + (0.2 * value),
-                              child: Opacity(
-                                opacity: value,
-                                child: MyButton(
-                                  text:
-                                      isLoading ? "Đang đăng ký..." : "Đăng ký",
-                                  onTap: isLoading ? null : validateAndRegister,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                        const SizedBox(height: 20),
-                        FadeTransition(
-                          opacity: _fadeAnimation,
-                          child: Row(
-                            children: const [
-                              Expanded(
-                                  child: Divider(
-                                      thickness: 1, color: Colors.grey)),
-                              Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 8.0),
-                                child: Text(
-                                  "Hoặc",
-                                  style: TextStyle(
-                                    color: Colors.grey,
-                                    fontFamily: 'Quicksand',
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                  child: Divider(
-                                      thickness: 1, color: Colors.grey)),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        FadeTransition(
-                          opacity: _fadeAnimation,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Text(
-                                "Đã có tài khoản?",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.black,
-                                  fontFamily: 'Quicksand',
-                                ),
-                              ),
-                              GestureDetector(
-                                onTap: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const LoginPage(),
-                                  ),
-                                ),
-                                child: const Text(
-                                  " Đăng nhập",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.green,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: 'Quicksand',
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+      body: isLocationLoading
+          ? Center(
+              child: Lottie.asset(
+                'lib/images/loading.json',
+                width: 100,
+                height: 100,
+                repeat: true,
+              ),
+            )
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                children: [
+                  Image.asset('lib/images/logo.png', width: 180, height: 180),
+                  const SizedBox(height: 20),
+                  MyTextField(
+                    controller: fullNameController,
+                    hintText: "Nhập tên của bạn",
+                    errorText: fullNameError,
                   ),
-                ),
+                  const SizedBox(height: 15),
+                  MyTextField(
+                    controller: phoneController,
+                    hintText: "Nhập số điện thoại",
+                    keyboardType: TextInputType.number,
+                    errorText: phoneError,
+                  ),
+                  const SizedBox(height: 15),
+                  MyTextField(
+                    controller: emailController,
+                    hintText: "Nhập email",
+                    keyboardType: TextInputType.emailAddress,
+                    errorText: emailError,
+                  ),
+                  const SizedBox(height: 15),
+                  SelectLocation(
+                    locations: locations,
+                    onProvinceSelected: (province) {
+                      setState(() {
+                        selectedProvince = province;
+                        addressError = null;
+                      });
+                    },
+                    onDistrictSelected: (district) {
+                      setState(() {
+                        selectedDistrict = district;
+                        addressError = null;
+                      });
+                    },
+                    onWardSelected: (ward) {
+                      setState(() {
+                        selectedWard = ward;
+                        addressError = null;
+                      });
+                    },
+                    onAddressChanged: (detailedAddress) {
+                      setState(() {
+                        selectedDetailedAddress = detailedAddress;
+                        addressError = null;
+                      });
+                    },
+                  ),
+                  if (addressError != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 5),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        // Căn giữa hàng ngang
+                        children: [
+                          const Icon(Icons.error_outline,
+                              color: Colors.red, size: 16),
+                          const SizedBox(
+                              width: 5), // Khoảng cách giữa icon và text
+                          Text(
+                            addressError!,
+                            style: const TextStyle(
+                                color: Colors.red, fontSize: 14),
+                          ),
+                        ],
+                      ),
+                    ),
+                  const SizedBox(height: 15),
+                  MyTextField(
+                    controller: passwordController,
+                    hintText: "Nhập mật khẩu",
+                    obscureText: true,
+                    errorText: passwordError,
+                  ),
+                  const SizedBox(height: 15),
+                  MyTextField(
+                    controller: confirmController,
+                    hintText: "Xác nhận mật khẩu",
+                    obscureText: true,
+                    errorText: confirmError,
+                  ),
+                  const SizedBox(height: 25),
+                  MyButton(
+                    text: isLoading ? "Đang đăng ký..." : "Đăng ký",
+                    onTap: isLoading ? null : validateAndRegister,
+                  ),
+                ],
               ),
             ),
-          ),
-          // if (isLoading)
-          //   Container(
-          //     color: Colors.black.withOpacity(0.3),
-          //     child: Center(
-          //       child: Stack(
-          //         alignment: Alignment.center,
-          //         children: [
-          //           AnimatedSwitcher(
-          //             duration: const Duration(milliseconds: 500),
-          //             child: isRegisterSuccess
-          //                 ? Column(
-          //                     mainAxisSize: MainAxisSize.min,
-          //                     children: [
-          //                       Lottie.asset(
-          //                         'lib/animations/success.json',
-          //                         width: 100,
-          //                         height: 100,
-          //                         repeat: false,
-          //                         errorBuilder: (context, error, stackTrace) {
-          //                           return const Icon(
-          //                             Icons.check_circle,
-          //                             color: Colors.green,
-          //                             size: 100,
-          //                           );
-          //                         },
-          //                       ),
-          //                       const SizedBox(height: 10),
-          //                       const Text(
-          //                         "Đăng ký thành công!",
-          //                         style: TextStyle(
-          //                           fontSize: 18,
-          //                           fontWeight: FontWeight.bold,
-          //                           color: Colors.white,
-          //                         ),
-          //                       ),
-          //                     ],
-          //                   )
-          //                 : const CircularProgressIndicator(),
-          //           ),
-          //         ],
-          //       ),
-          //     ),
-          //   ),
-        ],
-      ),
     );
   }
 }

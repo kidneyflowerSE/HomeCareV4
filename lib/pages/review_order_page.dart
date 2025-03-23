@@ -36,6 +36,7 @@ class ReviewOrderPage extends StatefulWidget {
 
 class _ReviewOrderPageState extends State<ReviewOrderPage> {
   bool isOnlinePayment = true;
+
   String _formatTime(double time) {
     double roundedTime = double.parse(
         time.toStringAsFixed(2)); // Làm tròn đến 2 chữ số thập phân
@@ -871,36 +872,19 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
           child: ElevatedButton(
             onPressed: () {
               widget.request.totalCost = finalCost;
-              if (isOnlinePayment) {
-                // Điều hướng tới PaymentPage
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => PaymentPage(
-                      amount: finalCost,
-                      // Tổng chi phí
-                      customer: widget.customer,
-                      costFactors: widget.costFactors,
-                      services: widget.services,
-                      request: widget.request,
-                    ),
+              var repository = DefaultRepository();
+              repository.sendRequest(widget.request);
+              // Điều hướng tới OrderSuccess
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => OrderSuccess(
+                    customer: widget.customer,
+                    costFactors: widget.costFactors,
+                    services: widget.services,
                   ),
-                );
-              } else {
-                var repository = DefaultRepository();
-                repository.sendRequest(widget.request);
-                // Điều hướng tới OrderSuccess
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => OrderSuccess(
-                      customer: widget.customer,
-                      costFactors: widget.costFactors,
-                      services: widget.services,
-                    ),
-                  ),
-                );
-              }
+                ),
+              );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.green,
@@ -909,7 +893,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
               ),
             ),
             child: Text(
-              isOnlinePayment ? "Tiến hành thanh toán" : "Đăng việc",
+              "Đăng việc",
               style: const TextStyle(
                 fontFamily: 'Quicksand',
                 fontSize: 16,
