@@ -40,6 +40,8 @@ abstract interface class DataSource {
 
   Future<void> cancelRequest(String id);
 
+  Future<void> paymentRequest(String id);
+
   Future<void> finishRequest(String id);
 
   Future<List<TimeOff>?> loadTimeOffData();
@@ -366,6 +368,28 @@ class RemoteDataSource implements DataSource {
   }
 
   @override
+  Future<void> paymentRequest(String id) async {
+    final url = 'https://api.homekare.site/request/finishPayment';
+    final uri = Uri.parse(url);
+    final headers = {'Content-Type': 'application/json'};
+    final body = jsonEncode({'id': id});
+    try {
+      final response = await http.post(uri, headers: headers, body: body);
+
+      if (response.statusCode == 200) {
+        if (kDebugMode) {
+          print('Payment posted successfully!');
+        }
+      } else {
+        print('Failed to post requests. Status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+      }
+    } catch (e) {
+      print('Error posting requests: $e');
+    }
+  }
+
+  @override
   Future<void> finishRequest(String id) async {
     final url = 'https://api.homekare.site/request/finish';
     final uri = Uri.parse(url);
@@ -552,7 +576,7 @@ class RemoteDataSource implements DataSource {
     final uri = Uri.parse(url);
     final headers = {'Content-Type': 'application/json'};
     final body = jsonEncode({
-      "email" : customer.email,
+      "email": customer.email,
       "fullName": customer.name,
       "phone": customer.phone,
       "password": customer.password,
@@ -561,7 +585,8 @@ class RemoteDataSource implements DataSource {
           "point": 100000000,
         }
       ],
-      "addresses": customer.addresses.map((address) => address.toJson()).toList(),
+      "addresses":
+          customer.addresses.map((address) => address.toJson()).toList(),
     });
 
     try {

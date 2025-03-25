@@ -279,6 +279,8 @@ class _OnDemandState extends State<OnDemand> {
         return Color(0xFFFFF3CD); // Vàng nhạt
       case 'processing':
         return Color(0xFFD1ECF1); // Xanh dương nhạt
+      case 'waitPayment':
+        return Color(0xFFFFD600); // Nâu nhạt
       case 'done':
         return Color(0xFFD4EDDA); // Xanh lá cây nhạt
       case 'cancelled':
@@ -294,6 +296,8 @@ class _OnDemandState extends State<OnDemand> {
         return "Chưa tiến hành";
       case "assigned":
         return "Đã giao việc";
+      case "waitPayment":
+        return "Chờ thanh toán";
       case "done":
         return "Đã hoàn thành";
       case "processing":
@@ -751,7 +755,7 @@ class _OnDemandState extends State<OnDemand> {
                                             ),
                                           ),
                                         )
-                                      : request.status == 'processing'
+                                      : request.status == 'waitPayment'
                                           ? ElevatedButton(
                                               onPressed: () {
                                                 _showConfirmationDialog(
@@ -765,7 +769,7 @@ class _OnDemandState extends State<OnDemand> {
                                                 ),
                                               ),
                                               child: const Text(
-                                                "Xác nhận hoàn thành",
+                                                "Thanh toán",
                                                 style: TextStyle(
                                                   fontFamily: 'Quicksand',
                                                   fontSize: 13,
@@ -774,64 +778,70 @@ class _OnDemandState extends State<OnDemand> {
                                                 ),
                                               ),
                                             )
-                                          : request.status == 'assigned'
+                                          : request.status == 'processing'
                                               ? Container()
-                                              : ElevatedButton(
-                                                  onPressed: () {
-                                                    var matchingServices =
-                                                        widget.services
-                                                            .where((service) =>
-                                                                request.service
-                                                                    .title ==
-                                                                service.title)
-                                                            .toList();
+                                              : request.status == 'assigned'
+                                                  ? Container()
+                                                  : ElevatedButton(
+                                                      onPressed: () {
+                                                        var matchingServices =
+                                                            widget.services
+                                                                .where((service) =>
+                                                                    request
+                                                                        .service
+                                                                        .title ==
+                                                                    service
+                                                                        .title)
+                                                                .toList();
 
-                                                    Services reorderService =
-                                                        matchingServices
-                                                                .isNotEmpty
-                                                            ? matchingServices
-                                                                .first
-                                                            : widget
-                                                                .services[0];
-                                                    Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            ServicesOrder(
-                                                          customer:
-                                                              widget.customer,
-                                                          service:
-                                                              reorderService,
-                                                          costFactors: widget
-                                                              .costFactors,
-                                                          services:
-                                                              widget.services,
+                                                        Services
+                                                            reorderService =
+                                                            matchingServices
+                                                                    .isNotEmpty
+                                                                ? matchingServices
+                                                                    .first
+                                                                : widget
+                                                                    .services[0];
+                                                        Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                            builder: (context) =>
+                                                                ServicesOrder(
+                                                              customer: widget
+                                                                  .customer,
+                                                              service:
+                                                                  reorderService,
+                                                              costFactors: widget
+                                                                  .costFactors,
+                                                              services: widget
+                                                                  .services,
+                                                            ),
+                                                          ),
+                                                        );
+                                                      },
+                                                      style: ElevatedButton
+                                                          .styleFrom(
+                                                        backgroundColor:
+                                                            Colors.grey[300],
+                                                        shape:
+                                                            RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(8),
                                                         ),
                                                       ),
-                                                    );
-                                                  },
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                    backgroundColor:
-                                                        Colors.grey[300],
-                                                    shape:
-                                                        RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              8),
+                                                      child: const Text(
+                                                        "Đặt lại",
+                                                        style: TextStyle(
+                                                          fontFamily:
+                                                              'Quicksand',
+                                                          fontSize: 14,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color: Colors.black87,
+                                                        ),
+                                                      ),
                                                     ),
-                                                  ),
-                                                  child: const Text(
-                                                    "Đặt lại",
-                                                    style: TextStyle(
-                                                      fontFamily: 'Quicksand',
-                                                      fontSize: 14,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: Colors.black87,
-                                                    ),
-                                                  ),
-                                                ),
                                   const SizedBox(width: 10),
                                   ElevatedButton(
                                     onPressed: () {
@@ -1357,7 +1367,8 @@ class _LongTermState extends State<LongTerm> {
                                           ? ElevatedButton(
                                               onPressed: () {
                                                 print(request.scheduleIds);
-                                                showConfirmLongTermDayDialog(context, request);
+                                                showConfirmLongTermDayDialog(
+                                                    context, request);
                                               },
                                               style: ElevatedButton.styleFrom(
                                                 backgroundColor: Colors.blue,
