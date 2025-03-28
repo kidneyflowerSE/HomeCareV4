@@ -35,7 +35,8 @@ class _PaymentPageState extends State<PaymentPage> {
 
   void _doneRequest(Requests request) {
     var repository = DefaultRepository();
-    repository.doneConfirmRequest(request.scheduleIds.first);
+    repository.doneConfirmRequest(request.id);
+    print(request.id);
     setState(() {
       request.status = "done";
     });

@@ -150,7 +150,7 @@ class DefaultRepository implements Repository {
 
   @override
   Future<void> doneConfirmRequest(String id) async {
-    return await remoteDataSource.finishRequest(id);
+    return await remoteDataSource.paymentRequest(id);
   }
 
   @override

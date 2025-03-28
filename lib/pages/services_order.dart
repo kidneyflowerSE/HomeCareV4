@@ -489,7 +489,7 @@ class _ServicesOrderState extends State<ServicesOrder>
               // Set based on your application's logic
               totalCost: 0,
               // Calculate or set the total cost
-              status: 'chưa tiến hành',
+              status: 'notDone',
               // Set the initial status
               deleted: false,
               comment:
