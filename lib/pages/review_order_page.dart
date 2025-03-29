@@ -811,56 +811,56 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                     ),
                   ),
             // _buildSectionTitle('Phương thức thanh toán'),
-            _buildCard(
-              child: Column(
-                children: [
-                  Text('Phương thức thanh toán',
-                      style: TextStyle(
-                        fontFamily: 'Quicksand',
-                        fontSize: 16,
-                        color: Color(0xFF2E7D32),
-                        fontWeight: FontWeight.w800,
-                      )),
-                  const SizedBox(height: 12),
-                  RadioListTile(
-                    value: true,
-                    groupValue: isOnlinePayment,
-                    onChanged: (value) {
-                      setState(() {
-                        isOnlinePayment = value!;
-                      });
-                    },
-                    title: const Text(
-                      'Chuyển khoản',
-                      style: TextStyle(
-                        fontFamily: 'Quicksand',
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                    activeColor: const Color(0xFF2E7D32),
-                  ),
-                  RadioListTile(
-                    value: false,
-                    groupValue: isOnlinePayment,
-                    onChanged: (value) {
-                      setState(() {
-                        isOnlinePayment = value!;
-                      });
-                    },
-                    title: const Text(
-                      'Thanh toán tiền mặt',
-                      style: TextStyle(
-                        fontFamily: 'Quicksand',
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                    activeColor: const Color(0xFF2E7D32),
-                  ),
-                ],
-              ),
-            ),
+            // _buildCard(
+            //   child: Column(
+            //     children: [
+            //       Text('Phương thức thanh toán',
+            //           style: TextStyle(
+            //             fontFamily: 'Quicksand',
+            //             fontSize: 16,
+            //             color: Color(0xFF2E7D32),
+            //             fontWeight: FontWeight.w800,
+            //           )),
+            //       const SizedBox(height: 12),
+            //       RadioListTile(
+            //         value: true,
+            //         groupValue: isOnlinePayment,
+            //         onChanged: (value) {
+            //           setState(() {
+            //             isOnlinePayment = value!;
+            //           });
+            //         },
+            //         title: const Text(
+            //           'Chuyển khoản',
+            //           style: TextStyle(
+            //             fontFamily: 'Quicksand',
+            //             fontSize: 16,
+            //             fontWeight: FontWeight.w400,
+            //           ),
+            //         ),
+            //         activeColor: const Color(0xFF2E7D32),
+            //       ),
+            //       RadioListTile(
+            //         value: false,
+            //         groupValue: isOnlinePayment,
+            //         onChanged: (value) {
+            //           setState(() {
+            //             isOnlinePayment = value!;
+            //           });
+            //         },
+            //         title: const Text(
+            //           'Thanh toán tiền mặt',
+            //           style: TextStyle(
+            //             fontFamily: 'Quicksand',
+            //             fontSize: 16,
+            //             fontWeight: FontWeight.w400,
+            //           ),
+            //         ),
+            //         activeColor: const Color(0xFF2E7D32),
+            //       ),
+            //     ],
+            //   ),
+            // ),
           ],
         ),
       ),

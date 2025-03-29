@@ -175,7 +175,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                 ),
               ),
               Text(
-                '#${widget.request.scheduleIds.join(", #")}',
+                '#823482342',
                 style: TextStyle(
                   color: Colors.black,
                   fontSize: 16,

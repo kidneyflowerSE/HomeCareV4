@@ -131,7 +131,7 @@ class _OrderSuccessState extends State<OrderSuccess>
                   child: Column(
                     children: [
                       Text(
-                        widget.mainMessage ?? "Đặt đơn thành công!",
+                        widget.mainMessage ?? "Thanh toán thành công!",
                         style: TextStyle(
                           fontFamily: 'Quicksand',
                           fontSize: 28,
@@ -145,7 +145,7 @@ class _OrderSuccessState extends State<OrderSuccess>
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: Text(
                           widget.subMessage ??
-                              "Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi. Hệ thống sẽ xử lý đơn hàng của bạn sớm nhất có thể.",
+                              "Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi. Hi vọng được phục vụ bạn nhiều hơn.",
                           style: TextStyle(
                             fontFamily: 'Quicksand',
                             fontSize: 16,

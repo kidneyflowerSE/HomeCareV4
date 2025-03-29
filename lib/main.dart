@@ -9,17 +9,16 @@ import 'package:foodapp/themes/theme_provider.dart';
 
 import 'components/request_provider.dart';
 import 'data/repository/repository.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
+
 import 'package:flutter/material.dart';
-import 'firebase_options.dart';
 
 void main() {
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => ThemeProvider()),
-        ChangeNotifierProvider(create: (context) => RequestProvider()), // Thêm provider mới
+        ChangeNotifierProvider(
+            create: (context) => RequestProvider()), // Thêm provider mới
       ],
       child: const MyApp(),
     ),
