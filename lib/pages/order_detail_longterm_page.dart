@@ -19,6 +19,7 @@ import '../data/repository/repository.dart';
 
 class OrderDetailLongTermPage extends StatefulWidget {
   final Requests request;
+  final List<RequestDetail> requestDetail;
   final List<Helper> helpers;
   final List<Services> services;
   final Customer customer;
@@ -26,11 +27,11 @@ class OrderDetailLongTermPage extends StatefulWidget {
 
   const OrderDetailLongTermPage({
     super.key,
-    required this.request,
+    required this.requestDetail,
     required this.helpers,
     required this.services,
     required this.customer,
-    required this.costFactors,
+    required this.costFactors, required this.request,
   });
 
   @override
@@ -39,14 +40,13 @@ class OrderDetailLongTermPage extends StatefulWidget {
 }
 
 class _OrderDetailLongTermPageState extends State<OrderDetailLongTermPage> {
-  late List<RequestDetail>? requestDetailData = [];
   final List<Helper> requestHelpers = [];
   bool isLoading = true;
   double promotion = 5000;
 
   bool _allStatusDone() {
-    return requestDetailData!.isNotEmpty &&
-        requestDetailData!.every((detail) => detail.status == "done");
+    return widget.requestDetail.isNotEmpty &&
+        widget.requestDetail.every((detail) => detail.status == "done");
   }
 
   String formatCurrency(double amount) {
@@ -131,7 +131,7 @@ class _OrderDetailLongTermPageState extends State<OrderDetailLongTermPage> {
                       customer: widget.customer,
                       costFactors: widget.costFactors,
                       services: widget.services,
-                      request: request,
+                      requestDetail: widget.requestDetail[0],
                     ),
                   ),
                 );
@@ -160,7 +160,9 @@ class _OrderDetailLongTermPageState extends State<OrderDetailLongTermPage> {
       case 'assigned':
         return Color(0xFF856404); // Vàng đậm
       case 'processing':
-        return Color(0xFF0C5460); // Xanh dương đậm
+        return Color(0xFF0C5460);
+      case 'waitPayment':
+        return Colors.blue;// Xanh dương đậm
       case 'done':
         return Color(0xFF155724); // Xanh lá cây đậm
       case 'cancelled':
@@ -180,6 +182,8 @@ class _OrderDetailLongTermPageState extends State<OrderDetailLongTermPage> {
         return "Đã hoàn thành";
       case "processing":
         return "Đang tiến hành";
+      case "waitPayment":
+        return "Chờ thanh toán";
       case "cancelled":
         return "Đã huỷ";
       default:
@@ -199,16 +203,13 @@ class _OrderDetailLongTermPageState extends State<OrderDetailLongTermPage> {
       isLoading = true;
     });
 
-    var repository = DefaultRepository();
     if (request.scheduleIds.isNotEmpty) {
-      var data = await repository.loadRequestDetailId(request.scheduleIds);
       setState(() {
-        requestDetailData = data ?? [];
         isLoading = false;
       });
 
       // Load helper information
-      for (var data in requestDetailData!) {
+      for (var data in widget.requestDetail) {
         try {
           var requestHelper =
               widget.helpers.firstWhere((helper) => helper.id == data.helperID);
@@ -390,7 +391,7 @@ class _OrderDetailLongTermPageState extends State<OrderDetailLongTermPage> {
   }
 
   Widget _buildScheduleCardsSection() {
-    if (requestDetailData!.isEmpty) {
+    if (widget.requestDetail.isEmpty) {
       return Center(
         child: Text(
           'Không có lịch làm việc nào',
@@ -419,9 +420,9 @@ class _OrderDetailLongTermPageState extends State<OrderDetailLongTermPage> {
         ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: requestDetailData!.length,
+          itemCount: widget.requestDetail.length,
           itemBuilder: (context, index) {
-            return _buildScheduleCard(requestDetailData![index]);
+            return _buildScheduleCard(widget.requestDetail[index]);
           },
         ),
       ],
@@ -453,11 +454,9 @@ class _OrderDetailLongTermPageState extends State<OrderDetailLongTermPage> {
               color: _getStatusTextColor(detail.status),
               fontFamily: 'Quicksand',
               fontSize: 14,
-              // color: Colors.black,
               fontWeight: FontWeight.w600,
             ),
           ),
-
           Divider(
             height: 24,
             color: Colors.grey.shade200,
@@ -500,37 +499,65 @@ class _OrderDetailLongTermPageState extends State<OrderDetailLongTermPage> {
               ),
             ],
           ),
-          // const SizedBox(height: 12),
-
-          // Text(
-          //   'hêh',
-          //   // 'Trạng thái: ${getStatusInVietnamese(detail.status)}',
-
-          //   style: TextStyle(
-          //     color: _getStatusTextColor(detail.status),
-          //     fontFamily: 'Quicksand',
-          //     fontSize: 14,
-          //     fontWeight: FontWeight.w600,
-          //   ),
-          // ),
-          ElevatedButton(
-            onPressed: () {},
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
-              minimumSize: const Size(double.infinity, 40),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              if (detail.status == 'waitPayment')
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PaymentPage(
+                          amount: detail.totalCost ?? 0,
+                          // Tổng chi phí
+                          customer: widget.customer,
+                          costFactors: widget.costFactors,
+                          services: widget.services,
+                          requestDetail: detail,
+                        ),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    minimumSize: const Size(160, 40),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    'Thanh toán',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontFamily: 'Quicksand',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  minimumSize: const Size(160, 40),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text(
+                  'Xem chi tiết',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontFamily: 'Quicksand',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
-            ),
-            child: const Text(
-              'Xem chi tiết',
-              style: TextStyle(
-                color: Colors.white,
-                fontFamily: 'Quicksand',
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+              // Kiểm tra điều kiện 'waitPayment' và hiển thị button "Thanh toán"
+            ],
           ),
         ],
       ),

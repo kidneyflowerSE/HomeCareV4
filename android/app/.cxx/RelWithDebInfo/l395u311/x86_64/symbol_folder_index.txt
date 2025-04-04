@@ -1,0 +1,1 @@
+C:\Users\Dell Vostro 3400\AndroidStudioProjects\HomeCareV5\build\app\intermediates\cxx\RelWithDebInfo\l395u311\obj\x86_64

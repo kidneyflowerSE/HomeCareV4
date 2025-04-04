@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:foodapp/data/model/CostFactor.dart';
 import 'package:foodapp/data/model/request.dart';
+import 'package:foodapp/data/model/requestdetail.dart';
 import 'package:foodapp/pages/order_success_page.dart';
 import 'package:http/http.dart';
 import 'package:intl/intl.dart';
@@ -14,7 +15,7 @@ class PaymentPage extends StatefulWidget {
   final Customer customer;
   final List<CostFactor> costFactors;
   final List<Services> services;
-  final Requests request;
+  final RequestDetail requestDetail;
 
   const PaymentPage({
     super.key,
@@ -22,7 +23,7 @@ class PaymentPage extends StatefulWidget {
     required this.customer,
     required this.costFactors,
     required this.services,
-    required this.request,
+    required this.requestDetail,
   });
 
   @override
@@ -33,7 +34,7 @@ class _PaymentPageState extends State<PaymentPage> {
   String selectedPaymentMethod = "bank";
   bool isProcessing = false;
 
-  void _doneRequest(Requests request) {
+  void _doneRequest(RequestDetail request) {
     var repository = DefaultRepository();
     repository.doneConfirmRequest(request.id);
     print(request.id);
@@ -410,7 +411,7 @@ class _PaymentPageState extends State<PaymentPage> {
     if (mounted) {
       setState(() => isProcessing = false);
 
-      _doneRequest(widget.request);
+      _doneRequest(widget.requestDetail);
 
       Navigator.pushReplacement(
         context,

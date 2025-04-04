@@ -369,10 +369,10 @@ class RemoteDataSource implements DataSource {
 
   @override
   Future<void> paymentRequest(String id) async {
-    final url = 'https://api.homekare.site/request/finishPayment';
+    final url = 'https://api.homekare.site/request/finishpayment';
     final uri = Uri.parse(url);
     final headers = {'Content-Type': 'application/json'};
-    final body = jsonEncode({'id': id});
+    final body = jsonEncode({'detailId': id});
     try {
       final response = await http.post(uri, headers: headers, body: body);
 

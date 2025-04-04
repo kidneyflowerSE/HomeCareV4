@@ -6,7 +6,6 @@ import 'package:foodapp/components/Confirm_day.dart';
 import 'package:foodapp/data/model/CostFactor.dart';
 import 'package:foodapp/data/model/helper.dart';
 import 'package:foodapp/data/model/request.dart';
-import 'package:foodapp/data/model/requestdetail.dart';
 import 'package:foodapp/pages/helper_list_page.dart';
 import 'package:foodapp/pages/order_detail_longterm_page.dart';
 import 'package:foodapp/pages/order_detail_page.dart';
@@ -18,6 +17,7 @@ import 'package:lottie/lottie.dart';
 import 'package:web_socket_channel/io.dart';
 
 import '../data/model/customer.dart';
+import '../data/model/requestdetail.dart';
 import '../data/model/service.dart';
 import '../data/repository/repository.dart';
 
@@ -41,7 +41,9 @@ class _ActivityPageState extends State<ActivityPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   List<Requests> requests = [];
+  List<RequestDetail> requestDetails = [];
   List<Requests>? requestCustomer = [];
+  List<RequestDetail>? requestDetailCustomer = [];
   List<Helper>? helperList = [];
   bool isLoading = true;
   Key pageKey = UniqueKey();
@@ -51,6 +53,7 @@ class _ActivityPageState extends State<ActivityPage>
     super.initState();
     loadRequestData();
     loadHelperData();
+    loadRequestDetailData();
 
     _tabController = TabController(length: 2, vsync: this);
   }
@@ -74,9 +77,24 @@ class _ActivityPageState extends State<ActivityPage>
     setState(() {
       requests = data ?? [];
       requestCustomer = requests
-          .where((request) =>
-              request.customerInfo.fullName == widget.customer.name)
+          .where(
+              (request) => request.customerInfo.phone == widget.customer.phone)
           .toList();
+      isLoading = false;
+      pageKey = UniqueKey();
+      print('tải lại dữ liệu');
+    });
+  }
+
+  Future<void> loadRequestDetailData() async {
+    var repository = DefaultRepository();
+    var data = await repository.loadRequestDetail();
+    setState(() {
+      requestDetails = data ?? [];
+      // requestCustomer = requests
+      //     .where((request) =>
+      // request.customerInfo.phone == widget.customer.phone)
+      //     .toList();
       isLoading = false;
       pageKey = UniqueKey();
       print('tải lại dữ liệu');
@@ -176,6 +194,7 @@ class _ActivityPageState extends State<ActivityPage>
                         costFactors: widget.costFactors,
                         services: widget.services,
                         helperList: helperList!,
+                        requestDetail: requestDetails,
                         refreshData: loadRequestData,
                       )
                     : LongTerm(
@@ -185,7 +204,7 @@ class _ActivityPageState extends State<ActivityPage>
                         costFactors: widget.costFactors,
                         services: widget.services,
                         helperList: helperList!,
-                        refreshData: loadRequestData,
+                        refreshData: loadRequestData, requestDetail: requestDetails,
                       ),
           ),
         ),
@@ -230,6 +249,7 @@ class OnDemand extends StatefulWidget {
   final List<CostFactor> costFactors;
   final List<Services> services;
   final List<Helper> helperList;
+  final List<RequestDetail> requestDetail;
   final Future<void> Function() refreshData;
 
   const OnDemand({
@@ -240,6 +260,7 @@ class OnDemand extends StatefulWidget {
     required this.services,
     required this.helperList,
     required this.refreshData,
+    required this.requestDetail,
   });
 
   @override
@@ -248,6 +269,7 @@ class OnDemand extends StatefulWidget {
 
 class _OnDemandState extends State<OnDemand> {
   late Map<String, List<Requests>> groupedRequests;
+  Map<String, List<RequestDetail>> groupedDetails = {};
   late IOWebSocketChannel channel;
 
   @override
@@ -263,9 +285,20 @@ class _OnDemandState extends State<OnDemand> {
     shortTermRequests.sort((a, b) =>
         DateTime.parse(b.oderDate).compareTo(DateTime.parse(a.oderDate)));
 
+    List<RequestDetail> shortTermDetails = widget.requestDetail
+        .where((reqDetail) => shortTermRequests
+            .map((request) => request.scheduleIds.first)
+            .contains(reqDetail.id))
+        .toList();
+
     for (var request in shortTermRequests) {
       String date =
           DateFormat('dd-MM-yyyy').format(DateTime.parse(request.oderDate));
+
+      groupedDetails[request.id] = shortTermDetails
+          .where((reqDetail) => reqDetail.id == request.scheduleIds.first)
+          .toList();
+
       if (groupedRequests.containsKey(date)) {
         groupedRequests[date]!.add(request);
       } else {
@@ -534,7 +567,7 @@ class _OnDemandState extends State<OnDemand> {
                       customer: widget.customer,
                       costFactors: widget.costFactors,
                       services: widget.services,
-                      request: request,
+                      requestDetail: groupedDetails[request.id]!.first,
                     ),
                   ),
                 );
@@ -565,6 +598,7 @@ class _OnDemandState extends State<OnDemand> {
 
   @override
   Widget build(BuildContext context) {
+    print(groupedDetails);
     return Container(
       color: const Color(0xFFF5F5F5),
       child: groupedRequests.isEmpty
@@ -753,116 +787,94 @@ class _OnDemandState extends State<OnDemand> {
                                   //     ),
                                   //   ),
                                   // ),
-                                  request.status == "notDone"
+                                  (groupedDetails[request.id]?.isNotEmpty ?? false) &&
+                                      groupedDetails[request.id]?.first.status == "notDone"
                                       ? ElevatedButton(
-                                          onPressed: () {
-                                            showCancelConfirmationDialog(
-                                                context, request);
-                                          },
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.red[100],
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                            ),
-                                          ),
-                                          child: const Text(
-                                            "Huỷ yêu cầu",
-                                            style: TextStyle(
-                                              fontFamily: 'Quicksand',
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.red,
-                                            ),
-                                          ),
-                                        )
-                                      : request.status == 'waitPayment'
-                                          ? ElevatedButton(
-                                              onPressed: () {
-                                                _showConfirmationDialog(
-                                                    context, request);
-                                              },
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor: Colors.blue,
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(8),
-                                                ),
-                                              ),
-                                              child: const Text(
-                                                "Thanh toán",
-                                                style: TextStyle(
-                                                  fontFamily: 'Quicksand',
-                                                  fontSize: 13,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                            )
-                                          : request.status == 'processing'
-                                              ? Container()
-                                              : request.status == 'assigned'
-                                                  ? Container()
-                                                  : ElevatedButton(
-                                                      onPressed: () {
-                                                        var matchingServices =
-                                                            widget.services
-                                                                .where((service) =>
-                                                                    request
-                                                                        .service
-                                                                        .title ==
-                                                                    service
-                                                                        .title)
-                                                                .toList();
+                                    onPressed: () {
+                                      showCancelConfirmationDialog(context, request);
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.red[100],
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    child: const Text(
+                                      "Huỷ yêu cầu",
+                                      style: TextStyle(
+                                        fontFamily: 'Quicksand',
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.red,
+                                      ),
+                                    ),
+                                  )
+                                      : (groupedDetails[request.id]?.isNotEmpty ?? false) &&
+                                      groupedDetails[request.id]?.first.status == 'waitPayment'
+                                      ? ElevatedButton(
+                                    onPressed: () {
+                                      _showConfirmationDialog(context, request);
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.blue,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    child: const Text(
+                                      "Thanh toán",
+                                      style: TextStyle(
+                                        fontFamily: 'Quicksand',
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  )
+                                      : (groupedDetails[request.id]?.isNotEmpty ?? false) &&
+                                      groupedDetails[request.id]?.first.status == 'processing'
+                                      ? Container()
+                                      : (groupedDetails[request.id]?.isNotEmpty ?? false) &&
+                                      groupedDetails[request.id]?.first.status == 'assigned'
+                                      ? Container()
+                                      : ElevatedButton(
+                                    onPressed: () {
+                                      var matchingServices = widget.services
+                                          .where((service) =>
+                                      request.service.title == service.title)
+                                          .toList();
 
-                                                        Services
-                                                            reorderService =
-                                                            matchingServices
-                                                                    .isNotEmpty
-                                                                ? matchingServices
-                                                                    .first
-                                                                : widget
-                                                                    .services[0];
-                                                        Navigator.push(
-                                                          context,
-                                                          MaterialPageRoute(
-                                                            builder: (context) =>
-                                                                ServicesOrder(
-                                                              customer: widget
-                                                                  .customer,
-                                                              service:
-                                                                  reorderService,
-                                                              costFactors: widget
-                                                                  .costFactors,
-                                                              services: widget
-                                                                  .services,
-                                                            ),
-                                                          ),
-                                                        );
-                                                      },
-                                                      style: ElevatedButton
-                                                          .styleFrom(
-                                                        backgroundColor:
-                                                            Colors.grey[300],
-                                                        shape:
-                                                            RoundedRectangleBorder(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(8),
-                                                        ),
-                                                      ),
-                                                      child: const Text(
-                                                        "Đặt lại",
-                                                        style: TextStyle(
-                                                          fontFamily:
-                                                              'Quicksand',
-                                                          fontSize: 14,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          color: Colors.black87,
-                                                        ),
-                                                      ),
-                                                    ),
+                                      Services reorderService = matchingServices.isNotEmpty
+                                          ? matchingServices.first
+                                          : widget.services[0];
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => ServicesOrder(
+                                            customer: widget.customer,
+                                            service: reorderService,
+                                            costFactors: widget.costFactors,
+                                            services: widget.services,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.grey[300],
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    child: const Text(
+                                      "Đặt lại",
+                                      style: TextStyle(
+                                        fontFamily: 'Quicksand',
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                  ),
                                   const SizedBox(width: 10),
                                   ElevatedButton(
                                     onPressed: () {
@@ -916,6 +928,7 @@ class LongTerm extends StatefulWidget {
   final List<CostFactor> costFactors;
   final List<Services> services;
   final List<Helper> helperList;
+  final List<RequestDetail> requestDetail;
   final Future<void> Function() refreshData;
 
   const LongTerm(
@@ -925,19 +938,20 @@ class LongTerm extends StatefulWidget {
       required this.costFactors,
       required this.services,
       required this.helperList,
-      required this.refreshData});
+      required this.refreshData, required this.requestDetail});
 
   @override
   State<LongTerm> createState() => _LongTermState();
 }
 
 class _LongTermState extends State<LongTerm> {
-  late Map<String, List<Requests>> groupedRequests;
+  Map<String, List<Requests>> groupedRequests = {};
+  Map<String, List<RequestDetail>> groupedDetails = {};
 
   @override
   void initState() {
     super.initState();
-    groupedRequests = {};
+
     List<Requests> longTermRequests = widget.requests
         .where((request) => request.requestType == 'Dài hạn')
         .toList();
@@ -945,9 +959,31 @@ class _LongTermState extends State<LongTerm> {
     longTermRequests.sort((a, b) =>
         DateTime.parse(b.oderDate).compareTo(DateTime.parse(a.oderDate)));
 
+    Map<String, List<RequestDetail>> detailsByScheduleId = {};
+
+    for (var reqDetail in widget.requestDetail) {
+      for (var request in longTermRequests) {
+        for (var scheduleId in request.scheduleIds) {
+          if (reqDetail.id == scheduleId) {
+            if (!detailsByScheduleId.containsKey(request.id)) {
+              detailsByScheduleId[request.id] = [];
+            }
+            detailsByScheduleId[request.id]!.add(reqDetail);
+          }
+        }
+      }
+    }
+
     for (var request in longTermRequests) {
       String startDate =
-          DateFormat('dd-MM-yyyy').format(DateTime.parse(request.oderDate));
+      DateFormat('dd-MM-yyyy').format(DateTime.parse(request.oderDate));
+
+      var matchedRequestDetails = detailsByScheduleId[request.id] ?? [];
+
+      if (matchedRequestDetails.isNotEmpty) {
+        groupedDetails[request.id] = matchedRequestDetails;
+      }
+
       if (groupedRequests.containsKey(startDate)) {
         groupedRequests[startDate]!.add(request);
       } else {
@@ -1151,6 +1187,7 @@ class _LongTermState extends State<LongTerm> {
 
   @override
   Widget build(BuildContext context) {
+    print(groupedDetails);
     return Container(
       color: const Color(0xFFF5F5F5),
       child: groupedRequests.isEmpty
@@ -1476,7 +1513,7 @@ class _LongTermState extends State<LongTerm> {
                                             helpers: widget.helperList,
                                             services: widget.services,
                                             costFactors: widget.costFactors,
-                                            customer: widget.customer,
+                                            customer: widget.customer, requestDetail: groupedDetails[request.id] ?? [],
                                           ),
                                         ),
                                       );
