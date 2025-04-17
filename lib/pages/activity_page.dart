@@ -129,6 +129,7 @@ class _ActivityPageState extends State<ActivityPage>
     setState(() {
       loadRequestData();
       loadHelperData();
+      loadRequestDetailData();
     });
   }
 
@@ -1480,7 +1481,7 @@ class _LongTermState extends State<LongTerm> {
                                                 ),
                                               ),
                                               child: const Text(
-                                                "Xác nhận hoàn thành",
+                                                "Thanh toán",
                                                 style: TextStyle(
                                                   fontFamily: 'Quicksand',
                                                   fontSize: 13,
