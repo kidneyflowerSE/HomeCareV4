@@ -863,19 +863,19 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
             'Chi phí dịch vụ',
             _formatCurrency(widget.request.totalCost.toDouble()),
           ),
-          const SizedBox(height: 12),
-          _buildPaymentRow(
-            'Khuyến mãi',
-            '- ${_formatCurrency(promotion)}',
-            valueColor: Colors.red,
-          ),
+          // const SizedBox(height: 12),
+          // _buildPaymentRow(
+          //   'Khuyến mãi',
+          //   '- ${_formatCurrency(promotion)}',
+          //   valueColor: Colors.red,
+          // ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 12),
             child: Divider(color: Colors.grey.shade200),
           ),
           _buildPaymentRow(
             'Tổng thanh toán',
-            _formatCurrency(widget.request.totalCost.toDouble() - promotion),
+            _formatCurrency(widget.request.totalCost.toDouble()),
             isTotal: true,
           ),
           Padding(

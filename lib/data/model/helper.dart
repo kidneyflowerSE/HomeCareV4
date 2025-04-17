@@ -1,6 +1,6 @@
 class Helper {
   String id;
-  num baseFactor;
+  num? baseFactor;
   String? helperId;
   String? fullName;
   String? startDate;
@@ -19,9 +19,9 @@ class Helper {
   String? gender;
   String? nationality;
   String? educationLevel;
-  num height;
-  num weight;
-  bool deleted;
+  num? height;
+  num? weight;
+  // bool deleted;
 
   Helper({
     required this.id,
@@ -46,13 +46,13 @@ class Helper {
     required this.educationLevel,
     required this.height,
     required this.weight,
-    required this.deleted,
+    // required this.deleted,
   });
 
   factory Helper.fromJson(Map<String, dynamic> map) {
     return Helper(
       id: map['_id'],
-      baseFactor: map['baseFactor'],
+      baseFactor: map['baseFactor'] ?? 0,
       helperId: map['helper_id'],
       fullName: map['fullName'],
       startDate: map['startDate'],
@@ -71,9 +71,9 @@ class Helper {
       gender: map['gender'],
       nationality: map['nationality'],
       educationLevel: map['educationLevel'],
-      height: map['height'].toDouble(), // Convert to double
-      weight: map['weight'].toDouble(), // Convert to double
-      deleted: map['deleted'],
+      height: map['height'].toDouble() ?? 0, // Convert to double
+      weight: map['weight'].toDouble() ?? 0, // Convert to double
+      // deleted: map['deleted'],
     );
   }
 
@@ -102,8 +102,8 @@ class Helper {
           nationality == other.nationality &&
           educationLevel == other.educationLevel &&
           height == other.height &&
-          weight == other.weight &&
-          deleted == other.deleted;
+          weight == other.weight;
+  // deleted == other.deleted;
 
   @override
   int get hashCode =>
@@ -127,12 +127,12 @@ class Helper {
       nationality.hashCode ^
       educationLevel.hashCode ^
       height.hashCode ^
-      weight.hashCode ^
-      deleted.hashCode;
+      weight.hashCode;
+  // deleted.hashCode;
 
   @override
   String toString() {
-    return 'Cleaner{baseFactor: $baseFactor, helperId: $helperId, fullName: $fullName, startDate: $startDate, birthDay: $birthDay, phone: $phone, birthPlace: $birthPlace, address: $address, workingArea: $workingArea, jobDetail: $jobDetail, jobs: $jobs, yearOfExperience: $yearOfExperience, experienceDescription: $experienceDescription, avatar: $avatar, healthCertificates: $healthCertificates, salaryId: $salaryId, gender: $gender, nationality: $nationality, educationLevel: $educationLevel, height: $height, weight: $weight, deleted: $deleted}';
+    return 'Cleaner{baseFactor: $baseFactor, helperId: $helperId, fullName: $fullName, startDate: $startDate, birthDay: $birthDay, phone: $phone, birthPlace: $birthPlace, address: $address, workingArea: $workingArea, jobDetail: $jobDetail, jobs: $jobs, yearOfExperience: $yearOfExperience, experienceDescription: $experienceDescription, avatar: $avatar, healthCertificates: $healthCertificates, salaryId: $salaryId, gender: $gender, nationality: $nationality, educationLevel: $educationLevel, height: $height, weight: $weight}';
   }
 }
 
@@ -157,7 +157,6 @@ class WorkingArea {
     return 'WorkingArea{province: $province, districts: $districts}';
   }
 }
-
 
 // class CreatedBy {
 //   String accountId;

@@ -6,6 +6,7 @@ class RequestDetail {
   String workingDate; // Changed to DateTime
   String helperID;
   String status;
+  num? cost;
   num helperCost;
   DateTime startTime; // Changed to DateTime
   DateTime endTime; // Changed to DateTime
@@ -16,6 +17,7 @@ class RequestDetail {
       required this.workingDate,
       required this.helperID,
       required this.status,
+      required this.cost,
       required this.helperCost,
       required this.comment,
       required this.startTime,
@@ -31,6 +33,7 @@ class RequestDetail {
           workingDate == other.workingDate &&
           helperID == other.helperID &&
           status == other.status &&
+          cost == other.cost &&
           helperCost == other.helperCost &&
           totalCost == other.totalCost;
 
@@ -52,6 +55,7 @@ class RequestDetail {
         workingDate: map['workingDate'],
         // Parsing to DateTime
         comment: Comment.fromJson(map['comment']),
+        cost: map['cost'] ?? 0,
         startTime: DateTime.parse(map['startTime']),
         // Parsing to DateTime
         endTime: DateTime.parse(map['endTime']),
