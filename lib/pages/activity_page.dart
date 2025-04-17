@@ -1471,7 +1471,12 @@ class _LongTermState extends State<LongTerm> {
                                               onPressed: () {
                                                 print(request.scheduleIds);
                                                 showConfirmLongTermDayDialog(
-                                                    context, request);
+                                                  context,
+                                                  request,
+                                                  widget.customer,
+                                                  widget.costFactors,
+                                                  widget.services,
+                                                );
                                               },
                                               style: ElevatedButton.styleFrom(
                                                 backgroundColor: Colors.blue,

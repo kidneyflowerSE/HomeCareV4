@@ -1,14 +1,27 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:foodapp/data/model/CostFactor.dart';
 import 'package:foodapp/data/model/request.dart';
 import 'package:foodapp/data/model/requestdetail.dart';
+import 'package:foodapp/data/model/service.dart';
 import 'package:foodapp/data/repository/repository.dart';
+import 'package:foodapp/pages/payment_page.dart';
 import 'package:intl/intl.dart';
+
+import '../data/model/customer.dart';
 
 class ConfirmLongTermDay extends StatefulWidget {
   final Requests requests;
+  final Customer customer;
+  final List<CostFactor> costFactors;
+  final List<Services> services;
 
-  const ConfirmLongTermDay({super.key, required this.requests});
+  const ConfirmLongTermDay(
+      {super.key,
+      required this.requests,
+      required this.customer,
+      required this.costFactors,
+      required this.services});
 
   @override
   State<ConfirmLongTermDay> createState() => _ConfirmLongTermDayState();
@@ -101,20 +114,31 @@ class _ConfirmLongTermDayState extends State<ConfirmLongTermDay> {
                             ),
                           ),
                         ),
-                        if (isDateValid && requestDetailList![index].status == 'processing')
+                        if (isDateValid &&
+                            requestDetailList![index].status == 'waitPayment')
                           Flexible(
                             flex: 1,
                             child: TextButton(
                               onPressed: () {
                                 setState(() {
-                                  _doneRequest(requestDetailList![index]);
-                                  isAllFinish = requestDetailList!.every(
-                                      (requestDetail) =>
-                                          requestDetail.status == 'done');
+                                  // _doneRequest(requestDetailList![index]);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => PaymentPage(
+                                          amount:
+                                              requestDetailList![index].totalCost!,
+                                          customer: widget.customer,
+                                          costFactors: widget.costFactors,
+                                          services: widget.services,
+                                          requestDetail:
+                                              requestDetailList![index]),
+                                    ),
+                                  );
                                 });
                               },
                               child: Text(
-                                'Xác nhận',
+                                'Xác nhận và thanh toán',
                                 style: TextStyle(
                                   fontFamily: 'Quicksand',
                                   fontSize: screenWidth > 600 ? 16 : 14,
@@ -132,16 +156,17 @@ class _ConfirmLongTermDayState extends State<ConfirmLongTermDay> {
                             flex: 1,
                             child: Text(
                               requestDetailList?[index].status == 'done'
-                                  ? 'Đã xác nhận'
+                                  ? 'Đã thanh toán'
                                   : 'Chưa tiến hành',
                               textAlign: TextAlign.right,
                               style: TextStyle(
                                 fontFamily: 'Quicksand',
                                 fontSize: screenWidth > 600 ? 16 : 14,
                                 fontWeight: FontWeight.w600,
-                                color: requestDetailList![index].status == 'done'
-                                    ? Colors.green
-                                    : Colors.grey,
+                                color:
+                                    requestDetailList![index].status == 'done'
+                                        ? Colors.green
+                                        : Colors.grey,
                               ),
                             ),
                           ),
@@ -167,7 +192,7 @@ class _ConfirmLongTermDayState extends State<ConfirmLongTermDay> {
                 ),
                 onPressed: () {
                   print(isAllFinish);
-                  for(var requesDetail in requestDetailList!){
+                  for (var requesDetail in requestDetailList!) {
                     print("tình trạng ${requesDetail.status}");
                   }
                   Navigator.of(context).pop(); // Close the dialog
@@ -189,11 +214,17 @@ class _ConfirmLongTermDayState extends State<ConfirmLongTermDay> {
 }
 
 // Function to show the dialog
-void showConfirmLongTermDayDialog(BuildContext context, Requests requests) {
+void showConfirmLongTermDayDialog(BuildContext context, Requests requests,
+    Customer customer, List<CostFactor> costFactors, List<Services> services) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
-      return ConfirmLongTermDay(requests: requests);
+      return ConfirmLongTermDay(
+        requests: requests,
+        customer: customer,
+        costFactors: costFactors,
+        services: services,
+      );
     },
   );
 }
