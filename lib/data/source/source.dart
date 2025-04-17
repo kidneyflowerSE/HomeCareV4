@@ -59,12 +59,10 @@ abstract interface class DataSource {
   Future<void> sendCustomerRegisterRequest(Customer customer);
 
   Future<Map<String, dynamic>?> calculateCost(
-      num servicePrice,
+      String service,
       String startTime,
       String endTime,
-      String startDate,
-      CoefficientOther coefficientOther,
-      num serviceFactor);
+      String startDate);
 }
 
 class RemoteDataSource implements DataSource {
@@ -479,24 +477,18 @@ class RemoteDataSource implements DataSource {
 
   @override
   Future<Map<String, dynamic>?> calculateCost(
-      num servicePrice,
+      String service,
       String startTime,
       String endTime,
-      String startDate,
-      CoefficientOther coefficientOther,
-      num serviceFactor) async {
+      String startDate) async {
     const url = 'https://api.homekare.site/request/calculateCost';
     final uri = Uri.parse(url);
     final headers = {'Content-Type': 'application/json'};
     final body = jsonEncode({
-      "servicePrice": servicePrice,
+      "serviceTitle": service,
       "startTime": startTime,
       "endTime": endTime,
       "workDate": startDate,
-      "officeStartTime": "08:00",
-      "officeEndTime": "18:00",
-      "coefficient_other": coefficientOther.toJson(),
-      "serviceFactor": serviceFactor
     });
 
     debugPrint(body);

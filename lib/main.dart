@@ -91,34 +91,33 @@ void main() {
 //   //
 //   // List<String> ids = ['67ca5f695e4280bfc267587d,'];
 //
-//   var testCustomer = Customer(addresses: [
-//     Addresses(
-//         province: 'Vĩnh Long',
-//         district: 'Vũng Liêm',
-//         ward: 'Tân Quới Trung',
-//         detailedAddress: 'abc')
-//   ], points: [
-//     Points(point: 100000000, id: '')
-//   ], phone: '0795335321', name: 'Lý Trọng Ân', password: '111111', email: '');
-//   var customers = await repository.loadRequestDetailId([
-//     '67dbc40c4e2d08a8c2bd5f33',
-//     '67dbc40c4e2d08a8c2bd5f35',
-//     '67dbc40c4e2d08a8c2bd5f37',
-//     '67dbc40c4e2d08a8c2bd5f39',
-//     '67dbc40c4e2d08a8c2bd5f3b',
-//     '67dbc40d4e2d08a8c2bd5f3d'
-//   ]);
+//   // var testCustomer = Customer(addresses: [
+//   //   Addresses(
+//   //       province: 'Vĩnh Long',
+//   //       district: 'Vũng Liêm',
+//   //       ward: 'Tân Quới Trung',
+//   //       detailedAddress: 'abc')
+//   // ], points: [
+//   //   Points(point: 100000000, id: '')
+//   // ], phone: '0795335321', name: 'Lý Trọng Ân', password: '111111', email: '');
+//   // var customers = await repository.loadRequestDetailId([
+//   //   '67dbc40c4e2d08a8c2bd5f33',
+//   //   '67dbc40c4e2d08a8c2bd5f35',
+//   //   '67dbc40c4e2d08a8c2bd5f37',
+//   //   '67dbc40c4e2d08a8c2bd5f39',
+//   //   '67dbc40c4e2d08a8c2bd5f3b',
+//   //   '67dbc40d4e2d08a8c2bd5f3d'
+//   // ]);
 //
-//   // var totalCost = await repository.calculateCost(20000,
-//   //     request, customers!, 1.1);
-//   // print(totalCost);
+//   var totalCost = await repository.calculateCost('Dọn nhà',  "08:00",  "10:00", "2025-03-25");
+//   print(totalCost);
 //   // print(customers?.first.coefficientList.toString());
-//
-//   if(customers != null){
-//     for(var customer in customers){
-//       debugPrint(customer.toString());
-//     }
-//   }
+//   //
+//   // if(customers != null){
+//   //   for(var customer in customers){
+//   //     debugPrint(customer.toString());
+//   //   }
+//   // }
 // }
 
 class MyApp extends StatelessWidget {

@@ -55,12 +55,10 @@ abstract interface class Repository {
   Future<List<CoefficientOther>?> loadCoefficientService();
 
   Future<Map<String, dynamic>?> calculateCost(
-      num servicePrice,
+      String service,
       String startTime,
       String endTime,
-      String startDate,
-      CoefficientOther coefficientOther,
-      num serviceFactor);
+      String startDate);
 
   Future<void> sendCustomerRegisterRequest(Customer customer);
 }
@@ -155,14 +153,12 @@ class DefaultRepository implements Repository {
 
   @override
   Future<Map<String, dynamic>?> calculateCost(
-      num servicePrice,
+      String service,
       String startTime,
       String endTime,
-      String startDate,
-      CoefficientOther coefficientOther,
-      num serviceFactor) async {
-    return await remoteDataSource.calculateCost(servicePrice, startTime,
-        endTime, startDate, coefficientOther, serviceFactor);
+      String startDate) async {
+    return await remoteDataSource.calculateCost(service, startTime,
+        endTime, startDate);
   }
 
   @override
