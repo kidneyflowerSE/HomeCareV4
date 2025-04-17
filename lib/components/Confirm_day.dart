@@ -94,8 +94,8 @@ class _ConfirmLongTermDayState extends State<ConfirmLongTermDay> {
                   }
 
                   final scheduleDate = DateTime.parse(schedule.workingDate);
-                  final isDateValid = scheduleDate.isBefore(currentDate) ||
-                      scheduleDate.isAtSameMomentAs(currentDate);
+                  // final isDateValid = scheduleDate.isBefore(currentDate) ||
+                  //     scheduleDate.isAtSameMomentAs(currentDate);
 
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 8),
@@ -114,8 +114,7 @@ class _ConfirmLongTermDayState extends State<ConfirmLongTermDay> {
                             ),
                           ),
                         ),
-                        if (isDateValid &&
-                            requestDetailList![index].status == 'waitPayment')
+                        if (requestDetailList![index].status == 'waitPayment')
                           Flexible(
                             flex: 1,
                             child: TextButton(
@@ -127,7 +126,8 @@ class _ConfirmLongTermDayState extends State<ConfirmLongTermDay> {
                                     MaterialPageRoute(
                                       builder: (context) => PaymentPage(
                                           amount:
-                                              requestDetailList![index].totalCost!,
+                                              requestDetailList![index].cost ??
+                                                  500000,
                                           customer: widget.customer,
                                           costFactors: widget.costFactors,
                                           services: widget.services,
