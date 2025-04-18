@@ -510,7 +510,7 @@ class _OrderDetailLongTermPageState extends State<OrderDetailLongTermPage> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => PaymentPage(
-                          amount: detail.totalCost ?? 0,
+                          amount: detail.cost ?? 0,
                           // Tổng chi phí
                           customer: widget.customer,
                           costFactors: widget.costFactors,
